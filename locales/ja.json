@@ -1,7 +1,7 @@
 {
-  "appTitle": "生徒成功ハブ",
-  "header.title": "生徒成功ハブ",
-  "footer.text": "© {year} 生徒成功ハブ。教育者を支援します。",
+  "appTitle": "AVERY分析",
+  "header.title": "AVERY分析ダッシュボード",
+  "footer.text": "© {year} 京都大学　学術情報メディアセンター　緒方研究室",
   "loading.text": "データを読み込み中...",
   "error.title": "エラー！",
   "error.fetchMessage": "必要なデータを取得できませんでした。後でもう一度お試しください。",
