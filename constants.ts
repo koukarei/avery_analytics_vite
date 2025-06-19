@@ -54,5 +54,3 @@ export const GRAMMAR_MISTAKES_DATA: GrammarMistakeItem[] = [
 ];
 
 export const DESCRIPTIVE_WRITING_SAMPLE = `The ancient library was a sanctuary of silence, its towering shelves carved from dark, polished oak, reaching towards a vaulted ceiling lost in shadows. Dust motes danced in the sparse beams of light that pierced through stained-glass windows, illuminating rows upon rows of leather-bound tomes. Each book whispered secrets of bygone eras, their pages fragile with age, carrying the scent of old paper, ink, and forgotten knowledge. A grand, ornate clock ticked rhythmically in a distant corner, its ponderous beat the only sound to break the profound stillness, measuring out moments in this timeless haven of stories.`;
-
-export const GALLERY_TITLE = "Generated Images Gallery";

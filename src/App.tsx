@@ -16,7 +16,7 @@ import { LocalizationProvider } from '../contexts/LocalizationContext';
 import AcademicCapIcon from '../components/icons/AcademicCapIcon';
 import LightbulbIcon from '../components/icons/LightbulbIcon';
 import ChartBarIcon from '../components/icons/ChartBarIcon';
-import { IMAGE_DATA, GRAMMAR_MISTAKES_DATA, DESCRIPTIVE_WRITING_SAMPLE, GALLERY_TITLE } from '../constants';
+import { IMAGE_DATA, GRAMMAR_MISTAKES_DATA, DESCRIPTIVE_WRITING_SAMPLE } from '../constants';
 
 const LoadingSpinner: React.FC = () => {
   const { t } = useLocalization();
@@ -59,9 +59,7 @@ const AppContent: React.FC = () => {
       } else { // Scroll up -> move images right (previous)
         newIndex = prevIndex - 1;
       }
-      // Clamp index: `galleryCurrentIndex` is the index of the first of 3 displayed images
-      const maxIndex = Math.max(0, IMAGE_DATA.length - 3);
-      return Math.min(Math.max(newIndex, 0), maxIndex);
+      return newIndex > 0 ? newIndex % IMAGE_DATA.length : IMAGE_DATA.length + newIndex; // Wrap around
     });
   }, []);
 
@@ -108,9 +106,6 @@ const AppContent: React.FC = () => {
           <div className="flex flex-col h-screen bg-black overflow-hidden">
             {/* Top Half: Image Gallery */}
             <div className="h-1/2 md:h-3/5 relative flex flex-col items-center justify-center bg-neutral-900 overflow-hidden pt-4 md:pt-8">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 mb-4 md:mb-6 select-none" aria-label={GALLERY_TITLE}>
-                {GALLERY_TITLE}
-              </h1>
               {IMAGE_DATA.length > 0 ? (
                 <ImageGallery
                   images={IMAGE_DATA}
@@ -123,7 +118,7 @@ const AppContent: React.FC = () => {
             </div>
 
             {/* Bottom Half: Toggleable Content */}
-            <div className="h-1/2 md:h-2/5 bg-neutral-800 flex items-center justify-center p-4 md:p-8 relative">
+            <div className="h-1/2 md:h-2/5 bg-neutral-900 flex items-center justify-center p-4 md:p-8 relative">
               {bottomContent === BottomContentType.GRAMMAR_VISUALIZATION ? (
                 <GrammarVisualization
                   mistakes={GRAMMAR_MISTAKES_DATA}
@@ -157,13 +152,7 @@ const AppContent: React.FC = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       <Navigation activeView={activeView} setActiveView={setActiveView} />
-      <main className="container mx-auto px-4 py-8 flex-grow">
-        <div className="mb-8 flex items-center">
-          {viewTitles[activeView].icon}
-          <h2 className="text-3xl font-bold text-slate-700">{t(viewTitles[activeView].titleKey)}</h2>
-        </div>
-        {renderContent()}
-      </main>
+      {renderContent()}
       <footer className="bg-slate-800 text-slate-300 text-center p-4 mt-auto">
         <p>{t('footer.text', { year: new Date().getFullYear() })}</p>
       </footer>

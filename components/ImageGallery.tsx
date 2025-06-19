@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { ImageItem } from '../types';
+import type { ImageItem } from '../types/gallery';
 
 interface ImageGalleryProps {
   images: ImageItem[];
@@ -8,13 +8,23 @@ interface ImageGalleryProps {
   onScroll: (direction: 'up' | 'down') => void;
 }
 
-const ImagePanel: React.FC<{
+interface ImagePanelProps {
   image: ImageItem | null;
   position: 'left' | 'center' | 'right';
   isHovered: boolean;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
-}> = ({ image, position, isHovered, onMouseEnter, onMouseLeave }) => {
+  onClick?: () => void; // Added for click navigation
+}
+
+const ImagePanel: React.FC<ImagePanelProps> = ({ 
+  image, 
+  position, 
+  isHovered, 
+  onMouseEnter, 
+  onMouseLeave,
+  onClick 
+}) => {
   let transformClasses = 'transition-all duration-700 ease-in-out transform-gpu'; 
   let zIndex = 10;
   let opacityClass = 'opacity-100';
@@ -57,9 +67,16 @@ const ImagePanel: React.FC<{
       onMouseLeave={onMouseLeave}
       onFocus={onMouseEnter} 
       onBlur={onMouseLeave}  
-      tabIndex={0} 
-      role="img"
-      aria-label={image.name}
+      onClick={onClick} // Added onClick handler
+      tabIndex={onClick ? 0 : -1} // Make clickable items focusable
+      role="button" // Role implies clickability
+      aria-label={onClick ? `Navigate to ${position === 'left' ? 'previous' : 'next'} image: ${image.name}` : image.name}
+      onKeyDown={(e) => { // Allow activation with Enter/Space for accessibility
+        if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          onClick();
+        }
+      }}
     >
       <img src={image.url} alt={image.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-focus:scale-105" />
       {(isHovered) && (
@@ -71,7 +88,7 @@ const ImagePanel: React.FC<{
   );
 };
 
-function useDebouncedCallback<A extends any[],>(
+function useDebouncedCallback<A extends unknown[],>(
   callback: (...args: A) => void,
   wait: number
 ): (...args: A) => void {
@@ -103,7 +120,9 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, currentIndex
   const [hoveredImageId, setHoveredImageId] = useState<string | null>(null);
 
   const debouncedScroll = useDebouncedCallback(onScroll, 150);
-
+  const touchStartX = useRef<number>(0);
+  const touchEndX = useRef<number>(0);
+  const isSwiping = useRef<boolean>(false); // To distinguish tap from swipe
 
   useEffect(() => {
     const currentGalleryRef = galleryRef.current;
@@ -117,9 +136,55 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, currentIndex
       }
     };
 
+    const handleTouchStart = (event: TouchEvent) => {
+      touchStartX.current = event.targetTouches[0].clientX;
+      touchEndX.current = event.targetTouches[0].clientX; // Initialize touchEnd
+      isSwiping.current = false;
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      if (!touchStartX.current) return;
+      touchEndX.current = event.targetTouches[0].clientX;
+      // If significant horizontal movement, consider it a swipe
+      if (Math.abs(touchEndX.current - touchStartX.current) > 10) {
+          isSwiping.current = true;
+          // Optionally prevent vertical scroll if horizontal swipe is detected
+          // event.preventDefault(); 
+      }
+    };
+
+    const handleTouchEnd = () => {
+      if (!touchStartX.current || !isSwiping.current) { // Only process if it was a swipe
+        touchStartX.current = 0;
+        touchEndX.current = 0;
+        return;
+      }
+
+      const swipeThreshold = 50; // Minimum pixels for a swipe
+      const dx = touchEndX.current - touchStartX.current;
+
+      if (Math.abs(dx) > swipeThreshold) {
+        if (dx > 0) { // Swipe Right (towards larger X values)
+          debouncedScroll('up'); // Previous
+        } else { // Swipe Left
+          debouncedScroll('down'); // Next
+        }
+      }
+      touchStartX.current = 0;
+      touchEndX.current = 0;
+      isSwiping.current = false;
+    };
+
     currentGalleryRef?.addEventListener('wheel', handleWheel, { passive: false });
+    currentGalleryRef?.addEventListener('touchstart', handleTouchStart, { passive: true });
+    currentGalleryRef?.addEventListener('touchmove', handleTouchMove, { passive: true }); // passive true to allow page scroll unless we preventDefault
+    currentGalleryRef?.addEventListener('touchend', handleTouchEnd);
+    
     return () => {
       currentGalleryRef?.removeEventListener('wheel', handleWheel);
+      currentGalleryRef?.removeEventListener('touchstart', handleTouchStart);
+      currentGalleryRef?.removeEventListener('touchmove', handleTouchMove);
+      currentGalleryRef?.removeEventListener('touchend', handleTouchEnd);
     };
   }, [debouncedScroll]);
   
@@ -127,14 +192,14 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, currentIndex
   
   // Ensure we always have 3 potential slots, even if images run out
   const leftImage = images[currentIndex] || null;
-  const centerImage = images[currentIndex + 1] || null;
-  const rightImage = images[currentIndex + 2] || null;
+  const centerImage = images[(currentIndex + 1) % images.length] || null;
+  const rightImage = images[(currentIndex + 2) % images.length] || null;
 
   return (
     <div 
       ref={galleryRef} 
-      className="w-full h-full flex items-center justify-center space-x-[-15%] sm:space-x-[-12%] md:space-x-[-10%] relative" 
-      style={{ perspective: '1200px', transformStyle: 'preserve-3d' }}
+      className="w-full h-1/2 flex items-center justify-center space-x-[-5%] sm:space-x-[-2%] md:space-x-[-1%] relative" 
+      style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
       role="region"
       aria-label="Image Gallery"
     >
@@ -144,6 +209,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, currentIndex
         isHovered={hoveredImageId === leftImage?.id}
         onMouseEnter={() => leftImage && setHoveredImageId(leftImage.id)}
         onMouseLeave={() => setHoveredImageId(null)}
+        onClick={leftImage ? () => debouncedScroll('up') : undefined}
       />
       <ImagePanel
         image={centerImage}
@@ -151,6 +217,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, currentIndex
         isHovered={hoveredImageId === centerImage?.id}
         onMouseEnter={() => centerImage && setHoveredImageId(centerImage.id)}
         onMouseLeave={() => setHoveredImageId(null)}
+        // No onClick for navigation on the center panel
       />
       <ImagePanel
         image={rightImage}
@@ -158,6 +225,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, currentIndex
         isHovered={hoveredImageId === rightImage?.id}
         onMouseEnter={() => rightImage && setHoveredImageId(rightImage.id)}
         onMouseLeave={() => setHoveredImageId(null)}
+        onClick={rightImage ? () => debouncedScroll('down') : undefined}
       />
     </div>
   );
