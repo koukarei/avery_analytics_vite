@@ -1,17 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Header from '../components/Header';
+import { ImageGallery } from '../components/ImageGallery';
+import { GrammarVisualization } from '../components/GrammarVisualization';
+import { DescriptiveWriting } from '../components/DescriptiveWriting';
 import Navigation from '../components/Navigation';
 import StudentCard from '../components/StudentCard';
 import MistakesList from '../components/MistakesList';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import type { StudentWork, WritingMistake } from '../types/studentWork';
 import type { ViewMode } from '../types/ui';
+import { BottomContentType } from '../types/gallery';
 import { fetchStudentWorks, fetchWritingMistakes } from '../services/mockDataService';
 import { useLocalization } from '../contexts/localizationUtils';
 import { LocalizationProvider } from '../contexts/LocalizationContext';
 import AcademicCapIcon from '../components/icons/AcademicCapIcon';
 import LightbulbIcon from '../components/icons/LightbulbIcon';
 import ChartBarIcon from '../components/icons/ChartBarIcon';
+import { IMAGE_DATA, GRAMMAR_MISTAKES_DATA, DESCRIPTIVE_WRITING_SAMPLE, GALLERY_TITLE } from '../constants';
 
 const LoadingSpinner: React.FC = () => {
   const { t } = useLocalization();
@@ -43,6 +48,30 @@ const AppContent: React.FC = () => {
   const [writingMistakes, setWritingMistakes] = useState<WritingMistake[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [errorKey, setErrorKey] = useState<string | null>(null);
+  const [galleryCurrentIndex, setGalleryCurrentIndex] = useState<number>(0);
+  const [bottomContent, setBottomContent] = useState<BottomContentType>(BottomContentType.GRAMMAR_VISUALIZATION);
+
+  const handleGalleryScroll = useCallback((direction: 'up' | 'down') => {
+    setGalleryCurrentIndex(prevIndex => {
+      let newIndex = prevIndex;
+      if (direction === 'down') { // Scroll down -> move images left (next)
+        newIndex = prevIndex + 1;
+      } else { // Scroll up -> move images right (previous)
+        newIndex = prevIndex - 1;
+      }
+      // Clamp index: `galleryCurrentIndex` is the index of the first of 3 displayed images
+      const maxIndex = Math.max(0, IMAGE_DATA.length - 3);
+      return Math.min(Math.max(newIndex, 0), maxIndex);
+    });
+  }, []);
+
+  const handleSwitchToDescriptiveWriting = useCallback(() => {
+    setBottomContent(BottomContentType.DESCRIPTIVE_WRITING);
+  }, []);
+  
+  const handleReturnToGrammarView = useCallback(() => {
+    setBottomContent(BottomContentType.GRAMMAR_VISUALIZATION);
+  }, []);
 
   useEffect(() => {
     const loadData = async () => {
@@ -76,11 +105,38 @@ const AppContent: React.FC = () => {
     switch (activeView) {
       case 'gallery':
         return (
-          studentWorks.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {studentWorks.map(sw => <StudentCard key={sw.student.id} studentWork={sw} />)}
+          <div className="flex flex-col h-screen bg-black overflow-hidden">
+            {/* Top Half: Image Gallery */}
+            <div className="h-1/2 md:h-3/5 relative flex flex-col items-center justify-center bg-neutral-900 overflow-hidden pt-4 md:pt-8">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 mb-4 md:mb-6 select-none" aria-label={GALLERY_TITLE}>
+                {GALLERY_TITLE}
+              </h1>
+              {IMAGE_DATA.length > 0 ? (
+                <ImageGallery
+                  images={IMAGE_DATA}
+                  currentIndex={galleryCurrentIndex}
+                  onScroll={handleGalleryScroll}
+                />
+              ) : (
+                <p className="text-xl text-gray-400">No images to display.</p>
+              )}
             </div>
-          ) : <p className="text-slate-500 text-center py-10">{t('studentCard.noWritings')}</p>
+
+            {/* Bottom Half: Toggleable Content */}
+            <div className="h-1/2 md:h-2/5 bg-neutral-800 flex items-center justify-center p-4 md:p-8 relative">
+              {bottomContent === BottomContentType.GRAMMAR_VISUALIZATION ? (
+                <GrammarVisualization
+                  mistakes={GRAMMAR_MISTAKES_DATA}
+                  onInteractionEnd={handleSwitchToDescriptiveWriting}
+                />
+              ) : (
+                <DescriptiveWriting 
+                  text={DESCRIPTIVE_WRITING_SAMPLE} 
+                  onReturnToGrammarView={handleReturnToGrammarView}
+                />
+              )}
+            </div>
+          </div>
         );
       case 'mistakes':
         return <MistakesList mistakes={writingMistakes} />;
