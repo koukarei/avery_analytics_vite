@@ -8,6 +8,8 @@
   "navigation.gallery": "Student Gallery",
   "navigation.mistakes": "Common Mistakes",
   "navigation.analytics": "Analytics",
+  "navigation.toggleStudentNames.show": "Show Names",
+  "navigation.toggleStudentNames.hide": "Hide Names",
   "viewTitles.gallery": "Student Gallery Showcase",
   "viewTitles.mistakes": "Top 10 Common Writing Mistakes",
   "viewTitles.analytics": "Writing Mistakes Analytics",

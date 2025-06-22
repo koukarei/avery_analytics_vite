@@ -38,7 +38,6 @@ export const GRAMMAR_MISTAKES_DATA: GrammarMistakeItem[] = [
     label: 'Grammar Mistakes 1', 
     proportion: 0.65, 
     color: 'bg-rose-600', 
-    textColor: 'text-black',
     widthClass: 'w-48 sm:w-56 md:w-64', 
     heightClass: 'h-28 sm:h-32 md:h-36' 
   },
@@ -47,7 +46,6 @@ export const GRAMMAR_MISTAKES_DATA: GrammarMistakeItem[] = [
     label: 'Grammar Mistakes 2', 
     proportion: 0.35, 
     color: 'bg-pink-500', 
-    textColor: 'text-black',
     widthClass: 'w-40 sm:w-48 md:w-52', 
     heightClass: 'h-24 sm:h-28 md:h-32'  
   },

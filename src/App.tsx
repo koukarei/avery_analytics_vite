@@ -50,6 +50,7 @@ const AppContent: React.FC = () => {
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [galleryCurrentIndex, setGalleryCurrentIndex] = useState<number>(0);
   const [bottomContent, setBottomContent] = useState<BottomContentType>(BottomContentType.GRAMMAR_VISUALIZATION);
+  const [showStudentNames, setShowStudentNames] = useState<boolean>(false);
 
   const handleGalleryScroll = useCallback((direction: 'up' | 'down') => {
     setGalleryCurrentIndex(prevIndex => {
@@ -91,6 +92,12 @@ const AppContent: React.FC = () => {
     };
     loadData();
   }, []);
+
+  
+  const toggleShowStudentNames = () => {
+    setShowStudentNames(prev => !prev);
+  };
+
 
   const renderContent = () => {
     if (isLoading) {
@@ -151,7 +158,8 @@ const AppContent: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <Navigation activeView={activeView} setActiveView={setActiveView} />
+      <Navigation activeView={activeView} setActiveView={setActiveView} 
+        showStudentNames={showStudentNames} toggleShowStudentNames={toggleShowStudentNames}/>
       {renderContent()}
       <footer className="bg-slate-800 text-slate-300 text-center p-4 mt-auto">
         <p>{t('footer.text', { year: new Date().getFullYear() })}</p>

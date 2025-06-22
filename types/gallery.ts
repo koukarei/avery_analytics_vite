@@ -10,7 +10,6 @@ export interface GrammarMistakeItem {
   label: string;
   proportion: number; // visual representation, not directly used for size in this version
   color: string; // Tailwind background color class
-  textColor: string; // Tailwind text color class
   widthClass: string; // Tailwind width class for oval
   heightClass: string; // Tailwind height class for oval
 }

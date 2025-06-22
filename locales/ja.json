@@ -8,6 +8,8 @@
   "navigation.gallery": "学生ギャラリー",
   "navigation.mistakes": "よくある間違い",
   "navigation.analytics": "分析",
+  "navigation.toggleStudentNames.show": "名前を表示",
+  "navigation.toggleStudentNames.hide": "名前を非表示",
   "viewTitles.gallery": "学生ギャラリーショーケース",
   "viewTitles.mistakes": "よくある作文の間違いトップ10",
   "viewTitles.analytics": "作文の間違い分析",

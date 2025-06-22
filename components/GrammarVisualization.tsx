@@ -27,7 +27,7 @@ export const GrammarVisualization: React.FC<GrammarVisualizationProps> = ({ mist
           key={mistake.id}
           className={`rounded-full flex items-center justify-center p-4 shadow-lg transform transition-all duration-300 hover:scale-105 ${mistake.color} ${mistake.widthClass} ${mistake.heightClass}`}
         >
-          <p className={`text-sm sm:text-base md:text-lg font-medium text-center select-none ${mistake.textColor}`}>
+          <p className={`text-sm sm:text-base md:text-lg font-medium text-center select-none text-black`}>
             {mistake.label}
           </p>
         </div>
