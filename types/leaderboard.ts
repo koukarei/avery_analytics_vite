@@ -9,7 +9,11 @@ export interface GenerationItem {
 
 export interface User {
   id: number;
-  name: string;
+  profiles: UserProfile;
+}
+
+export interface UserProfile {
+  display_name: string;
 }
 
 export interface WordCloudItem {
@@ -33,7 +37,7 @@ export interface ChatMessage {
   chat_id: number; // ID of the chat this message belongs to
   sender: 'user' | 'assistant';
   content: string; // This might remain in original language for mock data
-  timestamp: string;
+  created_at: Date;
 }
 
 export interface Leaderboard {
