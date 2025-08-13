@@ -1,8 +1,50 @@
 import React from 'react';
 import { useLocalization } from '../contexts/localizationUtils';
 import IconComponent from './icons/AVERYIcon';
+import LoginIcon from './icons/LoginIcon';
+import LogoutIcon from './icons/LogoutIcon';
+import { UserAPI } from '../api/User';
+import IconButton from '@mui/material/IconButton';
+import Popover from '@mui/material/Popover';
+import Typography from '@mui/material/Typography';
 import { SUPPORTED_LANGUAGES } from '../constants';
 import type { Language } from '../types/ui';
+
+function showUserProfile() {
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? 'show-user-profile-popover' : undefined;
+
+  return (
+    <div>
+      <IconButton color="primary" aria-describedby={id} aria-label="user profile" onClick={handleClick}>
+        <LoginIcon className='w-10 h-10' />
+      </IconButton>
+      <Popover
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+      >
+        <Typography sx={{ p: 2 }}>UserAPI.fetchAuthUser()</Typography>
+      </Popover>
+    </div>
+  );
+}
+
 
 const Header: React.FC = () => {
   const { t, language, setLanguage } = useLocalization();
@@ -29,6 +71,7 @@ const Header: React.FC = () => {
               {SUPPORTED_LANGUAGES[langCode as Language].name}
             </button>
           ))}
+          {showUserProfile()}
         </div>
       </div>
     </header>

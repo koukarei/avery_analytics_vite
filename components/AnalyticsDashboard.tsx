@@ -68,7 +68,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ mistakes }) => 
               wrapperStyle={{paddingTop: '20px'}}
               formatter={(value, entry, index) => t('analyticsDashboard.legend.frequency')}
             />
-            <Bar dataKey="frequency" name={t('analyticsDashboard.legend.frequency')} radius={[0, 5, 5, 0]}>
+            <Bar dataKey="frequency" name={t('analyticsDashboard.legend.frequency')} radius={[1, 5, 5, 1]}>
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
               ))}

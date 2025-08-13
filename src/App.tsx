@@ -1,5 +1,13 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Outlet,
+  Navigate,
+} from 'react-router-dom';
 import Header from '../components/Header';
+import LoginPage from '../components/Login/LoginPage';
 import { ImageGallery } from '../components/ImageGallery';
 import { GrammarVisualization } from '../components/GrammarVisualization';
 import { DescriptiveWriting } from '../components/DescriptiveWriting';
@@ -13,6 +21,7 @@ import { BottomContentType } from '../types/gallery';
 import { fetchStudentWorks, fetchWritingMistakes } from '../services/mockDataService';
 import { useLocalization } from '../contexts/localizationUtils';
 import { LocalizationProvider } from '../contexts/LocalizationContext';
+import { AuthUserProvider } from '../providers/AuthUserProvider';
 import AcademicCapIcon from '../components/icons/AcademicCapIcon';
 import LightbulbIcon from '../components/icons/LightbulbIcon';
 import ChartBarIcon from '../components/icons/ChartBarIcon';
@@ -111,7 +120,7 @@ const AppContent: React.FC = () => {
       case 'gallery':
         return (
           <div className="flex flex-col h-screen bg-black overflow-hidden">
-            {/* Top Half: Image Gallery */}
+            {/* Top Half: Leaderboard */}
             <div className="h-1/2 md:h-3/5 relative flex flex-col items-center justify-center bg-neutral-900 overflow-hidden pt-4 md:pt-8">
               {IMAGE_DATA.length > 0 ? (
                 <ImageGallery
@@ -169,10 +178,30 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  const RequireAuth = (props: { children: React.ReactElement }) => {
+    const token = sessionStorage.getItem("token");
+    if (token) {
+      return props.children;
+    }
+    document.location = "/login";
+    return <></>;
+  }
   return (
-    <LocalizationProvider>
-      <AppContent />
-    </LocalizationProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={
+          <AuthUserProvider>
+            <RequireAuth>
+              <LocalizationProvider>
+                <AppContent />
+              </LocalizationProvider>
+            </RequireAuth>
+          </AuthUserProvider>
+        } />
+      </Routes>
+    </BrowserRouter>
+
   );
 };
 

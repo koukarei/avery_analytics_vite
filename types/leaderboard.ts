@@ -40,16 +40,54 @@ export interface ChatMessage {
   created_at: Date;
 }
 
+export interface IdOnly{
+  id: number
+}
+
+export interface Scene {
+  id: number;
+  name: string;
+  prompt: string;
+}
+
+export interface Story {
+  id: number;
+  content: string;
+}
+
+export interface UserOut {
+  id: number;
+  display_name: string;
+  level: number;
+}
+
+export interface Vocabulary {
+  id: number;
+  word: string;
+  meaning: string;
+  pos: string;
+}
+
 export interface Leaderboard {
+  id: number;
+  title: string;
+  original_image: IdOnly;
+  scene: Scene;
+  story?: Story;
+  created_by: UserOut;
+  vocabularies: Vocabulary[];
+}
+
+export interface LeaderboardAnalysis {
   id: number;
   title: string;
   story_extract: string;
   published_at: Date;
   descriptions?: string;
-  mistake_word_cloud: WordCloudItem[];
-  writing_word_cloud: WordCloudItem[];
-  user_chat_word_cloud: ChatWordCloudItem[];
-  assistant_chat_word_cloud: ChatWordCloudItem[];
+  mistake_word_cloud_id: number;
+  writing_word_cloud_id: number;
+  user_chat_word_cloud_id: number;
+  assistant_chat_word_cloud_id: number;
 }
 
 export interface MistakeItem {
@@ -64,15 +102,22 @@ export enum BottomContentType {
 }
 
 export type LeaderboardListParams = {
-  role?: string;
-  user_id?: number;
+  skip?: number;
+  limit?: number;
+  published_at_start?: Date;
+  published_at_end?: Date;
 };
 
 export type GenerationItemParams = {
-  user_id?: number;
-  id?: number;
-  mistake_word_cloud_id?: number;
-  writing_word_cloud_id?: number;
-  user_chat_word_cloud_id?: number;
-  assistant_chat_word_cloud_id?: number;
+  program: string;
+}
+
+export type LeaderboardAnalysisParams = {
+  cloud_type: 'mistake' | 'writing' | 'user_chat' | 'assistant_chat';
+  lang: 'en' | 'ja';
+}
+
+export type WordCloudParams = {
+  word_cloud_id: number;
+  cloud_type: 'mistake' | 'writing' | 'user_chat' | 'assistant_chat';
 }

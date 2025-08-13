@@ -1,10 +1,10 @@
-import { Chat, SendMessage } from "../types/chat";
+import { ChatRecord, ChatMessage } from "../types/studentWork";
 import { authAxios } from "./axios";
 
 export class ChatAPI {
 
-  static async fetchChat(id: number): Promise<Chat> {
-    const response = await authAxios.get(`round/${id}/chat/`, {
+  static async fetchChat(round_id: number): Promise<ChatRecord> {
+    const response = await authAxios.get(`round/${round_id}/chat/`, {
       headers: sessionStorage.getItem("token")
         ? { Authorization: `Token ${sessionStorage.getItem("token")}` }
         : {},
@@ -12,8 +12,8 @@ export class ChatAPI {
     return response.data;
   }
 
-  static async sendMessage(id: number,data: SendMessage): Promise<Chat> {
-    const response = await authAxios.put(`round/${id}/chat/`, data, {
+  static async sendMessage(round_id: number, data: ChatMessage): Promise<ChatRecord> {
+    const response = await authAxios.put(`round/${round_id}/chat/`, data, {
       headers: sessionStorage.getItem("token")
         ? { Authorization: `Token ${sessionStorage.getItem("token")}` }
         : {},

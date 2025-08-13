@@ -7,18 +7,29 @@ import type {
 export class UserAuthAPI {
   static async login(params: SigninData): Promise<{ key: string }> {
     const response = await authAxios.post("token/", params, {
-      headers: sessionStorage.getItem("token")
-        ? { Authorization: `Token ${sessionStorage.getItem("token")}` }
-        : {},
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true
     });
-    return response.data;
+    if (response.status !== 200) {
+      throw new Error("Login failed");
+    }else{
+      // loop for saving token in sessionStorage
+      for (const [key, value] of Object.entries(response.data)) {
+        sessionStorage.setItem(key, String(value));
+      }
+      return { key: response.data.key };
+    }
   }
 
   static async signup(data: SignupData): Promise<void> {
-    await authAxios.post("dj-rest-auth/registration/", data, {
-      headers: sessionStorage.getItem("token")
-        ? { Authorization: `Token ${sessionStorage.getItem("token")}` }
-        : {},
+    const response = await authAxios.post("users/", data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true
     });
+    return response.data;
   }
 }

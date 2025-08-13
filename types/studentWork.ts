@@ -13,17 +13,15 @@ export interface WritingEntry {
 }
 
 export interface ChatMessage {
-  id:string;
-  sender: 'student' | 'chatbot';
-  text: string; // This might remain in original language for mock data
-  timestamp: string;
+  id: number;
+  chat_id: number; // ID of the chat this message belongs to
+  sender: 'user' | 'assistant';
+  context: string; // This might remain in original language for mock data
+  created_at: string;
 }
 
 export interface ChatRecord {
-  id: string;
-  topic: string; // This might remain in original language for mock data
   messages: ChatMessage[];
-  relatedImageUrl?: string;
 }
 
 export interface StudentWork {
@@ -32,10 +30,48 @@ export interface StudentWork {
   chatRecords: ChatRecord[];
 }
 
+export interface Profile {
+  display_name: string;
+}
+
+export interface User {
+  id: number;
+  username?: string;
+  email?: string;
+  is_admin?: boolean; // it would set to false as always by backend
+  user_type?: string;
+  is_active?: boolean;
+  school?: string;
+  profiles: Profile;
+}
+
+export interface MistakeItem {
+  extracted_text: string;
+  explanation: string;
+  correction: string;
+}
+
+export interface GenerationItem {
+  id: number;
+  user: User; // User who created this generation
+  round_id: number; // ID of the round this generation belongs to
+  sentence: string;
+  corrected_sentence: string; // Corrected sentence after grammar check
+  mistakes: MistakeItem[]; // List of grammar mistakes in the
+}
+
 export interface WritingMistake {
   id: string;
-  mistake: string; // This is used as a label, ideally a key for translation
-  description: string; // This might remain in original language for mock data
+  word: string; // This is used as a label, ideally a key for translation
   frequency: number;
-  categoryKey: string; // Changed from category to categoryKey
+  color: string;
+  generations: GenerationItem[];
+}
+
+export interface ChatWordCloudItem {
+  id: string;
+  word: string; // This is used as a label, ideally a key for translation
+  frequency: number;
+  color: string;
+  chat_messages: ChatMessage[];
 }

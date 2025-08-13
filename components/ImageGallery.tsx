@@ -1,9 +1,10 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import type { ImageItem } from '../types/gallery';
+import type { Leaderboard } from '../types/leaderboard';
 
 interface ImageGalleryProps {
-  images: ImageItem[];
+  leaderboards: Leaderboard[];
   currentIndex: number; // Index of the first image in the triplet to display
   onScroll: (direction: 'up' | 'down') => void;
 }
@@ -18,7 +19,7 @@ interface ImagePanelProps {
 }
 
 const ImagePanel: React.FC<ImagePanelProps> = ({ 
-  image, 
+  leaderboard, 
   position, 
   isHovered, 
   onMouseEnter, 
@@ -47,7 +48,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
       break;
   }
 
-  if (!image) {
+  if (!leaderboard) {
     return (
       <div 
         className={`w-2/3 sm:w-1/2 md:w-1/3 aspect-[4/3] bg-neutral-700 rounded-lg shadow-2xl flex items-center justify-center ${transformClasses} ${opacityClass} border-2 border-neutral-600`}
@@ -70,7 +71,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
       onClick={onClick} // Added onClick handler
       tabIndex={onClick ? 0 : -1} // Make clickable items focusable
       role="button" // Role implies clickability
-      aria-label={onClick ? `Navigate to ${position === 'left' ? 'previous' : 'next'} image: ${image.name}` : image.name}
+      aria-label={onClick ? `Navigate to ${position === 'left' ? 'previous' : 'next'} image: ${leaderboard.ti.name}` : image.name}
       onKeyDown={(e) => { // Allow activation with Enter/Space for accessibility
         if (onClick && (e.key === 'Enter' || e.key === ' ')) {
           e.preventDefault();
@@ -201,7 +202,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, currentIndex
       className="w-full h-1/2 flex items-center justify-center space-x-[-5%] sm:space-x-[-2%] md:space-x-[-1%] relative" 
       style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
       role="region"
-      aria-label="Image Gallery"
+      aria-label="Leaderboard"
     >
       <ImagePanel
         image={leftImage}

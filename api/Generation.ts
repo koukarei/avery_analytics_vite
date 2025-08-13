@@ -3,7 +3,7 @@ import { authAxios } from "./axios";
 
 export class GenerationItemAPI {
   static async fetchGenerationItemList(params: GenerationItemParams): Promise<GenerationItem[]> {
-    const response = await authAxios.get("Generations/", {
+    const response = await authAxios.get("analysis/generations", {
       params: params,
       paramsSerializer: { indexes: null },
       headers: sessionStorage.getItem("token")
@@ -13,8 +13,8 @@ export class GenerationItemAPI {
     return response.data;
   }
 
-  static async fetchGenerationImage(id: number): Promise<string> {
-    const response = await authAxios.get(`Generations/${id}/image/`, {
+  static async fetchGenerationImage(generation_id: number): Promise<string> {
+    const response = await authAxios.get(`interpreted_image/${generation_id}`, {
       responseType: 'arraybuffer',
       headers: sessionStorage.getItem("token")
         ? { Authorization: `Token ${sessionStorage.getItem("token")}` }
