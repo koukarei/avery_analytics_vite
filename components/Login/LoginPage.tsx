@@ -109,7 +109,10 @@ function Signin() {
   const onSubmit = async (data: SigninData) => {
     try {
       const authData = await UserAuthAPI.login(data);
-      sessionStorage.setItem("token", authData.key);
+      for (const [key, value] of Object.entries(authData)) {
+        sessionStorage.setItem(key, String(value));
+      }
+      sessionStorage.setItem("program", data.program)
       navigate("/");
     } catch (e) {
       console.log(e);

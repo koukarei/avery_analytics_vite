@@ -1,5 +1,5 @@
 import type { StudentWork, WritingMistake } from '../types/studentWork';
-import { MOCK_API_DELAY, MISTAKE_CATEGORY_KEYS, PLACEHOLDER_IMAGE_DIMENSIONS } from '../constants';
+import { API_DELAY, MISTAKE_CATEGORY_KEYS, PLACEHOLDER_IMAGE_DIMENSIONS } from '../constants';
 
 const students = [
   { id: 's1', name: 'Alice Wonderland', avatarUrl: `https://picsum.photos/seed/alice/100/100` },
@@ -71,7 +71,7 @@ export const fetchStudentWorks = (): Promise<StudentWork[]> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(studentWorksData);
-    }, MOCK_API_DELAY);
+    }, API_DELAY);
   });
 };
 
@@ -79,6 +79,6 @@ export const fetchWritingMistakes = (): Promise<WritingMistake[]> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(commonWritingMistakes);
-    }, MOCK_API_DELAY);
+    }, API_DELAY);
   });
 };

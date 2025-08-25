@@ -1,4 +1,8 @@
+/** @jsxImportSource @emotion/react */
 import React from 'react';
+import { css } from '@emotion/react';
+import type { Theme } from "@mui/material/styles";
+import {theme} from "../src/Theme";
 import type { ViewMode } from '../types/ui';
 import { useLocalization } from '../contexts/localizationUtils';
 import AcademicCapIcon from './icons/AcademicCapIcon';
@@ -22,7 +26,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeView, setActiveView, show
   ] as const;
 
   return (
-    <nav className="bg-white shadow-sm sticky top-0 z-10">
+    <nav className="shadow-sm sticky top-0 z-10" css={headerStyles}>
       <div className="container mx-auto px-4 flex justify-between items-center">
         <ul className="flex space-x-4">
           {navItems.map((item) => (
@@ -44,7 +48,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeView, setActiveView, show
         </ul>
         <button
           onClick={toggleShowStudentNames}
-          className="flex items-center py-2 px-3 text-sm font-medium text-slate-600 hover:text-primary transition-colors duration-150 rounded-md hover:bg-slate-100"
+          className="flex items-center py-2 px-3 text-sm font-medium transition-colors duration-150 rounded-md"
           aria-pressed={!showStudentNames}
           title={showStudentNames ? t('navigation.toggleStudentNames.hide') : t('navigation.toggleStudentNames.show')}
         >
@@ -57,3 +61,8 @@ const Navigation: React.FC<NavigationProps> = ({ activeView, setActiveView, show
 };
 
 export default Navigation;
+
+const headerStyles = css`
+  background-color: ${theme.palette.background.paper};
+  color: ${theme.palette.text.primary};
+`;

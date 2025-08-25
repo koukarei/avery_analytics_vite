@@ -1,6 +1,7 @@
 {
   "appTitle": "AVERY Analytics",
   "header.title": "AVERY Analytics Dashboard",
+  "header.display_name": "Display Name",
   "footer.text": "© {year} Learning and Educational Technologies Research Unit, Kyoto University",
   "loading.text": "Loading data...",
   "error.title": "Error!",
@@ -30,5 +31,5 @@
   "mistakeCategories.style": "Style",
   "mistakeCategories.vocabulary": "Vocabulary",
   "languages.english": "English",
-  "languages.japanese": "日本語",
+  "languages.japanese": "日本語"
 }

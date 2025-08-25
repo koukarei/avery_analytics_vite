@@ -78,6 +78,10 @@ export interface Leaderboard {
   vocabularies: Vocabulary[];
 }
 
+export interface School {
+  school: string;
+}
+
 export interface LeaderboardAnalysis {
   id: number;
   title: string;

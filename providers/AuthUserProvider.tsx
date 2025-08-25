@@ -1,9 +1,9 @@
 import React, { createContext, useEffect, useState } from "react";
-import { AuthUser } from "../types/user";
+import type { User } from '../types/user';
 import { UserAPI } from "../api/User";
 
 type AuthUserContextType = {
-  currentUser?: AuthUser;
+  currentUser?: User;
   loading: boolean;
 };
 

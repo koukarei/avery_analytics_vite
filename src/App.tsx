@@ -1,3 +1,5 @@
+/** @jsxImportSource @emotion/react */
+
 import React, { useState, useCallback, useEffect } from 'react';
 import {
   BrowserRouter,
@@ -8,24 +10,28 @@ import {
 } from 'react-router-dom';
 import Header from '../components/Header';
 import LoginPage from '../components/Login/LoginPage';
-import { ImageGallery } from '../components/ImageGallery';
-import { GrammarVisualization } from '../components/GrammarVisualization';
-import { DescriptiveWriting } from '../components/DescriptiveWriting';
+import GalleryView from '../components/Gallery/GalleryView';
 import Navigation from '../components/Navigation';
-import StudentCard from '../components/StudentCard';
 import MistakesList from '../components/MistakesList';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
-import type { StudentWork, WritingMistake } from '../types/studentWork';
 import type { ViewMode } from '../types/ui';
 import { BottomContentType } from '../types/gallery';
-import { fetchStudentWorks, fetchWritingMistakes } from '../services/mockDataService';
 import { useLocalization } from '../contexts/localizationUtils';
 import { LocalizationProvider } from '../contexts/LocalizationContext';
 import { AuthUserProvider } from '../providers/AuthUserProvider';
+import { 
+  LeaderboardListProvider,
+  LeaderboardAnalysisProvider,
+  LeaderboardImageProvider,
+  WordCloudProvider
+ } from '../providers/LeaderboardProvider';
 import AcademicCapIcon from '../components/icons/AcademicCapIcon';
 import LightbulbIcon from '../components/icons/LightbulbIcon';
 import ChartBarIcon from '../components/icons/ChartBarIcon';
 import { IMAGE_DATA, GRAMMAR_MISTAKES_DATA, DESCRIPTIVE_WRITING_SAMPLE } from '../constants';
+import { css } from "@emotion/react";
+import type { Theme } from "@mui/material/styles";
+import {theme} from "../src/Theme";
 
 const LoadingSpinner: React.FC = () => {
   const { t } = useLocalization();
@@ -53,56 +59,10 @@ const ErrorDisplay: React.FC<{ messageKey: string }> = ({ messageKey }) => {
 const AppContent: React.FC = () => {
   const { t } = useLocalization();
   const [activeView, setActiveView] = useState<ViewMode>('gallery');
-  const [studentWorks, setStudentWorks] = useState<StudentWork[]>([]);
   const [writingMistakes, setWritingMistakes] = useState<WritingMistake[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [errorKey, setErrorKey] = useState<string | null>(null);
-  const [galleryCurrentIndex, setGalleryCurrentIndex] = useState<number>(0);
-  const [bottomContent, setBottomContent] = useState<BottomContentType>(BottomContentType.GRAMMAR_VISUALIZATION);
   const [showStudentNames, setShowStudentNames] = useState<boolean>(false);
-
-  const handleGalleryScroll = useCallback((direction: 'up' | 'down') => {
-    setGalleryCurrentIndex(prevIndex => {
-      let newIndex = prevIndex;
-      if (direction === 'down') { // Scroll down -> move images left (next)
-        newIndex = prevIndex + 1;
-      } else { // Scroll up -> move images right (previous)
-        newIndex = prevIndex - 1;
-      }
-      return newIndex > 0 ? newIndex % IMAGE_DATA.length : IMAGE_DATA.length + newIndex; // Wrap around
-    });
-  }, []);
-
-  const handleSwitchToDescriptiveWriting = useCallback(() => {
-    setBottomContent(BottomContentType.DESCRIPTIVE_WRITING);
-  }, []);
-  
-  const handleReturnToGrammarView = useCallback(() => {
-    setBottomContent(BottomContentType.GRAMMAR_VISUALIZATION);
-  }, []);
-
-  useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      setErrorKey(null);
-      try {
-        const [works, mistakes] = await Promise.all([
-          fetchStudentWorks(),
-          fetchWritingMistakes(),
-        ]);
-        setStudentWorks(works);
-        setWritingMistakes(mistakes);
-      } catch (err) {
-        console.error("Failed to load data:", err);
-        setErrorKey("error.fetchMessage");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadData();
-  }, []);
-
-  
   const toggleShowStudentNames = () => {
     setShowStudentNames(prev => !prev);
   };
@@ -119,40 +79,20 @@ const AppContent: React.FC = () => {
     switch (activeView) {
       case 'gallery':
         return (
-          <div className="flex flex-col h-screen bg-black overflow-hidden">
-            {/* Top Half: Leaderboard */}
-            <div className="h-1/2 md:h-3/5 relative flex flex-col items-center justify-center bg-neutral-900 overflow-hidden pt-4 md:pt-8">
-              {IMAGE_DATA.length > 0 ? (
-                <ImageGallery
-                  images={IMAGE_DATA}
-                  currentIndex={galleryCurrentIndex}
-                  onScroll={handleGalleryScroll}
-                />
-              ) : (
-                <p className="text-xl text-gray-400">No images to display.</p>
-              )}
-            </div>
-
-            {/* Bottom Half: Toggleable Content */}
-            <div className="h-1/2 md:h-2/5 bg-neutral-900 flex items-center justify-center p-4 md:p-8 relative">
-              {bottomContent === BottomContentType.GRAMMAR_VISUALIZATION ? (
-                <GrammarVisualization
-                  mistakes={GRAMMAR_MISTAKES_DATA}
-                  onInteractionEnd={handleSwitchToDescriptiveWriting}
-                />
-              ) : (
-                <DescriptiveWriting 
-                  text={DESCRIPTIVE_WRITING_SAMPLE} 
-                  onReturnToGrammarView={handleReturnToGrammarView}
-                />
-              )}
-            </div>
-          </div>
-        );
-      case 'mistakes':
-        return <MistakesList mistakes={writingMistakes} />;
-      case 'analytics':
-        return <AnalyticsDashboard mistakes={writingMistakes} />;
+              <LeaderboardListProvider>
+                <LeaderboardAnalysisProvider>
+                  <LeaderboardImageProvider>
+                    <WordCloudProvider>
+                      <GalleryView />
+                    </WordCloudProvider>
+                  </LeaderboardImageProvider>
+                </LeaderboardAnalysisProvider>
+              </LeaderboardListProvider>
+        )
+      // case 'mistakes':
+      //   return <MistakesList mistakes={writingMistakes} />;
+      // case 'analytics':
+      //   return <AnalyticsDashboard mistakes={writingMistakes} />;
       default:
         return <p className="text-slate-500 text-center py-10">{t('placeholders.selectView')}</p>;
     }
@@ -170,7 +110,7 @@ const AppContent: React.FC = () => {
       <Navigation activeView={activeView} setActiveView={setActiveView} 
         showStudentNames={showStudentNames} toggleShowStudentNames={toggleShowStudentNames}/>
       {renderContent()}
-      <footer className="bg-slate-800 text-slate-300 text-center p-4 mt-auto">
+      <footer className="text-center p-4 mt-auto" css={footerStyle}>
         <p>{t('footer.text', { year: new Date().getFullYear() })}</p>
       </footer>
     </div>
@@ -179,7 +119,7 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   const RequireAuth = (props: { children: React.ReactElement }) => {
-    const token = sessionStorage.getItem("token");
+    const token = sessionStorage.getItem("access_token");
     if (token) {
       return props.children;
     }
@@ -190,11 +130,38 @@ const App: React.FC = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        {/* Gallery Route */}
+        <Route path="/gallery" element={
+          <AuthUserProvider>
+            <RequireAuth>
+              <LocalizationProvider>
+                <LeaderboardListProvider>
+                  <LeaderboardAnalysisProvider>
+                    <LeaderboardImageProvider>
+                      <WordCloudProvider>
+                        <GalleryView />
+                      </WordCloudProvider>
+                    </LeaderboardImageProvider>
+                  </LeaderboardAnalysisProvider>
+                </LeaderboardListProvider>
+              </LocalizationProvider>
+            </RequireAuth>
+          </AuthUserProvider>
+        } />
+        {/* Main Route */}
         <Route path="/" element={
           <AuthUserProvider>
             <RequireAuth>
               <LocalizationProvider>
-                <AppContent />
+                <LeaderboardListProvider>
+                  <LeaderboardAnalysisProvider>
+                    <LeaderboardImageProvider>
+                      <WordCloudProvider>
+                        <AppContent />
+                      </WordCloudProvider>
+                    </LeaderboardImageProvider>
+                  </LeaderboardAnalysisProvider>
+                </LeaderboardListProvider>
               </LocalizationProvider>
             </RequireAuth>
           </AuthUserProvider>
@@ -206,3 +173,8 @@ const App: React.FC = () => {
 };
 
 export default App;
+
+const footerStyle = css`
+  background-color: ${theme.palette.primary.main};
+  color: ${theme.palette.text.secondary};
+`;

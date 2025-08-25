@@ -1,17 +1,28 @@
-import React from 'react';
+/** @jsxImportSource @emotion/react */
+
+import React, {useContext} from 'react';
 import { useLocalization } from '../contexts/localizationUtils';
 import IconComponent from './icons/AVERYIcon';
 import LoginIcon from './icons/LoginIcon';
 import LogoutIcon from './icons/LogoutIcon';
-import { UserAPI } from '../api/User';
+import { AuthUserContext } from '../providers/AuthUserProvider';
+import type { User } from '../types/user';
 import IconButton from '@mui/material/IconButton';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
 import { SUPPORTED_LANGUAGES } from '../constants';
 import type { Language } from '../types/ui';
+import { Button } from '@mui/material';
+import { css } from "@emotion/react";
+import type { Theme } from "@mui/material/styles";
+import {theme} from "../src/Theme";
 
 function showUserProfile() {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+  const { currentUser, loading } = useContext(AuthUserContext);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -21,12 +32,20 @@ function showUserProfile() {
     setAnchorEl(null);
   };
 
+  const handleLogout = () => {
+    sessionStorage.removeItem('access_token');
+    sessionStorage.removeItem('refresh_token');
+    sessionStorage.removeItem('token_type');
+    sessionStorage.removeItem('program');
+    window.location.href = '/login';
+  };
+
   const open = Boolean(anchorEl);
   const id = open ? 'show-user-profile-popover' : undefined;
 
   return (
     <div>
-      <IconButton color="primary" aria-describedby={id} aria-label="user profile" onClick={handleClick}>
+      <IconButton css={iconStyle} aria-describedby={id} aria-label="user profile" onClick={handleClick}>
         <LoginIcon className='w-10 h-10' />
       </IconButton>
       <Popover
@@ -36,10 +55,21 @@ function showUserProfile() {
         onClose={handleClose}
         anchorOrigin={{
           vertical: 'bottom',
-          horizontal: 'left',
+          horizontal: 'center',
         }}
       >
-        <Typography sx={{ p: 2 }}>UserAPI.fetchAuthUser()</Typography>
+        <Card sx={{ minWidth: 300, maxWidth: 400 }}>
+          <CardContent>
+            <Typography  gutterBottom variant="h5" component="div"> {loading? "loading" : (currentUser?.profiles.display_name)} </Typography>
+            <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}> {currentUser?.email} </Typography>
+          </CardContent>
+          <CardActions>
+            <Button sx={{ color: theme.palette.primary.dark }} onClick={handleLogout}>
+              <LogoutIcon className='w-6 h-6' />
+              Logout
+            </Button>
+          </CardActions>
+        </Card>
       </Popover>
     </div>
   );
@@ -50,7 +80,7 @@ const Header: React.FC = () => {
   const { t, language, setLanguage } = useLocalization();
 
   return (
-    <header className="bg-gray-800 shadow-md">
+    <header className="shadow-md" css={headerStyles}>
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center">
           <IconComponent className="w-16 h-16 items-center text-white mr-2"/>
@@ -79,3 +109,12 @@ const Header: React.FC = () => {
 };
 
 export default Header;
+
+const headerStyles = css`
+  background-color: ${theme.palette.primary.main};
+  color: ${theme.palette.text.primary};
+`;
+
+const iconStyle = css`
+  color: ${theme.palette.primary.contrastText};
+`;

@@ -1,5 +1,5 @@
 import type { ImageItem, GrammarMistakeItem } from './types/gallery';
-export const MOCK_API_DELAY = 500; // ms
+export const API_DELAY = 500; // ms
 
 // These are now keys for localization
 export const MISTAKE_CATEGORY_KEYS = {

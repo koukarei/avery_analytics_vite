@@ -1,3 +1,5 @@
+import type { User } from './user';
+
 export interface Student {
   id: string;
   name: string;
@@ -28,21 +30,6 @@ export interface StudentWork {
   student: Student;
   writings: WritingEntry[];
   chatRecords: ChatRecord[];
-}
-
-export interface Profile {
-  display_name: string;
-}
-
-export interface User {
-  id: number;
-  username?: string;
-  email?: string;
-  is_admin?: boolean; // it would set to false as always by backend
-  user_type?: string;
-  is_active?: boolean;
-  school?: string;
-  profiles: Profile;
 }
 
 export interface MistakeItem {

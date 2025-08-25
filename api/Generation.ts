@@ -6,8 +6,8 @@ export class GenerationItemAPI {
     const response = await authAxios.get("analysis/generations", {
       params: params,
       paramsSerializer: { indexes: null },
-      headers: sessionStorage.getItem("token")
-        ? { Authorization: `Token ${sessionStorage.getItem("token")}` }
+      headers: sessionStorage.getItem("access_token")
+        ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
         : {},
     });
     return response.data;
@@ -16,8 +16,8 @@ export class GenerationItemAPI {
   static async fetchGenerationImage(generation_id: number): Promise<string> {
     const response = await authAxios.get(`interpreted_image/${generation_id}`, {
       responseType: 'arraybuffer',
-      headers: sessionStorage.getItem("token")
-        ? { Authorization: `Token ${sessionStorage.getItem("token")}` }
+      headers: sessionStorage.getItem("access_token")
+        ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
         : {},
     });
     

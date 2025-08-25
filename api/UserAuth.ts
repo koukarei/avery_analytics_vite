@@ -15,11 +15,7 @@ export class UserAuthAPI {
     if (response.status !== 200) {
       throw new Error("Login failed");
     }else{
-      // loop for saving token in sessionStorage
-      for (const [key, value] of Object.entries(response.data)) {
-        sessionStorage.setItem(key, String(value));
-      }
-      return { key: response.data.key };
+      return response.data;
     }
   }
 
