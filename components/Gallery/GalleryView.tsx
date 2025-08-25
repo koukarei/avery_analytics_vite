@@ -62,10 +62,12 @@ export default function GalleryView() {
   // const handleReturnToGrammarView = useCallback(() => {
   //   setBottomContent(BottomContentType.GRAMMAR_VISUALIZATION);
   // }, []);
-
+  
   useEffect(() => {
+    setErrorKey(null);
     fetchLeaderboards({}).catch(err => {
-      console.log(err);
+      console.error("Failed to fetch leaderboards: ", err);
+      setErrorKey('error.fetch_leaderboards');
     });
   }, []);
 
