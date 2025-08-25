@@ -83,6 +83,47 @@ const LeaderboardAnalysisProvider = ({
   );
 };
 
+type LeaderboardImagesContextType = {
+  images: { [key: number]: string }; // Map of leaderboard_id to image URL
+  loading: boolean;
+  fetchImages: (leaderboard_ids: number[]) => Promise<{ [key: number]: string }>;
+}
+
+const LeaderboardImagesContext = createContext({} as LeaderboardImagesContextType);
+
+const LeaderboardImagesProvider = ({
+  children
+}: {
+  children: React.ReactNode;
+}) => {
+  const [images, setImages] = useState<{ [key: number]: string }>({});
+  const [loading, setLoading] = useState<boolean>(false);
+  const fetchImages = async (leaderboard_ids: number[]) => {
+    setLoading(true);
+    const newImages: { [key: number]: string } = { ...images };
+    try {
+      await Promise.all(leaderboard_ids.map(async (id) => {
+        if (!newImages[id]) { // Only fetch if not already present
+          const imageData = await LeaderboardAPI.fetchLeaderboardImage(id);
+          newImages[id] = imageData;
+        }
+      }));
+      setImages(newImages);
+    } catch (e) {
+      console.log(e);
+    }
+    setLoading(false);
+    return newImages;
+  };
+  return (
+    <LeaderboardImagesContext.Provider value={{
+      images, loading, fetchImages
+    }}>
+      {children}
+    </LeaderboardImagesContext.Provider>
+  );
+}
+
 type LeaderboardImageContextType = {
     image: string | null;
     loading: boolean;
@@ -101,7 +142,7 @@ const LeaderboardImageProvider = ({
 
     const fetchImage = async (leaderboard_id: number) => {
         setLoading(true);
-        let imageData: Blob | null = null;
+        let imageData: string | null = null;
         try {
             imageData = await LeaderboardAPI.fetchLeaderboardImage(leaderboard_id);
             setImage(imageData);
@@ -164,6 +205,8 @@ export {
     LeaderboardListProvider, 
     LeaderboardAnalysisContext, 
     LeaderboardAnalysisProvider, 
+    LeaderboardImagesContext,
+    LeaderboardImagesProvider,
     LeaderboardImageContext, 
     LeaderboardImageProvider,
     WordCloudContext,

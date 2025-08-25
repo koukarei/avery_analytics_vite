@@ -2,15 +2,18 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import type { Leaderboard } from '../types/leaderboard';
 import { LeaderboardImageContext } from '../providers/LeaderboardProvider';
+import { LeaderboardImagesContext } from '../providers/LeaderboardProvider';
 
 interface ImageGalleryProps {
   leaderboards: Leaderboard[];
+  images: Record<number, string>; // Mapping of leaderboard ID to image URL
   currentIndex: number; // Index of the first image in the triplet to display
   onScroll: (direction: 'up' | 'down') => void;
 }
 
 interface ImagePanelProps {
   leaderboard: Leaderboard | null;
+  imageUrl: string | null;
   position: 'left' | 'center' | 'right';
   isHovered: boolean;
   onMouseEnter: () => void;
@@ -18,10 +21,9 @@ interface ImagePanelProps {
   onClick?: () => void; // Added for click navigation
 }
 
-const baseImageUrl = import.meta.env.VITE_BACKEND_URL;
-
 const ImagePanel: React.FC<ImagePanelProps> = ({ 
   leaderboard, 
+  imageUrl,
   position, 
   isHovered, 
   onMouseEnter, 
@@ -31,7 +33,6 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   let transformClasses = 'transition-all duration-700 ease-in-out transform-gpu'; 
   let zIndex = 10;
   let opacityClass = 'opacity-100';
-  const { image, loading, fetchImage } = useContext(LeaderboardImageContext);
 
   // Adjusted 3D transforms to match the example image more closely
   switch (position) {
@@ -50,7 +51,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
       opacityClass = 'opacity-75 group-hover:opacity-90 group-focus:opacity-90';
       break;
   }
-
+  
   if (!leaderboard) {
     return (
       <div 
@@ -62,12 +63,6 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
       </div>
     );
   }
-
-  useEffect(() => {
-    fetchImage(leaderboard.id).catch(err => {
-      console.log(err);
-    });
-  }, []);
 
   return (
     <div
@@ -88,7 +83,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
         }
       }}
     >
-      <img src={image} alt={leaderboard?.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-focus:scale-105" />
+      <img src={imageUrl} alt={leaderboard?.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-focus:scale-105" />
       {(isHovered) && (
         <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out">
           <p className="text-white text-lg sm:text-xl md:text-2xl font-semibold text-center select-none">{leaderboard?.title}</p>
@@ -125,7 +120,7 @@ function useDebouncedCallback<A extends unknown[],>(
 }
 
 
-export const ImageGallery: React.FC<ImageGalleryProps> = ({ leaderboards, currentIndex, onScroll }) => {
+export const ImageGallery: React.FC<ImageGalleryProps> = ({ leaderboards, images, currentIndex, onScroll }) => {
   const galleryRef = useRef<HTMLDivElement>(null);
   const [hoveredImageId, setHoveredImageId] = useState<string | null>(null);
 
@@ -215,6 +210,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ leaderboards, curren
     >
       <ImagePanel
         leaderboard={leftImage}
+        imageUrl={images[leftImage?.id]}
         position="left"
         isHovered={hoveredImageId === leftImage?.id}
         onMouseEnter={() => leftImage && setHoveredImageId(leftImage.id)}
@@ -223,6 +219,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ leaderboards, curren
       />
       <ImagePanel
         leaderboard={centerImage}
+        imageUrl={images[centerImage?.id]}
         position="center"
         isHovered={hoveredImageId === centerImage?.id}
         onMouseEnter={() => centerImage && setHoveredImageId(centerImage.id)}
@@ -231,6 +228,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ leaderboards, curren
       />
       <ImagePanel
         leaderboard={rightImage}
+        imageUrl={images[rightImage?.id]}
         position="right"
         isHovered={hoveredImageId === rightImage?.id}
         onMouseEnter={() => rightImage && setHoveredImageId(rightImage.id)}

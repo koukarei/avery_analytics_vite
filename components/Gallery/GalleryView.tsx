@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useContext } from 'react';
 import { ImageGallery } from '../ImageGallery';
 import { GrammarVisualization } from '../GrammarVisualization';
 import { DescriptiveWriting } from '../DescriptiveWriting';
-import { LeaderboardListContext, LeaderboardAnalysisContext, LeaderboardImageContext, WordCloudContext } from '../../providers/LeaderboardProvider';
+import { LeaderboardListContext, LeaderboardAnalysisContext, LeaderboardImagesContext, WordCloudContext } from '../../providers/LeaderboardProvider';
 import type { LeaderboardListContextType, LeaderboardAnalysisContextType } from '../../providers/LeaderboardProvider';
 import { BottomContentType } from '../../types/gallery';
 import { useLocalization } from '../../contexts/localizationUtils';
@@ -33,6 +33,7 @@ const ErrorDisplay: React.FC<{ messageKey: string }> = ({ messageKey }) => {
 export default function GalleryView() {
   const { t } = useLocalization();
   const { leaderboards, loading, fetchLeaderboards } = useContext(LeaderboardListContext);
+  const { images, loading: imagesLoading, fetchImages } = useContext(LeaderboardImagesContext);
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [galleryCurrentIndex, setGalleryCurrentIndex] = useState<number>(1);
   //const [bottomContent, setBottomContent] = useState<BottomContentType>(BottomContentType.GRAMMAR_VISUALIZATION);
@@ -65,14 +66,21 @@ export default function GalleryView() {
   
   useEffect(() => {
     setErrorKey(null);
-    fetchLeaderboards({}).catch(err => {
+    fetchLeaderboards({}).then(leaderboards => {
+      if (leaderboards.length > 0) {
+        fetchImages(leaderboards.map(lb => lb.id));
+      }
+    }).catch(err => {
       console.error("Failed to fetch leaderboards: ", err);
       setErrorKey('error.fetch_leaderboards');
     });
+
+
   }, []);
+  console.log(images);
 
   const renderContent = () => {
-    if (loading) {
+    if (loading || imagesLoading) {
       return <LoadingSpinner />;
     }
     if (errorKey) {
@@ -81,11 +89,11 @@ export default function GalleryView() {
 
     return (
       <div className="flex flex-col h-screen bg-black overflow-hidden">
-        {/* Top Half: Leaderboard */}
-        <div className="h-1/2 md:h-3/5 relative flex flex-col items-center justify-center bg-neutral-900 overflow-hidden pt-4 md:pt-8">
+        <div className="h-full relative flex flex-col items-center justify-center bg-neutral-900 overflow-hidden pt-4 md:pt-8">
           {leaderboards ? (
             <ImageGallery
               leaderboards={leaderboards}
+              images={images}
               currentIndex={galleryCurrentIndex}
               onScroll={handleGalleryScroll}
             />
@@ -93,21 +101,6 @@ export default function GalleryView() {
             <p className="text-xl text-gray-400">No images to display.</p>
           )}
         </div>
-
-        {/* Bottom Half: Toggleable Content */}
-        {/* <div className="h-1/2 md:h-2/5 bg-neutral-900 flex items-center justify-center p-4 md:p-8 relative">
-          {bottomContent === BottomContentType.GRAMMAR_VISUALIZATION ? (
-            <GrammarVisualization
-              mistakes={GRAMMAR_MISTAKES_DATA}
-              onInteractionEnd={handleSwitchToDescriptiveWriting}
-            />
-          ) : (
-            <DescriptiveWriting 
-              text={DESCRIPTIVE_WRITING_SAMPLE} 
-              onReturnToGrammarView={handleReturnToGrammarView}
-            />
-          )}
-        </div> */}
       </div>
     );
   };

@@ -22,6 +22,7 @@ import { AuthUserProvider } from '../providers/AuthUserProvider';
 import { 
   LeaderboardListProvider,
   LeaderboardAnalysisProvider,
+  LeaderboardImagesProvider,
   LeaderboardImageProvider,
   WordCloudProvider
  } from '../providers/LeaderboardProvider';
@@ -105,11 +106,11 @@ const App: React.FC = () => {
               <LocalizationProvider>
                 <LeaderboardListProvider>
                   <LeaderboardAnalysisProvider>
-                    <LeaderboardImageProvider>
+                    <LeaderboardImagesProvider>
                       <WordCloudProvider>
                         <GalleryView />
                       </WordCloudProvider>
-                    </LeaderboardImageProvider>
+                    </LeaderboardImagesProvider>
                   </LeaderboardAnalysisProvider>
                 </LeaderboardListProvider>
               </LocalizationProvider>
@@ -123,11 +124,11 @@ const App: React.FC = () => {
               <LocalizationProvider>
                 <LeaderboardListProvider>
                   <LeaderboardAnalysisProvider>
-                    <LeaderboardImageProvider>
+                    <LeaderboardImagesProvider>
                       <WordCloudProvider>
                         <AppContent />
                       </WordCloudProvider>
-                    </LeaderboardImageProvider>
+                    </LeaderboardImagesProvider>
                   </LeaderboardAnalysisProvider>
                 </LeaderboardListProvider>
               </LocalizationProvider>
