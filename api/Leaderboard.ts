@@ -37,6 +37,7 @@ export class LeaderboardAPI {
   }
 
   static async fetchLeaderboardAnalysis(leaderboard_id: number, program_name: string, params: LeaderboardAnalysisParams): Promise<LeaderboardAnalysis> {
+    
     const response = await authAxios.get(`analysis/leaderboards/${leaderboard_id}/${program_name}/`, {
       params: params,
       headers: sessionStorage.getItem("access_token")

@@ -1,10 +1,9 @@
 import React, { useState, useCallback, useEffect, useContext } from 'react';
-import { ImageGallery } from '../ImageGallery';
-import { GrammarVisualization } from '../GrammarVisualization';
-import { DescriptiveWriting } from '../DescriptiveWriting';
+import { ImageGallery } from './ImageGallery';
+import { GalleryDetail } from './GalleryDetail';
+import type { GalleryView } from '../../types/ui';
 import { LeaderboardListContext, LeaderboardAnalysisContext, LeaderboardImagesContext, WordCloudContext } from '../../providers/LeaderboardProvider';
 import type { LeaderboardListContextType, LeaderboardAnalysisContextType } from '../../providers/LeaderboardProvider';
-import { BottomContentType } from '../../types/gallery';
 import { useLocalization } from '../../contexts/localizationUtils';
 
 const LoadingSpinner: React.FC = () => {
@@ -31,6 +30,7 @@ const ErrorDisplay: React.FC<{ messageKey: string }> = ({ messageKey }) => {
 };
 
 export default function GalleryView() {
+  const [view, setView] = useState<GalleryView>('browsing');
   const { t } = useLocalization();
   const { leaderboards, loading, fetchLeaderboards } = useContext(LeaderboardListContext);
   const { images, loading: imagesLoading, fetchImages } = useContext(LeaderboardImagesContext);
@@ -56,13 +56,9 @@ export default function GalleryView() {
     });
   }, [leaderboards.length]);
 
-  // const handleSwitchToDescriptiveWriting = useCallback(() => {
-  //   setBottomContent(BottomContentType.DESCRIPTIVE_WRITING);
-  // }, []);
-  
-  // const handleReturnToGrammarView = useCallback(() => {
-  //   setBottomContent(BottomContentType.GRAMMAR_VISUALIZATION);
-  // }, []);
+  const handleViewChange = (newView: 'browsing' | 'detail' | 'word_cloud') => {
+    setView(newView);
+  };
   
   useEffect(() => {
     setErrorKey(null);
@@ -77,7 +73,47 @@ export default function GalleryView() {
 
 
   }, []);
-  console.log(images);
+
+  const renderGallery = () => {
+    switch (view) {
+      case 'browsing':
+        return (
+        <div className="h-full relative flex flex-col items-center justify-center bg-neutral-900 overflow-hidden pt-4 md:pt-8">
+          {leaderboards ? (
+            <ImageGallery
+              view={view}
+              setView={handleViewChange}
+              leaderboards={leaderboards}
+              images={images}
+              currentIndex={galleryCurrentIndex}
+              onScroll={handleGalleryScroll}
+            />
+          ) : (
+            <p className="text-xl text-gray-400">{t('galleryView.noImageToDisplay')}</p>
+          )}
+        </div>
+        )
+      case 'detail':
+        return (
+        <div className="h-full relative flex flex-col items-center justify-center bg-neutral-900 overflow-hidden pt-4 md:pt-8">
+          {leaderboards ? (
+            <GalleryDetail
+              view={view}
+              setView={handleViewChange}
+              leaderboards={leaderboards}
+              images={images}
+              currentIndex={galleryCurrentIndex}
+            />
+          ) : (
+            <p className="text-xl text-gray-400">{t('galleryView.noImageToDisplay')}</p>
+          )}
+            
+        </div>
+        )
+      default:
+        return <p className="text-slate-500 text-center py-10">{t('placeholders.selectView')}</p>;
+  }
+  };
 
   const renderContent = () => {
     if (loading || imagesLoading) {
@@ -89,18 +125,7 @@ export default function GalleryView() {
 
     return (
       <div className="flex flex-col h-screen bg-black overflow-hidden">
-        <div className="h-full relative flex flex-col items-center justify-center bg-neutral-900 overflow-hidden pt-4 md:pt-8">
-          {leaderboards ? (
-            <ImageGallery
-              leaderboards={leaderboards}
-              images={images}
-              currentIndex={galleryCurrentIndex}
-              onScroll={handleGalleryScroll}
-            />
-          ) : (
-            <p className="text-xl text-gray-400">No images to display.</p>
-          )}
-        </div>
+        {renderGallery()}
       </div>
     );
   };

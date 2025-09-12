@@ -125,3 +125,8 @@ export type WordCloudParams = {
   word_cloud_id: number;
   cloud_type: 'mistake' | 'writing' | 'user_chat' | 'assistant_chat';
 }
+
+export type SceneListParams = {
+  skip?: number;
+  limit?: number;
+};

@@ -28,4 +28,17 @@ export class UserAuthAPI {
     });
     return response.data;
   }
+
+  static async refreshToken(): Promise<{ key: string }> {
+    const response = await authAxios.post("refresh_token", {
+      headers: sessionStorage.getItem("refresh_token")
+        ? { Authorization: `Bearer ${sessionStorage.getItem("refresh_token")}` }
+        : {},
+    });
+    if (response.status !== 200) {
+      throw new Error("Token refresh failed");
+    } else {
+      return response.data;
+    }
+  }
 }

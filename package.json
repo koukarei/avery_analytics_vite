@@ -15,6 +15,7 @@
     "@mui/material": "^7.1.2",
     "@tailwindcss/vite": "^4.1.10",
     "axios": "^1.10.0",
+    "axios-auth-refresh": "^3.3.6",
     "path": "^0.12.7",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

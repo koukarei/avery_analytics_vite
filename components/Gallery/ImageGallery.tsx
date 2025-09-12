@@ -1,10 +1,17 @@
+/** @jsxImportSource @emotion/react */
 
 import React, { useState, useRef, useEffect, useContext } from 'react';
-import type { Leaderboard } from '../types/leaderboard';
-import { LeaderboardImageContext } from '../providers/LeaderboardProvider';
-import { LeaderboardImagesContext } from '../providers/LeaderboardProvider';
+import { css, keyframes } from "@emotion/react";
+import type { Leaderboard } from '../../types/leaderboard';
+import type { GalleryView } from '../../types/ui';
+import type { Theme } from "@mui/material/styles";
+import {theme} from "../../src/Theme";
+import { LeaderboardImageContext } from '../../providers/LeaderboardProvider';
+import { LeaderboardImagesContext } from '../../providers/LeaderboardProvider';
 
 interface ImageGalleryProps {
+  view: GalleryView;
+  setView: (view: GalleryView) => void;
   leaderboards: Leaderboard[];
   images: Record<number, string>; // Mapping of leaderboard ID to image URL
   currentIndex: number; // Index of the first image in the triplet to display
@@ -33,6 +40,14 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   let transformClasses = 'transition-all duration-700 ease-in-out transform-gpu'; 
   let zIndex = 10;
   let opacityClass = 'opacity-100';
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
 
   // Adjusted 3D transforms to match the example image more closely
   switch (position) {
@@ -63,7 +78,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
       </div>
     );
   }
-
+  
   return (
     <div
       className={`w-2/3 sm:w-1/2 md:w-1/3 aspect-[4/3] bg-neutral-800 rounded-lg shadow-2xl overflow-hidden relative ${transformClasses} ${opacityClass} border-2 border-neutral-600 cursor-pointer group`}
@@ -84,6 +99,12 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
       }}
     >
       <img src={imageUrl} alt={leaderboard?.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-focus:scale-105" />
+      <div className="absolute top-0 right-0 m-2">
+          <span css={sceneStyles(theme)} className="inline-block bg-cyan-500 text-white text-xs font-semibold px-2 py-1 rounded-full uppercase tracking-wider">
+          {leaderboard.scene.name}
+        </span>
+      </div>
+
       {(isHovered) && (
         <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out">
           <p className="text-white text-lg sm:text-xl md:text-2xl font-semibold text-center select-none">{leaderboard?.title}</p>
@@ -120,7 +141,7 @@ function useDebouncedCallback<A extends unknown[],>(
 }
 
 
-export const ImageGallery: React.FC<ImageGalleryProps> = ({ leaderboards, images, currentIndex, onScroll }) => {
+export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboards, images, currentIndex, onScroll }) => {
   const galleryRef = useRef<HTMLDivElement>(null);
   const [hoveredImageId, setHoveredImageId] = useState<string | null>(null);
 
@@ -224,7 +245,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ leaderboards, images
         isHovered={hoveredImageId === centerImage?.id}
         onMouseEnter={() => centerImage && setHoveredImageId(centerImage.id)}
         onMouseLeave={() => setHoveredImageId(null)}
-        // No onClick for navigation on the center panel
+        onClick={centerImage ? () => setView('detail') : undefined}
       />
       <ImagePanel
         leaderboard={rightImage}
@@ -238,3 +259,8 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ leaderboards, images
     </div>
   );
 };
+
+const sceneStyles = (theme: Theme) => css`
+  background-color: ${theme.palette.primary.dark};
+  color: ${theme.palette.primary.contrastText};
+`;

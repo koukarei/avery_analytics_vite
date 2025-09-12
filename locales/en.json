@@ -14,6 +14,7 @@
   "viewTitles.gallery": "Student Gallery Showcase",
   "viewTitles.mistakes": "Top 10 Common Writing Mistakes",
   "viewTitles.analytics": "Writing Mistakes Analytics",
+  "galleryView.noImageToDisplay": "No images to display.",
   "studentCard.writingsTab": "Writings",
   "studentCard.chatLogsTab": "Chat Logs",
   "studentCard.noWritings": "No writings yet.",
