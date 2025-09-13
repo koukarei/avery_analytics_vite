@@ -13,8 +13,3 @@ export interface GrammarMistakeItem {
   widthClass: string; // Tailwind width class for oval
   heightClass: string; // Tailwind height class for oval
 }
-
-export enum BottomContentType {
-  GRAMMAR_VISUALIZATION,
-  DESCRIPTIVE_WRITING,
-}

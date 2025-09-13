@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useContext } from 'react';
 import { ImageGallery } from './ImageGallery';
-import { GalleryDetail } from './GalleryDetail';
+import { GalleryTabs } from './GalleryTab';
 import type { GalleryView } from '../../types/ui';
 import { LeaderboardListContext, LeaderboardAnalysisContext, LeaderboardImagesContext, WordCloudContext } from '../../providers/LeaderboardProvider';
 import type { LeaderboardListContextType, LeaderboardAnalysisContextType } from '../../providers/LeaderboardProvider';
@@ -95,14 +95,13 @@ export default function GalleryView() {
         )
       case 'detail':
         return (
-        <div className="h-full relative flex flex-col items-center justify-center bg-neutral-900 overflow-hidden pt-4 md:pt-8">
+        <div className="h-full relative flex flex-col md:flex-row items-center justify-center bg-neutral-900 overflow-hidden pt-4 md:pt-8">
           {leaderboards ? (
-            <GalleryDetail
+            <GalleryTabs
               view={view}
               setView={handleViewChange}
-              leaderboards={leaderboards}
+              leaderboard={leaderboards[(galleryCurrentIndex + 1) % leaderboards.length] || null}
               images={images}
-              currentIndex={galleryCurrentIndex}
             />
           ) : (
             <p className="text-xl text-gray-400">{t('galleryView.noImageToDisplay')}</p>

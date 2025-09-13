@@ -44,9 +44,6 @@ function ViewLeaderboard({ leaderboard, analysis, scenes }: { leaderboard: Leade
 
   const {
     control,
-    handleSubmit,
-    setValue,
-    setError,
     formState: { errors },
   } = useForm<Leaderboard>({
     defaultValues:{
@@ -57,19 +54,9 @@ function ViewLeaderboard({ leaderboard, analysis, scenes }: { leaderboard: Leade
     }
   });
 
-  const onSubmit = async (data: LeaderboardAnalysisParams) => {
-    try {
-
-      setError("root", {
-        type: "manual",
-        message: "ユーザー名またはパスワードが違います。",
-      });
-    }finally{};
-  };
-
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)} css={formStyle(theme)}>
+      <form css={formStyle(theme)}>
         <div css={formInputStyle}>
           <Controller
             name="title"
@@ -116,9 +103,6 @@ function ViewLeaderboard({ leaderboard, analysis, scenes }: { leaderboard: Leade
         {errors.root && (
           <div css={errorMessageStyle}>{errors.root.message}</div>
         )}
-        <button type="submit" css={okButtonStyle (theme)}>
-          保存
-        </button>
       </form>
     </>
   );
@@ -215,27 +199,9 @@ const formStyle = (theme: Theme) => css`
 
 const formInputStyle = css`
   margin: 5px;
-  width: 90%;
-  max-width: 300px;
+  width: 85%;
   div {
     color: #000;
-  }
-`;
-
-const okButtonStyle = (theme: Theme) => css`
-  background-color: ${theme.palette.primary.main};
-  color: white;
-  border-radius: 40px;
-  border: none;
-  width: 120px;
-  height: 45px;
-  margin: 30px;
-  transition: background-color 0.3s ease;
-  cursor: pointer;
-  font-size: 12pt;
-  font-weight: 300;
-  &:hover {
-    background-color: ${theme.palette.primary.light};
   }
 `;
 

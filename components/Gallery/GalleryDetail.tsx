@@ -5,6 +5,7 @@ import type { GalleryView } from '../../types/ui';
 import { AuthUserContext } from '../../providers/AuthUserProvider';
 import { LeaderboardAnalysisContext } from "../../providers/LeaderboardProvider";
 import { SceneContext } from "../../providers/SceneProvider";
+
 import { ViewLeaderboard, EditLeaderboard } from './LeaderboardForm';
 import { useLocalization } from '../../contexts/localizationUtils';
 
@@ -42,7 +43,8 @@ export const LeaderboardDetail: React.FC<LeaderboardDetailProps> = ({ leaderboar
   const [scene, setScene] = useState<Scene | null>(null);
 
   if (!leaderboard){
-    console.log("No leaderboard data available.");
+    console.error("LeaderboardDetail: No leaderboard provided");
+    setErrorKey('error.no_leaderboard');
     return null;
   } else {
     useEffect(() => {
@@ -115,7 +117,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   if (!leaderboard) {
     return (
       <div 
-        className={`w-2/3 sm:w-1/2 md:w-1/3 aspect-[4/3] bg-neutral-700 rounded-lg shadow-2xl flex items-center justify-center ${transformClasses} ${opacityClass} border-2 border-neutral-600`}
+        className={`w-full md:w-auto aspect-[4/3] bg-neutral-700 rounded-lg shadow-2xl flex items-center justify-center ${transformClasses} ${opacityClass} border-2 border-neutral-600`}
         style={{ transformStyle: 'preserve-3d', zIndex }}
         aria-hidden="true"
       >
@@ -126,7 +128,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
 
   return (
     <div
-      className={`w-full aspect-[4/3] bg-neutral-800 rounded-lg shadow-2xl overflow-hidden relative ${transformClasses} ${opacityClass} border-2 border-neutral-600 cursor-pointer group`}
+      className={`w-full h-full aspect-[4/3] bg-neutral-800 rounded-lg shadow-2xl overflow-hidden ${transformClasses} ${opacityClass} border-2 border-neutral-600 cursor-pointer group`}
       style={{ transformStyle: 'preserve-3d', zIndex }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -153,7 +155,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   );
 };
 
-export const GalleryDetail: React.FC<GalleryDetailProps> = ({ setView, leaderboards, images, currentIndex }) => {
+export const GalleryDetail: React.FC<GalleryDetailProps> = ({ view, setView, leaderboards, images, currentIndex }) => {
   const galleryRef = useRef<HTMLDivElement>(null);
   const [hoveredImageId, setHoveredImageId] = useState<string | null>(null);
 
@@ -166,10 +168,10 @@ export const GalleryDetail: React.FC<GalleryDetailProps> = ({ setView, leaderboa
 
   return (
     <div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div 
           ref={galleryRef} 
-          className="flex flex-col" 
+          className="flex" 
           style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
           role="region"
           aria-label="Leaderboard"
@@ -185,8 +187,9 @@ export const GalleryDetail: React.FC<GalleryDetailProps> = ({ setView, leaderboa
           />
         </div>
         <div
-          className='flex col-span-2 col-start-2'
+          className='flex col-span-2 col-start-2 full h-full p-4 overflow-y-auto'
         >
+          <GalleryTabs view={view} setView={setView} leaderboard={centerImage} images={images} />
           <LeaderboardDetail leaderboard={centerImage} />
         </div>
       </div>

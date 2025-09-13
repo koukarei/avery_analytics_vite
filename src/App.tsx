@@ -15,7 +15,6 @@ import Navigation from '../components/Navigation';
 import MistakesList from '../components/MistakesList';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import type { ViewMode } from '../types/ui';
-import { BottomContentType } from '../types/gallery';
 import { useLocalization } from '../contexts/localizationUtils';
 import { LocalizationProvider } from '../contexts/LocalizationContext';
 import { AuthUserProvider } from '../providers/AuthUserProvider';
