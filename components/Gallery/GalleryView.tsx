@@ -56,7 +56,7 @@ export default function GalleryView() {
     });
   }, [leaderboards.length]);
 
-  const handleViewChange = (newView: 'browsing' | 'detail' | 'word_cloud') => {
+  const handleViewChange = (newView: GalleryView) => {
     setView(newView);
   };
   

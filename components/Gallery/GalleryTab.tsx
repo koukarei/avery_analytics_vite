@@ -38,7 +38,7 @@ function GalleryTabPanel(props: GalleryTabPanelProps) {
     >
       {value === index && (
         <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
+          <Box>{children}</Box>
         </Box>
       )}
     </div>
@@ -76,7 +76,6 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ view, setView, images, 
         <div 
           ref={galleryRef} 
           className="flex" 
-          style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
           role="region"
           aria-label="Leaderboard"
         >
@@ -94,7 +93,7 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ view, setView, images, 
       <AppBar position="static">
         <Tabs
           css={tabBarStyle(theme)}
-          value={view}
+          value={value}
           onChange={handleChange}
           indicatorColor="secondary"
           textColor="inherit"
