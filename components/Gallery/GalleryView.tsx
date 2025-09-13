@@ -95,10 +95,9 @@ export default function GalleryView() {
         )
       case 'detail':
         return (
-        <div className="h-full relative flex flex-col md:flex-row items-center justify-center bg-neutral-900 overflow-hidden pt-4 md:pt-8">
+        <div className="h-full w-full overflow-hidden pt-4 md:pt-8">
           {leaderboards ? (
             <GalleryTabs
-              view={view}
               setView={handleViewChange}
               leaderboard={leaderboards[(galleryCurrentIndex + 1) % leaderboards.length] || null}
               images={images}

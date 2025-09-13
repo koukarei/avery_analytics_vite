@@ -8,8 +8,8 @@ import {theme} from "../../src/Theme";
 import AppBar from '@mui/material/AppBar';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
 
 import type { Leaderboard, LeaderboardAnalysis, Scene } from '../../types/leaderboard';
 import type { GalleryView, GalleryDetailView } from '../../types/ui';
@@ -61,77 +61,74 @@ interface GalleryTabProps {
   leaderboard: Leaderboard | null;
 }
 
-export const GalleryTabs: React.FC<GalleryTabProps> = ({ view, setView, images, leaderboard }) => {
+export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leaderboard }) => {
   const galleryRef = useRef<HTMLDivElement>(null);
-  const [hoveredImageId, setHoveredImageId] = useState<string | null>(null);
+  const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
   const [detailView, setDetailView] = useState<GalleryDetailView>('detail');
-  const value = GALLERY_DETAIL_VIEWS.indexOf(detailView);
+  const [value, setValue] = useState<number>(GALLERY_DETAIL_VIEWS.indexOf(detailView));
+  const { t } = useLocalization();
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setDetailView(GALLERY_DETAIL_VIEWS[newValue]);
+    setValue(newValue);
   };
 
   return (
-    <div>
-        <div 
+    <Grid container spacing={2} className="w-full h-full flex justify-center">
+        <Grid
+          size={{ xs: 6, md: 3 }} 
           ref={galleryRef} 
-          className="flex" 
           role="region"
           aria-label="Leaderboard"
         >
-          <ImagePanel
+          {leaderboard ? (
+            <ImagePanel
             leaderboard={leaderboard}
             imageUrl={images[leaderboard?.id]}
-            position="center"
             isHovered={hoveredImageId === leaderboard?.id}
             onMouseEnter={() => leaderboard && setHoveredImageId(leaderboard.id)}
             onMouseLeave={() => setHoveredImageId(null)}
             onClick={leaderboard ? () => setView('browsing') : undefined}
-          />
-        </div>
-    <Box css={tabContainerStyle(theme)}>
-      <AppBar position="static">
-        <Tabs
-          css={tabBarStyle(theme)}
-          value={value}
-          onChange={handleChange}
-          indicatorColor="secondary"
-          textColor="inherit"
-          variant="fullWidth"
-          aria-label="full width tabs"
-        >
-          <Tab label="Detail" {...a11yProps(0)} />
-          <Tab label="Word Cloud" {...a11yProps(1)} />
-          <Tab label="Leaderboard" {...a11yProps(2)} />
-          <Tab label="Writer" {...a11yProps(3)} />
-        </Tabs>
-      </AppBar>
-      <GalleryTabPanel value={value} index={0} dir={theme.direction}>
-        <LeaderboardDetail leaderboard={leaderboard} />
-      </GalleryTabPanel>
-      <GalleryTabPanel value={value} index={1} dir={theme.direction}>
-        Word Cloud
-      </GalleryTabPanel>
-      <GalleryTabPanel value={value} index={2} dir={theme.direction}>
-        Leaderboard
-      </GalleryTabPanel>
-      <GalleryTabPanel value={value} index={3} dir={theme.direction}>
-        Writer
-      </GalleryTabPanel>
-    </Box>
-    </div>
+          />) : (
+            <p className="text-xl text-gray-400">{t('galleryView.noImageToDisplay')}</p>
+          )
+          }
+        </Grid>
+        <Grid size={{ xs: 12, md: "grow" }} className="h-full">
+          <Box css={tabContainerStyle(theme)}>
+            <AppBar position="static">
+              <Tabs
+                css={tabBarStyle(theme)}
+                value={value}
+                onChange={handleChange}
+                indicatorColor="secondary"
+                textColor="inherit"
+                variant="fullWidth"
+                aria-label="full width tabs"
+              >
+                <Tab label="Detail" {...a11yProps(0)} />
+                <Tab label="Word Cloud" {...a11yProps(1)} />
+                <Tab label="Leaderboard" {...a11yProps(2)} />
+                <Tab label="Writer" {...a11yProps(3)} />
+              </Tabs>
+            </AppBar>
+            <GalleryTabPanel value={value} index={0} dir={theme.direction}>
+              <LeaderboardDetail leaderboard={leaderboard} />
+            </GalleryTabPanel>
+            <GalleryTabPanel value={value} index={1} dir={theme.direction}>
+              Word Cloud
+            </GalleryTabPanel>
+            <GalleryTabPanel value={value} index={2} dir={theme.direction}>
+              Leaderboard
+            </GalleryTabPanel>
+            <GalleryTabPanel value={value} index={3} dir={theme.direction}>
+              Writer
+            </GalleryTabPanel>
+          </Box>
+        </Grid>
+    </Grid>
   );
-}
-
-
-interface GalleryDetailProps {
-  view: GalleryView;
-  setView: (view: GalleryView) => void;
-  leaderboards: Leaderboard[];
-  images: Record<number, string>; // Mapping of leaderboard ID to image URL
-  currentIndex: number; // Index of the first image in the triplet to display
-  onScroll: (direction: 'up' | 'down') => void;
-}
+};
 
 interface ImagePanelProps {
   leaderboard: Leaderboard | null;
@@ -198,32 +195,6 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   );
 };
 
-export const GalleryDetail: React.FC<GalleryDetailProps> = ({ setView, leaderboards, images, currentIndex }) => {
-  const galleryRef = useRef<HTMLDivElement>(null);
-  const [hoveredImageId, setHoveredImageId] = useState<string | null>(null);
-
-  useEffect(() => {
-  }, []);
-
-  if (!leaderboards || leaderboards.length === 0) return null;
-
-  const centerImage = leaderboards[(currentIndex + 1) % leaderboards.length] || null;
-
-  return (
-    <div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-
-        <div
-          className='flex col-span-2 col-start-2 full h-full p-4 overflow-y-auto'
-        >
-          <LeaderboardForm value={0} index={0} dir={'ltr'}></LeaderboardForm>
-        </div>
-      </div>
-    </div>
-
-  );
-};
-
 const tabBarStyle = (theme: Theme) => css`
   background-color: ${theme.palette.primary.light};
   border-color: ${theme.palette.primary.dark};
@@ -231,4 +202,7 @@ const tabBarStyle = (theme: Theme) => css`
 
 const tabContainerStyle = (theme: Theme) => css`
   background-color: ${theme.palette.background.paper};
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
 `;
