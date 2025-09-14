@@ -5,28 +5,10 @@ import type { GalleryView } from '../../types/ui';
 import { AuthUserContext } from '../../providers/AuthUserProvider';
 import { LeaderboardAnalysisContext } from "../../providers/LeaderboardProvider";
 import { SceneContext } from "../../providers/SceneProvider";
+import { StoryContext } from "../../providers/StoryProvider";
 
 import { ViewLeaderboard, EditLeaderboard } from './LeaderboardForm';
 import { useLocalization } from '../../contexts/localizationUtils';
-
-interface GalleryDetailProps {
-  view: GalleryView;
-  setView: (view: GalleryView) => void;
-  leaderboards: Leaderboard[];
-  images: Record<number, string>; // Mapping of leaderboard ID to image URL
-  currentIndex: number; // Index of the first image in the triplet to display
-  onScroll: (direction: 'up' | 'down') => void;
-}
-
-interface ImagePanelProps {
-  leaderboard: Leaderboard | null;
-  imageUrl: string | null;
-  position: 'left' | 'center' | 'right';
-  isHovered: boolean;
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
-  onClick?: () => void; // Added for click navigation
-}
 
 interface LeaderboardDetailProps {
     leaderboard: Leaderboard | null;
@@ -37,6 +19,7 @@ export const LeaderboardDetail: React.FC<LeaderboardDetailProps> = ({ leaderboar
   const authUserData = useContext(AuthUserContext);
   const { analysis, fetchAnalysis } = useContext(LeaderboardAnalysisContext);
   const { scenes } = useContext(SceneContext);
+  const { stories } = useContext(StoryContext);
   const [ cloud_type, setCloudType ] = useState<string>("mistake");
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const { t, language } = useLocalization();
@@ -71,13 +54,13 @@ export const LeaderboardDetail: React.FC<LeaderboardDetailProps> = ({ leaderboar
   if (authUserData?.currentUser?.user_type === "student") {
     return (
         <div className="w-full h-full p-4 overflow-y-auto">
-        <ViewLeaderboard leaderboard={leaderboard} analysis={analysis} scenes={scenes} />
+        <ViewLeaderboard leaderboard={leaderboard} analysis={analysis} scenes={scenes} stories={stories} />
         </div>
     );
   } else {
     return (
       <div className="w-full h-full p-4 overflow-y-auto">
-        <ViewLeaderboard leaderboard={leaderboard} analysis={analysis} scenes={scenes} />
+        <ViewLeaderboard leaderboard={leaderboard} analysis={analysis} scenes={scenes} stories={stories} />
       </div>
     );
   }

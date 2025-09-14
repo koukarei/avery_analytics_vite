@@ -28,6 +28,9 @@ import {
 import {
   SceneProvider
 } from '../providers/SceneProvider';
+import {
+  StoryProvider
+} from '../providers/StoryProvider';
 import AcademicCapIcon from '../components/icons/AcademicCapIcon';
 import LightbulbIcon from '../components/icons/LightbulbIcon';
 import ChartBarIcon from '../components/icons/ChartBarIcon';
@@ -80,7 +83,9 @@ const AppContent: React.FC = () => {
       <Header />
       <Navigation activeView={activeView} setActiveView={setActiveView} 
         showStudentNames={showStudentNames} toggleShowStudentNames={toggleShowStudentNames}/>
+      <main className="max-h-screen flex-grow">
       {renderContent()}
+      </main>
       <footer className="text-center p-4 mt-auto" css={footerStyle}>
         <p>{t('footer.text', { year: new Date().getFullYear() })}</p>
       </footer>
@@ -111,7 +116,9 @@ const App: React.FC = () => {
                     <LeaderboardImagesProvider>
                       <WordCloudProvider>
                         <SceneProvider>
-                          <GalleryView />
+                          <StoryProvider>
+                            <GalleryView />
+                          </StoryProvider>
                         </SceneProvider>
                       </WordCloudProvider>
                     </LeaderboardImagesProvider>
@@ -131,7 +138,9 @@ const App: React.FC = () => {
                     <LeaderboardImagesProvider>
                       <WordCloudProvider>
                         <SceneProvider>
-                          <AppContent />
+                          <StoryProvider>
+                            <AppContent />
+                          </StoryProvider>
                         </SceneProvider>
                       </WordCloudProvider>
                     </LeaderboardImagesProvider>

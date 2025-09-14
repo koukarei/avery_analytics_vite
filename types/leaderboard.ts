@@ -52,6 +52,8 @@ export interface Scene {
 
 export interface Story {
   id: number;
+  title: string;
+  scene: Scene;
   content: string;
 }
 
@@ -94,15 +96,21 @@ export interface LeaderboardAnalysis {
   assistant_chat_word_cloud_id: number;
 }
 
+export interface LeaderboardDetail {
+  title: string;
+  scene_id: number;
+  story_id?: number;
+  created_by: UserOut;
+  story_extract: string;
+  published_at: Date;
+  descriptions?: string;
+  vocabularies: Vocabulary[];
+}
+
 export interface MistakeItem {
   extracted_text: string; // Text where the mistake was found
   explanation: string;
   correction: string;
-}
-
-export enum BottomContentType {
-  WordCloudItem,
-  GenerationItem,
 }
 
 export type LeaderboardListParams = {
@@ -126,7 +134,7 @@ export type WordCloudParams = {
   cloud_type: 'mistake' | 'writing' | 'user_chat' | 'assistant_chat';
 }
 
-export type SceneListParams = {
+export type BaseListParams = {
   skip?: number;
   limit?: number;
 };

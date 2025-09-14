@@ -14,6 +14,8 @@ import EyeSlashIcon from './icons/EyeSlashIcon';
 interface NavigationProps {
   activeView: ViewMode;
   setActiveView: (view: ViewMode) => void;
+  showStudentNames: boolean;
+  toggleShowStudentNames: () => void;
 }
 
 const Navigation: React.FC<NavigationProps> = ({ activeView, setActiveView, showStudentNames, toggleShowStudentNames }) => {

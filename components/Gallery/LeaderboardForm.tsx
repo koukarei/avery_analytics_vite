@@ -1,14 +1,20 @@
 /** @jsxImportSource @emotion/react */
-import React, { useContext } from "react";
+import React, { useContext, useState, useRef } from "react";
+import type { ChangeEvent } from "react";
 import { css, keyframes } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import MenuItem from "@mui/material/MenuItem";
+import dayjs from 'dayjs';
+import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import {theme} from "../../src/Theme";
-import { Link, useSearchParams } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
 import { Box, IconButton, InputAdornment, TextField } from "@mui/material";
 import HighlightOffIcon from '../icons/HighlightOffIcon';
-import type { Leaderboard, LeaderboardAnalysis, LeaderboardAnalysisParams, Scene } from "../../types/leaderboard";
+import type { Leaderboard, LeaderboardAnalysis, LeaderboardDetail, LeaderboardAnalysisParams, Scene, Story } from "../../types/leaderboard";
+import VocabularyChip from "./VocabularyChip";
 
 function ClearAdornment({ name, setValue }: { name: string; setValue: any }) {
   return (
@@ -40,19 +46,77 @@ const rules = {
   },
 };
 
-function ViewLeaderboard({ leaderboard, analysis, scenes }: { leaderboard: Leaderboard, analysis: LeaderboardAnalysis, scenes: Scene[] }) {
+function ViewLeaderboard({ leaderboard, analysis, scenes, stories }: { leaderboard: Leaderboard, analysis: LeaderboardAnalysis, scenes: Scene[], stories: Story[] }) {
 
   const {
     control,
     formState: { errors },
-  } = useForm<Leaderboard>({
+  } = useForm<LeaderboardDetail>({
     defaultValues:{
       title: analysis.title,
-      scene: leaderboard.scene.id,
-      story_extract: analysis.story_extract,
+      created_by: leaderboard.created_by.display_name,
       published_at: analysis.published_at,
+      scene_id: leaderboard.scene.id,
+      story_id: leaderboard.story?.id,
+      story_extract: analysis.story_extract,
+      descriptions: analysis.descriptions || "",
+      vocabularies: leaderboard.vocabularies,
     }
   });
+
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState('');
+  const [typing, setTyping] = useState(false); // 日本語入力中は true
+  const tagInputRef = useRef<HTMLInputElement>(null);
+
+
+  const handleTagInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setTagInput(e.target.value.trim());
+  };
+
+  const handleTagInputBlur = () => {
+    processTagInput();
+  };
+
+  const appendTags = (newTags: string[]) => {
+    const uniqueTags = Array.from(new Set(newTags));
+    const newTagList = [...tags.filter(tag => !uniqueTags.includes(tag)), ...uniqueTags];
+    setTags(newTagList);
+  };
+
+  const processTagInput = () => {
+    if (tagInput.trim() === '') return;
+    const newTags = tagInput.split(/\s+/).filter(tag => tag !== '');
+    appendTags(newTags);
+    setTagInput('');
+  };
+
+  const handleTagDelete = (index: number) => {
+    setTags(tags.filter((_, i) => i !== index));
+  };
+
+  const handleTagInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (typing) return;
+    if (e.key === ' ' || e.key === '　' || e.key === 'Enter') {
+      processTagInput();
+    } else if (e.key === 'Backspace' && tagInput === '' && tags.length > 0) {
+      handleTagDelete(tags.length - 1);
+    }
+  };
+
+  const setFocusOnTagInput = () => {
+    if (tagInputRef.current) {
+      tagInputRef.current.focus();
+    }
+  };
+
+  const handleCompositionUpdate = (e: React.CompositionEvent<HTMLInputElement>) => {
+    // 確定文字が全角スペースの場合，compositionend イベントが発生しない
+    if (e.data === '　') {
+      setTyping(false);
+      processTagInput();
+    }
+  };
 
   return (
     <>
@@ -67,7 +131,7 @@ function ViewLeaderboard({ leaderboard, analysis, scenes }: { leaderboard: Leade
                 { ...field }
                 fullWidth
                 disabled 
-                label="タイトル"
+                label="タイトル/ Title"
                 placeholder="タイトル"
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
@@ -77,15 +141,49 @@ function ViewLeaderboard({ leaderboard, analysis, scenes }: { leaderboard: Leade
         </div>
         <div css={formInputStyle}>
           <Controller
-            name="scene"
+            name="created_by"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                { ...field }
+                fullWidth
+                disabled 
+                label="作成者/ Created By"
+                placeholder="作成者"
+                error={errors[field.name] ? true : false}
+                helperText={(errors[field.name]?.message as string) || " "}
+              />
+            )}
+          />
+        </div>
+        <div css={formInputStyle}>
+          <Controller
+            name="published_at"
+            control={control}
+            rules={rules.published_at}
+            render={({ field }) => (
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DemoItem label="公開日/ Published Date">
+                  <DatePicker
+                    defaultValue={dayjs(analysis.published_at)}
+                    disabled
+                />
+                </DemoItem>
+              </LocalizationProvider>
+            )}
+          />
+        </div>
+        <div css={formInputStyle}>
+          <Controller
+            name="scene_id"
             control={control}
             render={({ field }) => (
               <TextField
                 {...field}
                 fullWidth
                 select
-                disabled 
-                label="シーン"
+                disabled
+                label="シーン/ Scene"
                 placeholder="シーン"
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
@@ -98,6 +196,89 @@ function ViewLeaderboard({ leaderboard, analysis, scenes }: { leaderboard: Leade
 
               </TextField>
             )}
+          />
+        </div>
+        <div css={formInputStyle}>
+          <Controller
+            name="story_id"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                fullWidth
+                select
+                disabled
+                label="ストーリー/ Story"
+                placeholder="ストーリー"
+                error={errors[field.name] ? true : false}
+                helperText={(errors[field.name]?.message as string) || " "}
+              >
+                {Array.isArray(stories) && stories.map((story) => (
+                  <MenuItem key={story.id} value={story.id}>
+                    {story.title}
+                  </MenuItem>
+                ))}
+
+              </TextField>
+            )}
+          />
+        </div>
+        <div css={formInputStyle}>
+          <Controller
+            name="story_extract"
+            control={control}
+            rules={rules.story_extract}
+            render={({ field }) => (
+              <TextField
+                { ...field }
+                fullWidth
+                multiline
+                minRows={2}
+                maxRows={6}
+                disabled
+                label="ストーリー抜粋/ Story Extract"
+                placeholder="ストーリー抜粋"
+                error={errors[field.name] ? true : false}
+                helperText={(errors[field.name]?.message as string) || " "}
+              />
+            )}
+          />
+        </div>
+        <div css={formInputStyle}>
+          <Controller
+            name="descriptions"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                { ...field }
+                fullWidth
+                multiline
+                minRows={2}
+                maxRows={6}
+                disabled
+                label="説明/ Description"
+                placeholder="説明"
+                error={errors[field.name] ? true : false}
+                helperText={(errors[field.name]?.message as string) || " "}
+              />
+            )}
+          />
+        </div>
+        <div css={tagAreaStyle} onClick={setFocusOnTagInput}>
+          {tags.map((tag, index) => (
+            <VocabularyChip key={index} label={tag} onDelete={() => handleTagDelete(index)} />
+          ))}
+          <input type="text"
+            ref={tagInputRef}
+            value={tagInput}
+            placeholder={tags.length == 0 ? 'タグをスペース区切りで入力' : ''}
+            onChange={handleTagInputChange}
+            onBlur={handleTagInputBlur}
+            onKeyDown={handleTagInputKeyDown}
+            onCompositionStart={() => setTyping(true)}
+            onCompositionUpdate={handleCompositionUpdate}
+            onCompositionEnd={() => setTyping(false)}
+            css={tagInputStyle}
           />
         </div>
         {errors.root && (
@@ -117,67 +298,6 @@ function EditLeaderboard({ leaderboard }: { leaderboard: LeaderboardAnalysis | n
     </>
   );
 };
-
-export default function LeaderboardForm() {
-  const [searchParams] = useSearchParams();
-
-  sessionStorage.removeItem("token");
-
-  let comp;
-  if (searchParams.has("edit")) {
-    comp = <EditLeaderboard />;
-  } else {
-    comp = <ViewLeaderboard />;
-  }
-
-  return (
-    <Box css={backStyle(theme)}>
-      <div css={containerStyle}>{comp}</div>
-    </Box>
-  );
-}
-
-const backStyle = (theme: Theme) => css`
-  min-height: 100vh;
-  min-height: 100dvh;
-  width: 100%;
-  margin: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: ${theme.palette.primary.main};
-  background-image: linear-gradient(
-      to bottom,
-      rgba(255, 255, 255, 0) 20%,
-      ${theme.palette.primary.main} 100%
-    ),
-    url(${process.env.PUBLIC_URL + "/images/background.jpg"});
-  background-position: center bottom;
-  background-size: 140%;
-  background-repeat: no-repeat;
-`;
-
-const containerStyle = css`
-  width: 80%;
-  max-width: 600px;
-  text-align: center;
-  display: flex;
-  flex-flow: column;
-  justify-content: center;
-  align-items: center;
-`;
-
-const fadeUpAnime = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(100px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
 
 const formStyle = (theme: Theme) => css`
   display: flex;
@@ -246,6 +366,31 @@ const selectLoginLinkStyle = (theme: Theme) => css`
 const errorMessageStyle = css`
   font-size: 14px;
   color: red;
+`;
+
+const tagAreaStyle = css`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 10px;
+  background-color: #e9f7fb;
+  border: 1px solid #797979;
+  border-left: none;
+  border-right: none;
+  box-sizing: border-box;
+`;
+
+const tagInputStyle = css`
+  flex: 1;
+  min-width: 50px;
+  padding: 5px;
+  font-size: 1rem;
+  line-height: 1.2;
+  border: none;
+  outline: none;
+  resize: none;
+  box-sizing: border-box;
+  background-color: transparent;
 `;
 
 export { ViewLeaderboard, EditLeaderboard };

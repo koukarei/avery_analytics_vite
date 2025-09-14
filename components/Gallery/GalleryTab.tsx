@@ -74,7 +74,7 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
   };
 
   return (
-    <Grid container spacing={2} className="w-full h-full flex justify-center">
+    <Grid container spacing={0} className="w-full h-full flex justify-center">
         <Grid
           size={{ xs: 6, md: 3 }} 
           ref={galleryRef} 
@@ -94,7 +94,7 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
           )
           }
         </Grid>
-        <Grid size={{ xs: 12, md: "grow" }} className="h-full">
+        <Grid size={{ xs: 12, md: "grow" }} className="h-full overflow-y-auto">
           <Box css={tabContainerStyle(theme)}>
             <AppBar position="static">
               <Tabs
@@ -185,7 +185,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
         }
       }}
     >
-      <img src={imageUrl} alt={leaderboard?.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-focus:scale-105" />
+      {imageUrl ? <img src={imageUrl} alt={leaderboard?.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-focus:scale-105" /> : null}
       {(isHovered) && (
         <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out">
           <p className="text-white text-lg sm:text-xl md:text-2xl font-semibold text-center select-none">{leaderboard?.title}</p>
