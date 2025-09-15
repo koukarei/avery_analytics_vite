@@ -17,6 +17,13 @@ import { GALLERY_DETAIL_VIEWS } from '../../types/ui';
 import { LeaderboardDetail } from './GalleryDetail';
 import { LeaderboardItemProvider } from '../../providers/LeaderboardProvider';
 
+import {
+  SceneProvider
+} from '../../providers/SceneProvider';
+import {
+  StoryProvider
+} from '../../providers/StoryProvider';
+
 import { useLocalization } from '../../contexts/localizationUtils';
 
 interface GalleryTabPanelProps {
@@ -115,9 +122,13 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
             <GalleryTabPanel value={value} index={0} dir={theme.direction}>
               
               {leaderboard ? (
-                <LeaderboardItemProvider>
-                  <LeaderboardDetail leaderboard_id={leaderboard.id} />
-                </LeaderboardItemProvider>
+                <SceneProvider>
+                  <StoryProvider>
+                    <LeaderboardItemProvider>
+                      <LeaderboardDetail leaderboard_id={leaderboard.id} />
+                    </LeaderboardItemProvider>
+                  </StoryProvider>
+                </SceneProvider>
               ) : (
                 <p className="text-xl text-gray-400">{t('galleryView.noLeaderboardToDisplay')}</p>
               )}

@@ -26,12 +26,6 @@ import {
   WordCloudProvider,
   LeaderboardItemProvider
  } from '../providers/LeaderboardProvider';
-import {
-  SceneProvider
-} from '../providers/SceneProvider';
-import {
-  StoryProvider
-} from '../providers/StoryProvider';
 import AcademicCapIcon from '../components/icons/AcademicCapIcon';
 import LightbulbIcon from '../components/icons/LightbulbIcon';
 import ChartBarIcon from '../components/icons/ChartBarIcon';
@@ -54,11 +48,7 @@ const AppContent: React.FC = () => {
         return (
             <LeaderboardListProvider>
                 <LeaderboardImagesProvider>
-                  <SceneProvider>
-                    <StoryProvider>
-                      <GalleryView />
-                    </StoryProvider>
-                  </SceneProvider>
+                  <GalleryView />
                 </LeaderboardImagesProvider>
             </LeaderboardListProvider>
               
@@ -119,11 +109,7 @@ const App: React.FC = () => {
               <LocalizationProvider>
                 <LeaderboardListProvider>
                     <LeaderboardImagesProvider>
-                      <SceneProvider>
-                        <StoryProvider>
-                          <GalleryView />
-                        </StoryProvider>
-                      </SceneProvider>
+                      <GalleryView />
                     </LeaderboardImagesProvider>
                 </LeaderboardListProvider>
               </LocalizationProvider>
