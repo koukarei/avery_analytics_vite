@@ -6,8 +6,13 @@ import type { Leaderboard } from '../../types/leaderboard';
 import type { GalleryView } from '../../types/ui';
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
-import { LeaderboardImageContext } from '../../providers/LeaderboardProvider';
-import { LeaderboardImagesContext } from '../../providers/LeaderboardProvider';
+import { AddImageModal } from './AddImageModal';
+
+interface ImageItem {
+  id: string;
+  name: string;
+  url: string;
+}
 
 interface ImageGalleryProps {
   view: GalleryView;
@@ -53,16 +58,13 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   switch (position) {
     case 'left':
       transformClasses += ' rotate-y-[50deg] scale-[0.8] -translate-z-[100px]';
-      zIndex = 5;
       opacityClass = 'opacity-75 group-hover:opacity-90 group-focus:opacity-90';
       break;
     case 'center':
       transformClasses += ' scale-100 translate-z-[20px]'; // Center panel pops slightly forward
-      zIndex = 20;
       break;
     case 'right':
       transformClasses += ' -rotate-y-[50deg] scale-[0.8] -translate-z-[100px]';
-      zIndex = 5;
       opacityClass = 'opacity-75 group-hover:opacity-90 group-focus:opacity-90';
       break;
   }
@@ -71,7 +73,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
     return (
       <div 
         className={`w-2/3 sm:w-1/2 md:w-1/3 aspect-[4/3] bg-neutral-700 rounded-lg shadow-2xl flex items-center justify-center ${transformClasses} ${opacityClass} border-2 border-neutral-600`}
-        style={{ transformStyle: 'preserve-3d', zIndex }}
+        style={{ transformStyle: 'preserve-3d' }}
         aria-hidden="true"
       >
         {/* Empty panel placeholder */}
@@ -82,7 +84,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   return (
     <div
       className={`w-2/3 sm:w-1/2 md:w-1/3 aspect-[4/3] bg-neutral-800 rounded-lg shadow-2xl overflow-hidden relative ${transformClasses} ${opacityClass} border-2 border-neutral-600 cursor-pointer group`}
-      style={{ transformStyle: 'preserve-3d', zIndex }}
+      style={{ transformStyle: 'preserve-3d'}}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onFocus={onMouseEnter} 
@@ -149,6 +151,8 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
   const isSwiping = useRef<boolean>(false); // To distinguish tap from swipe
+  const [cur_images, setCurImages] = useState<Record<number, string>>(images);
+  const [isAddImageModalOpen, setIsAddImageModalOpen] = useState(false);
 
   useEffect(() => {
     const currentGalleryRef = galleryRef.current;
@@ -221,41 +225,67 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
   const centerImage = leaderboards[(currentIndex + 1) % leaderboards.length] || null;
   const rightImage = leaderboards[(currentIndex + 2) % leaderboards.length] || null;
 
+
+  const handleAddImage = (newImage: ImageItem) => {
+    setCurImages(prevImages => [...prevImages, newImage]);
+    setIsAddImageModalOpen(false);
+  };
+
   return (
-    <div 
-      ref={galleryRef} 
-      className="w-full h-1/2 flex items-center justify-center space-x-[-5%] sm:space-x-[-2%] md:space-x-[-1%] relative" 
-      style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
-      role="region"
-      aria-label="Leaderboard"
-    >
-      <ImagePanel
-        leaderboard={leftImage}
-        imageUrl={images[leftImage?.original_image.id]}
-        position="left"
-        isHovered={hoveredImageId === leftImage?.id}
-        onMouseEnter={() => leftImage && setHoveredImageId(leftImage.id)}
-        onMouseLeave={() => setHoveredImageId(null)}
-        onClick={leftImage ? () => debouncedScroll('up') : undefined}
-      />
-      <ImagePanel
-        leaderboard={centerImage}
-        imageUrl={images[centerImage?.original_image.id]}
-        position="center"
-        isHovered={hoveredImageId === centerImage?.id}
-        onMouseEnter={() => centerImage && setHoveredImageId(centerImage.id)}
-        onMouseLeave={() => setHoveredImageId(null)}
-        onClick={centerImage ? () => setView('detail') : undefined}
-      />
-      <ImagePanel
-        leaderboard={rightImage}
-        imageUrl={images[rightImage?.original_image.id]}
-        position="right"
-        isHovered={hoveredImageId === rightImage?.id}
-        onMouseEnter={() => rightImage && setHoveredImageId(rightImage.id)}
-        onMouseLeave={() => setHoveredImageId(null)}
-        onClick={rightImage ? () => debouncedScroll('down') : undefined}
-      />
+    <div>
+      <div>
+        <button
+          onClick={() => setIsAddImageModalOpen(true)}
+          css={addButtonStyle(theme)}
+          className="absolute top-4 right-4 md:top-6 md:right-6 rounded-full p-3 shadow-lg transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-opacity-75 z-30"
+          aria-label="Add a new writing task"
+          title="Add a new writing task"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
+        <AddImageModal
+          isOpen={isAddImageModalOpen}
+          onClose={() => setIsAddImageModalOpen(false)}
+          onAddImage={handleAddImage}
+        />
+      </div>
+      <div 
+        ref={galleryRef} 
+        className="w-full h-1/2 flex items-start justify-center space-x-[-5%] sm:space-x-[-2%] md:space-x-[-1%] relative" 
+        style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
+        role="region"
+        aria-label="Leaderboard"
+      >
+        <ImagePanel
+          leaderboard={leftImage}
+          imageUrl={cur_images[leftImage?.original_image.id]}
+          position="left"
+          isHovered={hoveredImageId === leftImage?.id}
+          onMouseEnter={() => leftImage && setHoveredImageId(leftImage.id)}
+          onMouseLeave={() => setHoveredImageId(null)}
+          onClick={leftImage ? () => debouncedScroll('up') : undefined}
+        />
+        <ImagePanel
+          leaderboard={centerImage}
+          imageUrl={cur_images[centerImage?.original_image.id]}
+          position="center"
+          isHovered={hoveredImageId === centerImage?.id}
+          onMouseEnter={() => centerImage && setHoveredImageId(centerImage.id)}
+          onMouseLeave={() => setHoveredImageId(null)}
+          onClick={centerImage ? () => setView('detail') : undefined}
+        />
+        <ImagePanel
+          leaderboard={rightImage}
+          imageUrl={cur_images[rightImage?.original_image.id]}
+          position="right"
+          isHovered={hoveredImageId === rightImage?.id}
+          onMouseEnter={() => rightImage && setHoveredImageId(rightImage.id)}
+          onMouseLeave={() => setHoveredImageId(null)}
+          onClick={rightImage ? () => debouncedScroll('down') : undefined}
+        />
+      </div>
     </div>
   );
 };
@@ -263,4 +293,12 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
 const sceneStyles = (theme: Theme) => css`
   background-color: ${theme.palette.primary.dark};
   color: ${theme.palette.primary.contrastText};
+`;
+
+const addButtonStyle = (theme: Theme) => css`
+  background-color: ${theme.palette.secondary.main};
+  color: ${theme.palette.secondary.contrastText};
+  &:hover {
+    background-color: ${theme.palette.secondary.dark};
+  }
 `;

@@ -99,7 +99,7 @@ export interface LeaderboardAnalysis {
 export interface LeaderboardDetail {
   title: string;
   scene_id: number;
-  story_id?: number;
+  story_id?: number | string;
   created_by: string;
   story_extract: string;
   published_at: Date;

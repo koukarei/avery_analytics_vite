@@ -1,6 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import React, { useContext, useState, useRef } from "react";
-import type { ChangeEvent } from "react";
+import React, { useState } from 'react';
 import { css, keyframes } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import MenuItem from "@mui/material/MenuItem";
@@ -11,175 +10,59 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import {theme} from "../../src/Theme";
 import { Controller, useForm } from "react-hook-form";
-import { Box, IconButton, InputAdornment, TextField } from "@mui/material";
-import HighlightOffIcon from '../icons/HighlightOffIcon';
+import { TextField } from "@mui/material";
 import type { LeaderboardItem, LeaderboardAnalysis, LeaderboardDetail, LeaderboardAnalysisParams, Scene, Story } from "../../types/leaderboard";
 import VocabularyChip from "./VocabularyChip";
 
-function ClearAdornment({ name, setValue }: { name: string; setValue: any }) {
-  return (
-    <InputAdornment position="end">
-      <IconButton onClick={() => setValue(name, "")} edge="end" tabIndex={-1}>
-        <HighlightOffIcon />
-      </IconButton>
-    </InputAdornment>
-  );
+import { ImageItem } from '../types';
+
+interface AddImageModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onAddImage: (image: ImageItem) => void;
 }
 
-const rules = {
-  title: {
-    required: "タイトルを入力してください",
-    maxLength: {
-      value: 254,
-      message: "タイトルが長すぎます",
-    },
-  },
-  story_extract: {
-    required: "ストーリー抜粋を入力してください",
-    maxLength: {
-      value: 254,
-      message: "ストーリー抜粋は 254 文字以内で入力してください",
-    },
-  },
-  published_at: {
-    required: "公開日を入力してください",
-  },
-};
+export const AddImageModal: React.FC<AddImageModalProps> = ({ isOpen, onClose, onAddImage }) => {
+  const [name, setName] = useState('');
+  const [url, setUrl] = useState('');
 
-function ViewLeaderboard({ leaderboard, scenes, stories }: { leaderboard: LeaderboardItem, scenes: Scene[], stories: Story[] }) {
+  if (!isOpen) {
+    return null;
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (name.trim() && url.trim()) {
+      onAddImage({
+        id: `img_${new Date().getTime()}`, // Simple unique ID
+        name,
+        url,
+      });
+      setName('');
+      setUrl('');
+    }
+  };
 
   const {
     control,
     formState: { errors },
-  } = useForm<LeaderboardDetail>({
-    defaultValues:{
-      title: leaderboard.title,
-      created_by: leaderboard.created_by.display_name,
-      published_at: leaderboard.published_at,
-      scene_id: leaderboard.scene.id,
-      story_id: leaderboard.story?.id ?? "",
-      story_extract: leaderboard.story_extract,
-      vocabularies: leaderboard.vocabularies,
-    }
-  });
+  } = useForm<LeaderboardDetail>({});
 
   return (
-    <>
-      <form className="grid">
-        <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
-          <Controller
-            name="title"
-            control={control}
-            rules={rules.title}
-            render={({ field }) => (
-              <TextField
-                { ...field }
-                fullWidth
-                disabled 
-                label="タイトル/ Title"
-                placeholder="タイトル"
-                error={errors[field.name] ? true : false}
-                helperText={(errors[field.name]?.message as string) || " "}
-              />
-            )}
-          />
-        </div>
-        <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
-          <Controller
-            name="published_at"
-            control={control}
-            rules={rules.published_at}
-            render={({ field }) => (
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DemoItem>
-                  <DatePicker
-                    label="公開日/ Published Date"
-                    defaultValue={dayjs(leaderboard.published_at)}
-                    disabled
-                />
-                </DemoItem>
-              </LocalizationProvider>
-            )}
-          />
-        </div>
-        <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
-          <Controller
-            name="scene_id"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                fullWidth
-                select
-                disabled
-                label="シーン/ Scene"
-                placeholder="シーン"
-                error={errors[field.name] ? true : false}
-                helperText={(errors[field.name]?.message as string) || " "}
-              >
-                {Array.isArray(scenes) && scenes.map((scene) => (
-                  <MenuItem key={scene.id} value={scene.id}>
-                    {scene.name}
-                  </MenuItem>
-                ))}
-
-              </TextField>
-            )}
-          />
-        </div>
-        <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
-          <Controller
-            name="story_id"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                fullWidth
-                select
-                disabled
-                label="ストーリー/ Story"
-                placeholder="ストーリー"
-                error={errors[field.name] ? true : false}
-                helperText={(errors[field.name]?.message as string) || " "}
-              >
-                {Array.isArray(stories) && stories.map((story) => (
-                  <MenuItem key={story.id} value={story.id}>
-                    {story.title}
-                  </MenuItem>
-                ))}
-
-              </TextField>
-            )}
-          />
-        </div>
-        {errors.root && (
-          <div css={errorMessageStyle}>{errors.root.message}</div>
-        )}
-      </form>
-    </>
-  );
-}
-
-function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: LeaderboardItem, scenes: Scene[], stories: Story[] }) {
-
-  const {
-    control,
-    formState: { errors },
-  } = useForm<LeaderboardDetail>({
-    defaultValues:{
-      title: leaderboard.title,
-      created_by: leaderboard.created_by.display_name,
-      published_at: leaderboard.published_at,
-      scene_id: leaderboard.scene.id,
-      story_id: leaderboard.story?.id ?? "",
-      story_extract: leaderboard.story_extract,
-      vocabularies: leaderboard.vocabularies,
-    }
-  });
-
-  return (
-    <>
-      <form className="grid">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="add-image-modal-title"
+    >
+      <div 
+        className="bg-neutral-800 rounded-lg shadow-xl p-6 md:p-8 w-11/12 max-w-md relative transform transition-all duration-300 ease-in-out scale-95"
+        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
+        style={isOpen ? { transform: 'scale(1)' } : {}}
+      >
+        <h2 id="add-image-modal-title" className="text-2xl font-bold mb-6 text-center text-teal-300 select-none">Add a New Image</h2>
+        <form onSubmit={handleSubmit} className='grid'>
         <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
           <Controller
             name="title"
@@ -322,10 +205,26 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
         {errors.root && (
           <div css={errorMessageStyle}>{errors.root.message}</div>
         )}
-      </form>
-    </>
+          <div className="flex items-center justify-end gap-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="bg-neutral-600 hover:bg-neutral-500 text-white font-bold py-2 px-4 rounded transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-neutral-400"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-teal-400"
+            >
+              Add Image
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
-}
+};
 
 const formInputStyle = css`
   margin: 5px;
@@ -335,9 +234,27 @@ const formInputStyle = css`
   }
 `;
 
+const rules = {
+  title: {
+    required: "タイトルを入力してください",
+    maxLength: {
+      value: 254,
+      message: "タイトルが長すぎます",
+    },
+  },
+  story_extract: {
+    required: "ストーリー抜粋を入力してください",
+    maxLength: {
+      value: 254,
+      message: "ストーリー抜粋は 254 文字以内で入力してください",
+    },
+  },
+  published_at: {
+    required: "公開日を入力してください",
+  },
+};
+
 const errorMessageStyle = css`
   font-size: 14px;
   color: red;
 `;
-
-export { ViewLeaderboard, EditLeaderboard };

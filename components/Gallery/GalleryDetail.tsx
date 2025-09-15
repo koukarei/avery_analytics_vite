@@ -46,7 +46,7 @@ export const LeaderboardDetail: React.FC<LeaderboardDetailProps> = ({ leaderboar
   } else {
     return (
       <Container>
-        <ViewLeaderboard leaderboard={leaderboard} scenes={scenes} stories={stories} />
+        <EditLeaderboard leaderboard={leaderboard} scenes={scenes} stories={stories} />
       </Container>
     );
   }
