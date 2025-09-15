@@ -107,6 +107,19 @@ export interface LeaderboardDetail {
   vocabularies: Vocabulary[];
 }
 
+export interface LeaderboardItem {
+  title: string;
+  story_extract: string;
+  is_public: boolean;
+  published_at: Date;
+  id: number;
+  original_image: IdOnly;
+  scene: Scene;
+  story?: Story;
+  created_by: UserOut;
+  vocabularies: Vocabulary[];
+}
+
 export interface MistakeItem {
   extracted_text: string; // Text where the mistake was found
   explanation: string;

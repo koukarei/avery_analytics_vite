@@ -15,6 +15,7 @@ import type { Leaderboard, LeaderboardAnalysis, Scene } from '../../types/leader
 import type { GalleryView, GalleryDetailView } from '../../types/ui';
 import { GALLERY_DETAIL_VIEWS } from '../../types/ui';
 import { LeaderboardDetail } from './GalleryDetail';
+import { LeaderboardItemProvider } from '../../providers/LeaderboardProvider';
 
 import { useLocalization } from '../../contexts/localizationUtils';
 
@@ -70,7 +71,7 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
     setDetailView(GALLERY_DETAIL_VIEWS[newValue]);
     setValue(newValue);
   };
-
+  
   return (
     <Grid container spacing={0} className="w-full h-full flex justify-center">
         <Grid
@@ -81,8 +82,8 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
         >
           {leaderboard ? (
             <ImagePanel
-            leaderboard={leaderboard}
-            imageUrl={images[leaderboard?.id]}
+            leaderboard_title={leaderboard.title}
+            imageUrl={images[leaderboard?.original_image.id]}
             isHovered={hoveredImageId === leaderboard?.id}
             onMouseEnter={() => leaderboard && setHoveredImageId(leaderboard.id)}
             onMouseLeave={() => setHoveredImageId(null)}
@@ -112,7 +113,14 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
               </Tabs>
             </AppBar>
             <GalleryTabPanel value={value} index={0} dir={theme.direction}>
-              <LeaderboardDetail leaderboard={leaderboard} />
+              
+              {leaderboard ? (
+                <LeaderboardItemProvider>
+                  <LeaderboardDetail leaderboard_id={leaderboard.id} />
+                </LeaderboardItemProvider>
+              ) : (
+                <p className="text-xl text-gray-400">{t('galleryView.noLeaderboardToDisplay')}</p>
+              )}
             </GalleryTabPanel>
             <GalleryTabPanel value={value} index={1} dir={theme.direction}>
               Leaderboard
@@ -124,7 +132,7 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
 };
 
 interface ImagePanelProps {
-  leaderboard: Leaderboard | null;
+  leaderboard_title: string;
   imageUrl: string | null;
   isHovered: boolean;
   onMouseEnter: () => void;
@@ -133,7 +141,7 @@ interface ImagePanelProps {
 }
 
 const ImagePanel: React.FC<ImagePanelProps> = ({ 
-  leaderboard, 
+  leaderboard_title, 
   imageUrl,
   isHovered, 
   onMouseEnter, 
@@ -146,18 +154,6 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
 
   transformClasses += ' scale-100 translate-z-[20px]'; // Center panel pops slightly forward
   zIndex = 20;
-  
-  if (!leaderboard) {
-    return (
-      <div 
-        className={`w-full md:w-auto aspect-[4/3] bg-neutral-700 rounded-lg shadow-2xl flex items-center justify-center ${transformClasses} ${opacityClass} border-2 border-neutral-600`}
-        style={{ transformStyle: 'preserve-3d', zIndex }}
-        aria-hidden="true"
-      >
-        {/* Empty panel placeholder */}
-      </div>
-    );
-  }
 
   return (
     <div
@@ -177,10 +173,10 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
         }
       }}
     >
-      {imageUrl ? <img src={imageUrl} alt={leaderboard?.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-focus:scale-105" /> : null}
+      {imageUrl ? <img src={imageUrl} alt={leaderboard_title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-focus:scale-105" /> : null}
       {(isHovered) && (
         <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out">
-          <p className="text-white text-lg sm:text-xl md:text-2xl font-semibold text-center select-none">{leaderboard?.title}</p>
+          <p className="text-white text-lg sm:text-xl md:text-2xl font-semibold text-center select-none">{leaderboard_title}</p>
         </div>
       )}
     </div>
@@ -195,6 +191,6 @@ const tabBarStyle = (theme: Theme) => css`
 const tabContainerStyle = (theme: Theme) => css`
   background-color: ${theme.palette.background.paper};
   width: 100%;
-  height: 90%;
+  height: 100%;
   border-radius: 8px;
 `;

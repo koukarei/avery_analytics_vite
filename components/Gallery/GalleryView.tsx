@@ -36,7 +36,8 @@ export default function GalleryView() {
   const { images, loading: imagesLoading, fetchImages } = useContext(LeaderboardImagesContext);
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [galleryCurrentIndex, setGalleryCurrentIndex] = useState<number>(1);
-  //const [bottomContent, setBottomContent] = useState<BottomContentType>(BottomContentType.GRAMMAR_VISUALIZATION);
+  const [startLeaderboardIndex, setStartLeaderboardIndex] = useState<number>(0);
+  const limitLeaderboardIndex = 3;
 
   const handleGalleryScroll = useCallback((direction: 'up' | 'down') => {
     setGalleryCurrentIndex(prevIndex => {
@@ -62,10 +63,11 @@ export default function GalleryView() {
   
   useEffect(() => {
     setErrorKey(null);
-    fetchLeaderboards({}).then(leaderboards => {
+    fetchLeaderboards({ skip: startLeaderboardIndex, limit: limitLeaderboardIndex}).then(leaderboards => {
       if (leaderboards.length > 0) {
         fetchImages(leaderboards.map(lb => lb.id));
       }
+      setStartLeaderboardIndex(prev => prev + limitLeaderboardIndex);
     }).catch(err => {
       console.error("Failed to fetch leaderboards: ", err);
       setErrorKey('error.fetch_leaderboards');
@@ -78,7 +80,7 @@ export default function GalleryView() {
     switch (view) {
       case 'browsing':
         return (
-        <div className="h-full relative flex flex-col items-center justify-center bg-neutral-900 overflow-hidden pt-4 md:pt-8">
+        <div className="h-full relative flex flex-col items-start bg-neutral-900 overflow-hidden pt-4 md:pt-8">
           {leaderboards ? (
             <ImageGallery
               view={view}
@@ -95,7 +97,7 @@ export default function GalleryView() {
         )
       case 'detail':
         return (
-        <div className="h-full w-full overflow-hidden pt-4 md:pt-8">
+        <div className="h-full w-full pt-4 md:pt-8">
           {leaderboards ? (
             <GalleryTabs
               view={view}

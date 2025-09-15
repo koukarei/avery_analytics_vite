@@ -23,7 +23,8 @@ import {
   LeaderboardAnalysisProvider,
   LeaderboardImagesProvider,
   LeaderboardImageProvider,
-  WordCloudProvider
+  WordCloudProvider,
+  LeaderboardItemProvider
  } from '../providers/LeaderboardProvider';
 import {
   SceneProvider
@@ -51,29 +52,36 @@ const AppContent: React.FC = () => {
     switch (activeView) {
       case 'gallery':
         return (
-              <LeaderboardListProvider>
-                <LeaderboardAnalysisProvider>
-                  <LeaderboardImageProvider>
-                    <WordCloudProvider>
+            <LeaderboardListProvider>
+                <LeaderboardImagesProvider>
+                  <SceneProvider>
+                    <StoryProvider>
                       <GalleryView />
-                    </WordCloudProvider>
-                  </LeaderboardImageProvider>
-                </LeaderboardAnalysisProvider>
-              </LeaderboardListProvider>
+                    </StoryProvider>
+                  </SceneProvider>
+                </LeaderboardImagesProvider>
+            </LeaderboardListProvider>
+              
         )
       // case 'word_cloud':
       //   return <MistakesList mistakes={writingMistakes} />;
       // case 'analytics':
       //   return <AnalyticsDashboard mistakes={writingMistakes} />;
+      // case 'writer':
+      //   return (
+      //         <LeaderboardListProvider>
+      //           <LeaderboardAnalysisProvider>
+      //             <LeaderboardImageProvider>
+      //               <WordCloudProvider>
+      //                 <WriterView />
+      //               </WordCloudProvider>
+      //             </LeaderboardImageProvider>
+      //           </LeaderboardAnalysisProvider>
+      //         </LeaderboardListProvider>
+      //   )
       default:
         return <p className="text-slate-500 text-center py-10">{t('placeholders.selectView')}</p>;
     }
-  };
-  
-  const viewTitles: Record<ViewMode, { titleKey: string; icon: React.ReactNode }> = {
-    gallery: { titleKey: "viewTitles.gallery", icon: <AcademicCapIcon className="w-7 h-7 mr-2 text-primary"/> },
-    mistakes: { titleKey: "viewTitles.mistakes", icon: <LightbulbIcon className="w-7 h-7 mr-2 text-secondary"/> },
-    analytics: { titleKey: "viewTitles.analytics", icon: <ChartBarIcon className="w-7 h-7 mr-2 text-accent"/> },
   };
 
   return (
@@ -81,12 +89,12 @@ const AppContent: React.FC = () => {
       <Header />
       <Navigation activeView={activeView} setActiveView={setActiveView} 
         showStudentNames={showStudentNames} toggleShowStudentNames={toggleShowStudentNames}/>
-      <main className="max-h-screen flex-grow">
-      {renderContent()}
+      <main className="flex-grow relative overflow-y-auto">
+        {renderContent()}
       </main>
-      <footer className="text-center p-4 mt-auto" css={footerStyle}>
+      {/* <footer css={footerStyle} className='text-center p-4 mt-auto'>
         <p>{t('footer.text', { year: new Date().getFullYear() })}</p>
-      </footer>
+      </footer> */}
     </div>
   );
 };
@@ -110,17 +118,13 @@ const App: React.FC = () => {
             <RequireAuth>
               <LocalizationProvider>
                 <LeaderboardListProvider>
-                  <LeaderboardAnalysisProvider>
                     <LeaderboardImagesProvider>
-                      <WordCloudProvider>
-                        <SceneProvider>
-                          <StoryProvider>
-                            <GalleryView />
-                          </StoryProvider>
-                        </SceneProvider>
-                      </WordCloudProvider>
+                      <SceneProvider>
+                        <StoryProvider>
+                          <GalleryView />
+                        </StoryProvider>
+                      </SceneProvider>
                     </LeaderboardImagesProvider>
-                  </LeaderboardAnalysisProvider>
                 </LeaderboardListProvider>
               </LocalizationProvider>
             </RequireAuth>
@@ -131,19 +135,7 @@ const App: React.FC = () => {
           <AuthUserProvider>
             <RequireAuth>
               <LocalizationProvider>
-                <LeaderboardListProvider>
-                  <LeaderboardAnalysisProvider>
-                    <LeaderboardImagesProvider>
-                      <WordCloudProvider>
-                        <SceneProvider>
-                          <StoryProvider>
-                            <AppContent />
-                          </StoryProvider>
-                        </SceneProvider>
-                      </WordCloudProvider>
-                    </LeaderboardImagesProvider>
-                  </LeaderboardAnalysisProvider>
-                </LeaderboardListProvider>
+                <AppContent />
               </LocalizationProvider>
             </RequireAuth>
           </AuthUserProvider>
@@ -159,4 +151,11 @@ export default App;
 const footerStyle = css`
   background-color: ${theme.palette.primary.main};
   color: ${theme.palette.text.secondary};
+
+  width: 100%;
+  text-align: center;
+  padding: 30px 0;
+
+  position: absolute;/*←絶対位置*/
+  bottom: 0; /*下に固定*/
 `;

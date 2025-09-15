@@ -1,4 +1,4 @@
-import { Leaderboard, School, LeaderboardAnalysis, LeaderboardListParams, LeaderboardAnalysisParams, WordCloudParams} from "../types/leaderboard";
+import { Leaderboard, LeaderboardItem, School, LeaderboardAnalysis, LeaderboardListParams, LeaderboardAnalysisParams, WordCloudParams} from "../types/leaderboard";
 import { WritingMistake, ChatWordCloudItem } from "../types/studentWork"
 import { authAxios } from "./axios";
 
@@ -14,7 +14,7 @@ export class LeaderboardAPI {
     return response.data;
   }
 
-  static async fetchLeaderboardDetail(id: number): Promise<Leaderboard> {
+  static async fetchLeaderboardDetail(id: number): Promise<LeaderboardItem | null> {
     const response = await authAxios.get(`leaderboards/${id}/`, {
       headers: sessionStorage.getItem("access_token")
         ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }

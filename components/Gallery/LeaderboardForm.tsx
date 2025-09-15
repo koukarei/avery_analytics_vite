@@ -13,7 +13,7 @@ import {theme} from "../../src/Theme";
 import { Controller, useForm } from "react-hook-form";
 import { Box, IconButton, InputAdornment, TextField } from "@mui/material";
 import HighlightOffIcon from '../icons/HighlightOffIcon';
-import type { Leaderboard, LeaderboardAnalysis, LeaderboardDetail, LeaderboardAnalysisParams, Scene, Story } from "../../types/leaderboard";
+import type { LeaderboardItem, LeaderboardAnalysis, LeaderboardDetail, LeaderboardAnalysisParams, Scene, Story } from "../../types/leaderboard";
 import VocabularyChip from "./VocabularyChip";
 
 function ClearAdornment({ name, setValue }: { name: string; setValue: any }) {
@@ -46,28 +46,27 @@ const rules = {
   },
 };
 
-function ViewLeaderboard({ leaderboard, analysis, scenes, stories }: { leaderboard: Leaderboard, analysis: LeaderboardAnalysis, scenes: Scene[], stories: Story[] }) {
+function ViewLeaderboard({ leaderboard, scenes, stories }: { leaderboard: LeaderboardItem, scenes: Scene[], stories: Story[] }) {
 
   const {
     control,
     formState: { errors },
   } = useForm<LeaderboardDetail>({
     defaultValues:{
-      title: analysis.title,
+      title: leaderboard.title,
       created_by: leaderboard.created_by.display_name,
-      published_at: analysis.published_at,
+      published_at: leaderboard.published_at,
       scene_id: leaderboard.scene.id,
-      story_id: leaderboard.story?.id,
-      story_extract: analysis.story_extract,
-      descriptions: analysis.descriptions || "",
+      story_id: leaderboard.story?.id ?? "",
+      story_extract: leaderboard.story_extract,
       vocabularies: leaderboard.vocabularies,
     }
   });
 
   return (
     <>
-      <form>
-        <div css={formInputStyle}>
+      <form className="grid">
+        <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
           <Controller
             name="title"
             control={control}
@@ -85,7 +84,7 @@ function ViewLeaderboard({ leaderboard, analysis, scenes, stories }: { leaderboa
             )}
           />
         </div>
-        <div css={formInputStyle}>
+        <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
           <Controller
             name="created_by"
             control={control}
@@ -102,16 +101,17 @@ function ViewLeaderboard({ leaderboard, analysis, scenes, stories }: { leaderboa
             )}
           />
         </div>
-        <div css={formInputStyle}>
+        <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
           <Controller
             name="published_at"
             control={control}
             rules={rules.published_at}
             render={({ field }) => (
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DemoItem label="公開日/ Published Date">
+                <DemoItem>
                   <DatePicker
-                    defaultValue={dayjs(analysis.published_at)}
+                    label="公開日/ Published Date"
+                    defaultValue={dayjs(leaderboard.published_at)}
                     disabled
                 />
                 </DemoItem>
@@ -119,7 +119,7 @@ function ViewLeaderboard({ leaderboard, analysis, scenes, stories }: { leaderboa
             )}
           />
         </div>
-        <div css={formInputStyle}>
+        <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
           <Controller
             name="scene_id"
             control={control}
@@ -144,7 +144,7 @@ function ViewLeaderboard({ leaderboard, analysis, scenes, stories }: { leaderboa
             )}
           />
         </div>
-        <div css={formInputStyle}>
+        <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
           <Controller
             name="story_id"
             control={control}
@@ -169,7 +169,7 @@ function ViewLeaderboard({ leaderboard, analysis, scenes, stories }: { leaderboa
             )}
           />
         </div>
-        <div css={formInputStyle}>
+        <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
           <Controller
             name="story_extract"
             control={control}
@@ -190,7 +190,7 @@ function ViewLeaderboard({ leaderboard, analysis, scenes, stories }: { leaderboa
             )}
           />
         </div>
-        <div css={formInputStyle}>
+        {/* <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
           <Controller
             name="descriptions"
             control={control}
@@ -209,7 +209,7 @@ function ViewLeaderboard({ leaderboard, analysis, scenes, stories }: { leaderboa
               />
             )}
           />
-        </div>
+        </div> */}
         {errors.root && (
           <div css={errorMessageStyle}>{errors.root.message}</div>
         )}

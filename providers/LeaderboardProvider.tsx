@@ -1,5 +1,5 @@
 import React, { createContext, useState } from "react";
-import type { Leaderboard, School, LeaderboardAnalysis, LeaderboardListParams, LeaderboardAnalysisParams, WordCloudParams } from '../types/leaderboard';
+import type { Leaderboard, School, LeaderboardAnalysis, LeaderboardItem, LeaderboardListParams, LeaderboardAnalysisParams, WordCloudParams } from '../types/leaderboard';
 import { WritingMistake, ChatWordCloudItem } from "../types/studentWork"
 import { LeaderboardAPI } from "../api/Leaderboard";
 
@@ -7,6 +7,42 @@ type LeaderboardListContextType = {
   leaderboards: Leaderboard[];
   loading: boolean;
   fetchLeaderboards: (params: LeaderboardListParams) => Promise<Leaderboard[]>;
+};
+
+type LeaderboardItemContextType = {
+  leaderboard: LeaderboardItem | null;
+  loading: boolean;
+  fetchLeaderboard: (leaderboard_id: number) => Promise<LeaderboardItem | null>;
+};
+
+const LeaderboardItemContext = createContext({} as LeaderboardItemContextType);
+
+const LeaderboardItemProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const [leaderboard, setLeaderboard] = useState<LeaderboardItem | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const fetchLeaderboard = async (leaderboard_id: number) => {
+    setLoading(true);
+    let leaderboardData: LeaderboardItem | null = null;
+    try {
+      leaderboardData = await LeaderboardAPI.fetchLeaderboardDetail(leaderboard_id);
+      setLeaderboard(leaderboardData);
+    } catch (e) {
+      console.log(e);
+    }
+    setLoading(false);
+    return leaderboardData;
+  };
+
+  return (
+    <LeaderboardItemContext.Provider value={{ leaderboard, loading, fetchLeaderboard }}>
+      {children}
+    </LeaderboardItemContext.Provider>
+  );
 };
 
 const LeaderboardListContext = createContext({} as LeaderboardListContextType);
@@ -203,6 +239,8 @@ const WordCloudProvider = ({
 export { 
     LeaderboardListContext, 
     LeaderboardListProvider, 
+    LeaderboardItemContext,
+    LeaderboardItemProvider,
     LeaderboardAnalysisContext, 
     LeaderboardAnalysisProvider, 
     LeaderboardImagesContext,

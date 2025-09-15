@@ -48,7 +48,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
       day: 'numeric',
     });
   };
-
+  
   // Adjusted 3D transforms to match the example image more closely
   switch (position) {
     case 'left':
@@ -143,7 +143,7 @@ function useDebouncedCallback<A extends unknown[],>(
 
 export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboards, images, currentIndex, onScroll }) => {
   const galleryRef = useRef<HTMLDivElement>(null);
-  const [hoveredImageId, setHoveredImageId] = useState<string | null>(null);
+  const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
 
   const debouncedScroll = useDebouncedCallback(onScroll, 150);
   const touchStartX = useRef<number>(0);
@@ -231,7 +231,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
     >
       <ImagePanel
         leaderboard={leftImage}
-        imageUrl={images[leftImage?.id]}
+        imageUrl={images[leftImage?.original_image.id]}
         position="left"
         isHovered={hoveredImageId === leftImage?.id}
         onMouseEnter={() => leftImage && setHoveredImageId(leftImage.id)}
@@ -240,7 +240,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
       />
       <ImagePanel
         leaderboard={centerImage}
-        imageUrl={images[centerImage?.id]}
+        imageUrl={images[centerImage?.original_image.id]}
         position="center"
         isHovered={hoveredImageId === centerImage?.id}
         onMouseEnter={() => centerImage && setHoveredImageId(centerImage.id)}
@@ -249,7 +249,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
       />
       <ImagePanel
         leaderboard={rightImage}
-        imageUrl={images[rightImage?.id]}
+        imageUrl={images[rightImage?.original_image.id]}
         position="right"
         isHovered={hoveredImageId === rightImage?.id}
         onMouseEnter={() => rightImage && setHoveredImageId(rightImage.id)}
