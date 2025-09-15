@@ -98,6 +98,7 @@ export default function GalleryView() {
         <div className="h-full w-full overflow-hidden pt-4 md:pt-8">
           {leaderboards ? (
             <GalleryTabs
+              view={view}
               setView={handleViewChange}
               leaderboard={leaderboards[(galleryCurrentIndex + 1) % leaderboards.length] || null}
               images={images}
@@ -122,7 +123,7 @@ export default function GalleryView() {
     }
 
     return (
-      <div className="flex flex-col h-screen bg-black overflow-hidden">
+      <div className="flex flex-col h-screen bg-black">
         {renderGallery()}
       </div>
     );

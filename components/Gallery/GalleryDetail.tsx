@@ -1,5 +1,6 @@
 
 import React, { useState, useRef, useContext, useEffect } from 'react';
+import Container from '@mui/material/Container';
 import type { Leaderboard, LeaderboardAnalysis, Scene } from '../../types/leaderboard';
 import type { GalleryView } from '../../types/ui';
 import { AuthUserContext } from '../../providers/AuthUserProvider';
@@ -21,7 +22,7 @@ export const LeaderboardDetail: React.FC<LeaderboardDetailProps> = ({ leaderboar
   const { scenes } = useContext(SceneContext);
   const { stories } = useContext(StoryContext);
   const [ cloud_type, setCloudType ] = useState<string>("mistake");
-  const [errorKey, setErrorKey] = useState<string | null>(null);
+  const [ errorKey, setErrorKey ] = useState<string | null>(null);
   const { t, language } = useLocalization();
   const [scene, setScene] = useState<Scene | null>(null);
 
@@ -53,15 +54,15 @@ export const LeaderboardDetail: React.FC<LeaderboardDetailProps> = ({ leaderboar
 
   if (authUserData?.currentUser?.user_type === "student") {
     return (
-        <div className="w-full h-full p-4 overflow-y-auto">
+        <Container>
         <ViewLeaderboard leaderboard={leaderboard} analysis={analysis} scenes={scenes} stories={stories} />
-        </div>
+        </Container>
     );
   } else {
     return (
-      <div className="w-full h-full p-4 overflow-y-auto">
+      <Container>
         <ViewLeaderboard leaderboard={leaderboard} analysis={analysis} scenes={scenes} stories={stories} />
-      </div>
+      </Container>
     );
   }
 

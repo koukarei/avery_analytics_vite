@@ -1,11 +1,13 @@
 export type Language = 'en' | 'ja';
 
-export type ViewMode = 'gallery' | 'mistakes' | 'analytics';
+export type ViewMode = 'gallery' | 'word_cloud' | 'writer';
 
 export type GalleryView = 'browsing' | 'detail';
 
-export type GalleryDetailView = 'detail' | 'word_cloud' | 'leaderboard' | 'writer';
+export type GalleryDetailView = 'detail'| 'leaderboard';
+
+export type WordCloudType = 'mistake' | 'writing' | 'user_chat' | 'assistant_chat';
 
 export const GALLERY_VIEWS: GalleryView[] = ['browsing', 'detail'];
 
-export const GALLERY_DETAIL_VIEWS: GalleryDetailView[] = ['detail', 'word_cloud', 'leaderboard', 'writer'];
+export const GALLERY_DETAIL_VIEWS: GalleryDetailView[] = ['detail', 'leaderboard'];

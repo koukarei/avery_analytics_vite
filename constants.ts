@@ -22,16 +22,6 @@ export const SUPPORTED_LANGUAGES = {
   ja: { name: "日本語" },
 };
 
-export const IMAGE_DATA: ImageItem[] = [
-  { id: 'img1', name: 'Crimson Analyst', url: 'https://picsum.photos/seed/AnimePortraitOne/800/600' },
-  { id: 'img2', name: 'Team Briefing', url: 'https://picsum.photos/seed/StrategyMeeting/800/600' },
-  { id: 'img3', name: 'Silver Strategist', url: 'https://picsum.photos/seed/FutureTechGlasses/800/600' },
-  { id: 'img4', name: 'Data Weaver', url: 'https://picsum.photos/seed/CharacterArtFemale/800/600' },
-  { id: 'img5', name: 'Project Phoenix', url: 'https://picsum.photos/seed/AnimeGroupStudy/800/600' },
-  { id: 'img6', name: 'Neon Scripter', url: 'https://picsum.photos/seed/CyberpunkCoder/800/600' },
-  { id: 'img7', name: 'Council of Three', url: 'https://picsum.photos/seed/MageCouncil/800/600' },
-];
-
 export const GRAMMAR_MISTAKES_DATA: GrammarMistakeItem[] = [
   { 
     id: 'gm1', 

@@ -64,63 +64,9 @@ function ViewLeaderboard({ leaderboard, analysis, scenes, stories }: { leaderboa
     }
   });
 
-  const [tags, setTags] = useState<string[]>([]);
-  const [tagInput, setTagInput] = useState('');
-  const [typing, setTyping] = useState(false); // 日本語入力中は true
-  const tagInputRef = useRef<HTMLInputElement>(null);
-
-
-  const handleTagInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setTagInput(e.target.value.trim());
-  };
-
-  const handleTagInputBlur = () => {
-    processTagInput();
-  };
-
-  const appendTags = (newTags: string[]) => {
-    const uniqueTags = Array.from(new Set(newTags));
-    const newTagList = [...tags.filter(tag => !uniqueTags.includes(tag)), ...uniqueTags];
-    setTags(newTagList);
-  };
-
-  const processTagInput = () => {
-    if (tagInput.trim() === '') return;
-    const newTags = tagInput.split(/\s+/).filter(tag => tag !== '');
-    appendTags(newTags);
-    setTagInput('');
-  };
-
-  const handleTagDelete = (index: number) => {
-    setTags(tags.filter((_, i) => i !== index));
-  };
-
-  const handleTagInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (typing) return;
-    if (e.key === ' ' || e.key === '　' || e.key === 'Enter') {
-      processTagInput();
-    } else if (e.key === 'Backspace' && tagInput === '' && tags.length > 0) {
-      handleTagDelete(tags.length - 1);
-    }
-  };
-
-  const setFocusOnTagInput = () => {
-    if (tagInputRef.current) {
-      tagInputRef.current.focus();
-    }
-  };
-
-  const handleCompositionUpdate = (e: React.CompositionEvent<HTMLInputElement>) => {
-    // 確定文字が全角スペースの場合，compositionend イベントが発生しない
-    if (e.data === '　') {
-      setTyping(false);
-      processTagInput();
-    }
-  };
-
   return (
     <>
-      <form css={formStyle(theme)}>
+      <form>
         <div css={formInputStyle}>
           <Controller
             name="title"
@@ -264,23 +210,6 @@ function ViewLeaderboard({ leaderboard, analysis, scenes, stories }: { leaderboa
             )}
           />
         </div>
-        <div css={tagAreaStyle} onClick={setFocusOnTagInput}>
-          {tags.map((tag, index) => (
-            <VocabularyChip key={index} label={tag} onDelete={() => handleTagDelete(index)} />
-          ))}
-          <input type="text"
-            ref={tagInputRef}
-            value={tagInput}
-            placeholder={tags.length == 0 ? 'タグをスペース区切りで入力' : ''}
-            onChange={handleTagInputChange}
-            onBlur={handleTagInputBlur}
-            onKeyDown={handleTagInputKeyDown}
-            onCompositionStart={() => setTyping(true)}
-            onCompositionUpdate={handleCompositionUpdate}
-            onCompositionEnd={() => setTyping(false)}
-            css={tagInputStyle}
-          />
-        </div>
         {errors.root && (
           <div css={errorMessageStyle}>{errors.root.message}</div>
         )}
@@ -299,24 +228,6 @@ function EditLeaderboard({ leaderboard }: { leaderboard: LeaderboardAnalysis | n
   );
 };
 
-const formStyle = (theme: Theme) => css`
-  display: flex;
-  flex-flow: column;
-  justify-content: center;
-  align-items: center;
-  width: 95%;
-  padding: 10px;
-  margin: 30px 0px;
-  background-color: ${theme.palette.background.paper};
-  border-radius: 20px;
-  box-shadow: 2px 2px 10px 0 rgba(0, 0, 0, 0.3);
-  & h1 {
-    font-size: 20pt;
-    margin-bottom: 30px;
-    margin-top: 60px;
-  }
-`;
-
 const formInputStyle = css`
   margin: 5px;
   width: 85%;
@@ -325,72 +236,9 @@ const formInputStyle = css`
   }
 `;
 
-const navigateLinkStyle = (theme: Theme) => css`
-  padding-bottom: 20px;
-  & * {
-    display: block;
-    color: ${theme.palette.primary.contrastText};
-    margin: 20px 0;
-  }
-`;
-
-const selectLinkStyle = (theme: Theme) => css`
-  display: flex;
-  flex-flow: column;
-  align-items: center;
-  justify-content: flex-end;
-  width: 100%;
-  height: 100vh;
-  height: 100dvh;
-  padding-bottom: 40px;
-  box-sizing: border-box;
-  & * {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: ${theme.palette.primary.contrastText};
-    border: solid 1px ${theme.palette.primary.contrastText};
-    border-radius: 20px;
-    margin: 20px 0;
-    width: 100%;
-    height: 40px;
-    text-decoration: none;
-  }
-`;
-
-const selectLoginLinkStyle = (theme: Theme) => css`
-  color: ${theme.palette.primary.main};
-  background-color: ${theme.palette.primary.contrastText};
-`;
-
 const errorMessageStyle = css`
   font-size: 14px;
   color: red;
-`;
-
-const tagAreaStyle = css`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  padding: 10px;
-  background-color: #e9f7fb;
-  border: 1px solid #797979;
-  border-left: none;
-  border-right: none;
-  box-sizing: border-box;
-`;
-
-const tagInputStyle = css`
-  flex: 1;
-  min-width: 50px;
-  padding: 5px;
-  font-size: 1rem;
-  line-height: 1.2;
-  border: none;
-  outline: none;
-  resize: none;
-  box-sizing: border-box;
-  background-color: transparent;
 `;
 
 export { ViewLeaderboard, EditLeaderboard };

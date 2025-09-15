@@ -23,8 +23,9 @@ const Navigation: React.FC<NavigationProps> = ({ activeView, setActiveView, show
 
   const navItems = [
     { id: 'gallery', labelKey: 'navigation.gallery', icon: <AcademicCapIcon className="w-5 h-5 mr-2" /> },
-    //{ id: 'mistakes', labelKey: 'navigation.mistakes', icon: <LightbulbIcon className="w-5 h-5 mr-2" /> },
+    //{ id: 'word_cloud', labelKey: 'navigation.word_cloud', icon: <LightbulbIcon className="w-5 h-5 mr-2" /> },
     //{ id: 'analytics', labelKey: 'navigation.analytics', icon: <ChartBarIcon className="w-5 h-5 mr-2" /> },
+    //{ id: 'writer', labelKey: 'navigation.writer', icon: <ChartBarIcon className="w-5 h-5 mr-2" /> },
   ] as const;
 
   return (

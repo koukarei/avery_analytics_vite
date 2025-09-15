@@ -55,8 +55,6 @@ function a11yProps(index: number) {
 interface GalleryTabProps {
   view: GalleryView;
   setView: (view: GalleryView) => void;
-  detailView: GalleryDetailView;
-  setDetailView: (view: GalleryDetailView) => void;
   images: Record<number, string>; // Mapping of leaderboard ID to image URL
   leaderboard: Leaderboard | null;
 }
@@ -94,7 +92,10 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
           )
           }
         </Grid>
-        <Grid size={{ xs: 12, md: "grow" }} className="h-full overflow-y-auto">
+        <Grid 
+          size={{ xs: 12, md: "grow" }} 
+          className="h-full shrink overflow-y-scroll"
+        >
           <Box css={tabContainerStyle(theme)}>
             <AppBar position="static">
               <Tabs
@@ -107,22 +108,14 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
                 aria-label="full width tabs"
               >
                 <Tab label="Detail" {...a11yProps(0)} />
-                <Tab label="Word Cloud" {...a11yProps(1)} />
-                <Tab label="Leaderboard" {...a11yProps(2)} />
-                <Tab label="Writer" {...a11yProps(3)} />
+                <Tab label="Leaderboard" {...a11yProps(1)} />
               </Tabs>
             </AppBar>
             <GalleryTabPanel value={value} index={0} dir={theme.direction}>
               <LeaderboardDetail leaderboard={leaderboard} />
             </GalleryTabPanel>
             <GalleryTabPanel value={value} index={1} dir={theme.direction}>
-              Word Cloud
-            </GalleryTabPanel>
-            <GalleryTabPanel value={value} index={2} dir={theme.direction}>
               Leaderboard
-            </GalleryTabPanel>
-            <GalleryTabPanel value={value} index={3} dir={theme.direction}>
-              Writer
             </GalleryTabPanel>
           </Box>
         </Grid>
@@ -133,7 +126,6 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
 interface ImagePanelProps {
   leaderboard: Leaderboard | null;
   imageUrl: string | null;
-  position: 'left' | 'center' | 'right';
   isHovered: boolean;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
@@ -203,6 +195,6 @@ const tabBarStyle = (theme: Theme) => css`
 const tabContainerStyle = (theme: Theme) => css`
   background-color: ${theme.palette.background.paper};
   width: 100%;
-  height: 100%;
+  height: 90%;
   border-radius: 8px;
 `;

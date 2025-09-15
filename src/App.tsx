@@ -34,7 +34,6 @@ import {
 import AcademicCapIcon from '../components/icons/AcademicCapIcon';
 import LightbulbIcon from '../components/icons/LightbulbIcon';
 import ChartBarIcon from '../components/icons/ChartBarIcon';
-import { IMAGE_DATA, GRAMMAR_MISTAKES_DATA, DESCRIPTIVE_WRITING_SAMPLE } from '../constants';
 import { css } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../src/Theme";
@@ -42,7 +41,6 @@ import {theme} from "../src/Theme";
 const AppContent: React.FC = () => {
   const { t } = useLocalization();
   const [activeView, setActiveView] = useState<ViewMode>('gallery');
-  const [writingMistakes, setWritingMistakes] = useState<WritingMistake[]>([]);
   const [showStudentNames, setShowStudentNames] = useState<boolean>(false);
   const toggleShowStudentNames = () => {
     setShowStudentNames(prev => !prev);
@@ -63,7 +61,7 @@ const AppContent: React.FC = () => {
                 </LeaderboardAnalysisProvider>
               </LeaderboardListProvider>
         )
-      // case 'mistakes':
+      // case 'word_cloud':
       //   return <MistakesList mistakes={writingMistakes} />;
       // case 'analytics':
       //   return <AnalyticsDashboard mistakes={writingMistakes} />;

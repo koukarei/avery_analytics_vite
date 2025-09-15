@@ -100,7 +100,7 @@ export interface LeaderboardDetail {
   title: string;
   scene_id: number;
   story_id?: number;
-  created_by: UserOut;
+  created_by: string;
   story_extract: string;
   published_at: Date;
   descriptions?: string;
