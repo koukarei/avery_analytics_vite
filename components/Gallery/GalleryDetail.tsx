@@ -25,13 +25,12 @@ export const LeaderboardDetail: React.FC<LeaderboardDetailProps> = ({ leaderboar
   
   useEffect(() => {
     setErrorKey(null);
-    fetchLeaderboard(leaderboard_id)
-      .catch(err => {
-        console.error("Failed to fetch leaderboard analysis: ", err);
-        setErrorKey('error.fetch_analysis');
-      });
-  }, [leaderboard, fetchLeaderboard, leaderboard_id]);
-
+    fetchLeaderboard(leaderboard_id).catch(err => {
+      console.error("Failed to fetch leaderboard analysis: ", err);
+      setErrorKey('error.fetch_analysis');
+    });
+  }, [fetchLeaderboard, leaderboard_id]);
+  
   // Loading state
   if (!leaderboard || !scenes) {
     return <div>{t('loading')}...</div>;

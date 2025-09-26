@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useCallback, useState } from "react";
 import type { Leaderboard, School, LeaderboardAnalysis, LeaderboardItem, LeaderboardListParams, LeaderboardAnalysisParams, WordCloudParams } from '../types/leaderboard';
 import { WritingMistake, ChatWordCloudItem } from "../types/studentWork"
 import { LeaderboardAPI } from "../api/Leaderboard";
@@ -25,7 +25,7 @@ const LeaderboardItemProvider = ({
   const [leaderboard, setLeaderboard] = useState<LeaderboardItem | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const fetchLeaderboard = async (leaderboard_id: number) => {
+  const fetchLeaderboard = useCallback(async (leaderboard_id: number) => {
     setLoading(true);
     let leaderboardData: LeaderboardItem | null = null;
     try {
@@ -33,10 +33,12 @@ const LeaderboardItemProvider = ({
       setLeaderboard(leaderboardData);
     } catch (e) {
       console.log(e);
+    }finally {
+      setLoading(false);
     }
-    setLoading(false);
+
     return leaderboardData;
-  };
+  }, []);
 
   return (
     <LeaderboardItemContext.Provider value={{ leaderboard, loading, fetchLeaderboard }}>
