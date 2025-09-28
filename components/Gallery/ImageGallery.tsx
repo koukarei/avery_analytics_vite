@@ -253,7 +253,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
       </div>
       <div 
         ref={galleryRef} 
-        className="w-full h-1/2 flex items-start justify-center space-x-[-5%] sm:space-x-[-2%] md:space-x-[-1%] relative" 
+        className="w-full h-full flex items-start justify-center space-x-[-5%] sm:space-x-[-2%] md:space-x-[-1%] relative" 
         style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
         role="region"
         aria-label="Leaderboard"

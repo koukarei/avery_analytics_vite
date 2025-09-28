@@ -89,7 +89,7 @@ export default function GalleryView() {
       case 'browsing':
         return (
         <div className='h-full w-full bg-neutral-900 items-center justify-center'>
-          <div className="h-3/4 relative flex flex-col overflow-hidden pt-4 md:pt-8">
+          <div className="h-2/3 relative flex flex-col overflow-hidden pt-4 md:pt-8">
             {leaderboards ? (
               <ImageGallery
                 view={view}

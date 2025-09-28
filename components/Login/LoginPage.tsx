@@ -56,7 +56,7 @@ const rules = {
       message: "パスワードは 8 文字以上 30 文字以内で入力してください",
     },
     pattern: {
-      value: /^(?=.*[A-Z])(?=.*[.?/-])[a-zA-Z0-9.?/-]*$/,
+      value: /^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\d)(?=.*[!#$%&? "]).*$/,
       message: "使用できない文字が含まれています",
     },
   },
@@ -248,17 +248,19 @@ function Signup() {
             rules={rules.email}
             render={({ field }) => (
               <TextField
-                {...field}
-                fullWidth
-                label="メールアドレス"
-                placeholder="email@example.com"
-                error={errors[field.name] ? true : false}
-                helperText={(errors[field.name]?.message as string) || " "}
-                InputProps={{
-                  endAdornment: (
-                    <ClearAdornment name={field.name} setValue={setValue} />
-                  ),
-                }}
+          {...field}
+          fullWidth
+          label="メールアドレス"
+          placeholder="email@example.com"
+          error={errors[field.name] ? true : false}
+          helperText={(errors[field.name]?.message as string) || " "}
+          slotProps={{
+            input: {
+              endAdornment: (
+                <ClearAdornment name={field.name} setValue={setValue} />
+              ),
+            },
+          }}
               />
             )}
           />
@@ -275,10 +277,12 @@ function Signup() {
                 label="ユーザー名"
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
-                InputProps={{
-                  endAdornment: (
-                    <ClearAdornment name={field.name} setValue={setValue} />
-                  ),
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <ClearAdornment name={field.name} setValue={setValue} />
+                    ),
+                  },
                 }}
               />
             )}
@@ -297,10 +301,12 @@ function Signup() {
                 label="パスワード"
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
-                InputProps={{
-                  endAdornment: (
-                    <ClearAdornment name={field.name} setValue={setValue} />
-                  ),
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <ClearAdornment name={field.name} setValue={setValue} />
+                    ),
+                  },
                 }}
               />
             )}
@@ -326,10 +332,12 @@ function Signup() {
                 label="パスワード(確認用)"
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
-                InputProps={{
-                  endAdornment: (
-                    <ClearAdornment name={field.name} setValue={setValue} />
-                  ),
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <ClearAdornment name={field.name} setValue={setValue} />
+                    ),
+                  },
                 }}
               />
             )}
@@ -347,10 +355,12 @@ function Signup() {
                 label="表示名"
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
-                InputProps={{
-                  endAdornment: (
-                    <ClearAdornment name={field.name} setValue={setValue} />
-                  ),
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <ClearAdornment name={field.name} setValue={setValue} />
+                    ),
+                  },
                 }}
               />
             )}
