@@ -4,6 +4,8 @@ import type { ChangeEvent } from "react";
 import { css, keyframes } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import MenuItem from "@mui/material/MenuItem";
+import Popover from '@mui/material/Popover';
+import Typography from '@mui/material/Typography';
 import dayjs from 'dayjs';
 import { DemoItem } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -152,6 +154,8 @@ function ViewLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
 
 function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: LeaderboardItem, scenes: Scene[], stories: Story[] }) {
 
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+
   const {
     control,
     handleSubmit,
@@ -177,10 +181,18 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
       };
       console.log(data_LeaderboardUpdate.published_at);
       await LeaderboardAPI.updateLeaderboard(leaderboard.id, data_LeaderboardUpdate);
+      setAnchorEl(document.getElementById('save-button') as HTMLButtonElement);
     } catch (e) {
       console.log(e);
     } 
   };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? 'update-success-popover' : undefined;
 
   return (
     <>
@@ -314,9 +326,21 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
         {errors.root && (
           <div css={errorMessageStyle}>{errors.root.message}</div>
         )}
-        <button type="submit" css={okButtonStyle (theme)}>
+        <button id="save-button" aria-describedby={id} type="submit" css={okButtonStyle (theme)}>
           保存 / Save
         </button>
+        <Popover
+          id={id}
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+        >
+          <Typography sx={{ p: 2 }}>リーダーボードの詳細が更新された!</Typography>
+        </Popover>
       </form>
     </>
   );
