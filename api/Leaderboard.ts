@@ -1,4 +1,4 @@
-import { Leaderboard, LeaderboardItem, School, LeaderboardAnalysis, LeaderboardListParams, LeaderboardAnalysisParams, WordCloudParams} from "../types/leaderboard";
+import { Leaderboard, LeaderboardItem, School, LeaderboardAnalysis, LeaderboardListParams, LeaderboardAnalysisParams, WordCloudParams, LeaderboardUpdate} from "../types/leaderboard";
 import { WritingMistake, ChatWordCloudItem } from "../types/studentWork"
 import { authAxios } from "./axios";
 
@@ -50,6 +50,15 @@ export class LeaderboardAPI {
   static async fetchWordCloud(params: WordCloudParams): Promise<(WritingMistake | ChatWordCloudItem)[]> {
     const response = await authAxios.get(`analysis/get_word_cloud_items`, {
       params: params,
+      headers: sessionStorage.getItem("access_token")
+        ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
+        : {},
+    });
+    return response.data;
+  }
+
+  static async updateLeaderboard(id: number, data: Partial<LeaderboardUpdate>): Promise<LeaderboardUpdate | null> {
+    const response = await authAxios.put(`leaderboards/${id}/`, data, {
       headers: sessionStorage.getItem("access_token")
         ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
         : {},

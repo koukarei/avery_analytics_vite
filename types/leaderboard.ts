@@ -70,6 +70,12 @@ export interface Vocabulary {
   pos: string;
 }
 
+export interface VocabularyBase {
+  word: string;
+  meaning: string;
+  pos: string;
+}
+
 export interface Leaderboard {
   id: number;
   title: string;
@@ -118,6 +124,23 @@ export interface LeaderboardItem {
   story?: Story;
   created_by: UserOut;
   vocabularies: Vocabulary[];
+}
+
+export interface LeaderboardUpdate {
+  id: number;
+  is_public: boolean;
+  published_at?: Date;
+  title?: string;
+}
+
+export interface LeaderboardSchoolUpdate {
+  id: number;
+  school: string[];
+}
+
+export interface LeaderboardVocabulariesUpdate {
+  id: number;
+  vocabularies: VocabularyBase[];
 }
 
 export interface MistakeItem {

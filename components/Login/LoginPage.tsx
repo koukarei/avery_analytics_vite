@@ -87,7 +87,11 @@ const programs = [
   {
     value: "student_1_sem_img",
     label: "画像生成プログラム",
-  }
+  },
+  {
+    value: "student_2_sem",
+    label: "自動評価・画像生成プログラム",
+  },
 ];
 
 function Signin() {
@@ -99,7 +103,7 @@ function Signin() {
     formState: { errors },
   } = useForm<SigninData>({
     defaultValues:{
-        program: "inlab_test", // Default program for login
+        program: "student_2_sem", // Default program for login
         username: "",
         password: "",
     }

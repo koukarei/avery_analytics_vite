@@ -5,26 +5,17 @@ import { css, keyframes } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import MenuItem from "@mui/material/MenuItem";
 import dayjs from 'dayjs';
-import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
+import { DemoItem } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import {theme} from "../../src/Theme";
 import { Controller, useForm } from "react-hook-form";
-import { Box, IconButton, InputAdornment, TextField } from "@mui/material";
-import HighlightOffIcon from '../icons/HighlightOffIcon';
-import type { LeaderboardItem, LeaderboardAnalysis, LeaderboardDetail, LeaderboardAnalysisParams, Scene, Story } from "../../types/leaderboard";
-import VocabularyChip from "./VocabularyChip";
+import { TextField } from "@mui/material";
+import type { LeaderboardItem, LeaderboardDetail, LeaderboardUpdate, Scene, Story } from "../../types/leaderboard";
+import { LeaderboardAPI } from "../../api/Leaderboard";
 
-function ClearAdornment({ name, setValue }: { name: string; setValue: any }) {
-  return (
-    <InputAdornment position="end">
-      <IconButton onClick={() => setValue(name, "")} edge="end" tabIndex={-1}>
-        <HighlightOffIcon />
-      </IconButton>
-    </InputAdornment>
-  );
-}
+import VocabularyChip from "./VocabularyChip";
 
 const rules = {
   title: {
@@ -35,7 +26,6 @@ const rules = {
     },
   },
   story_extract: {
-    required: "ストーリー抜粋を入力してください",
     maxLength: {
       value: 254,
       message: "ストーリー抜粋は 254 文字以内で入力してください",
@@ -164,6 +154,7 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
 
   const {
     control,
+    handleSubmit,
     formState: { errors },
   } = useForm<LeaderboardDetail>({
     defaultValues:{
@@ -173,13 +164,27 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
       scene_id: leaderboard.scene.id,
       story_id: leaderboard.story?.id ?? "",
       story_extract: leaderboard.story_extract,
-      vocabularies: leaderboard.vocabularies,
     }
   });
 
+  const onSubmit = async (data: LeaderboardDetail) => {
+    try {
+      const data_LeaderboardUpdate: LeaderboardUpdate = {
+        id: leaderboard.id,
+        title: data.title,
+        published_at: data.published_at,
+        is_public: leaderboard.is_public ? leaderboard.is_public : true,
+      };
+      console.log(data_LeaderboardUpdate.published_at);
+      await LeaderboardAPI.updateLeaderboard(leaderboard.id, data_LeaderboardUpdate);
+    } catch (e) {
+      console.log(e);
+    } 
+  };
+
   return (
     <>
-      <form className="grid">
+      <form className="grid" onSubmit={handleSubmit(onSubmit)}>
         <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
           <Controller
             name="title"
@@ -221,12 +226,19 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
             rules={rules.published_at}
             render={({ field }) => (
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DemoItem>
-                  <DatePicker
-                    label="公開日/ Published Date"
-                    defaultValue={dayjs(leaderboard.published_at)}
+                <DatePicker
+                  label="公開日/ Published Date"
+                  value={field.value ? dayjs(field.value) : null} // bind value
+                  onChange={(date) => {
+                    field.onChange(date ?  date.startOf('day').format() : null); // convert to ISO for API
+                  }}
+                  slotProps={{
+                    textField: {
+                      error: !!errors.published_at,
+                      helperText: errors.published_at?.message || " ",
+                    },
+                  }}
                 />
-                </DemoItem>
               </LocalizationProvider>
             )}
           />
@@ -299,29 +311,12 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
             )}
           />
         </div>
-        {/* <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
-          <Controller
-            name="descriptions"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                { ...field }
-                fullWidth
-                multiline
-                minRows={2}
-                maxRows={6}
-                disabled
-                label="説明/ Description"
-                placeholder="説明"
-                error={errors[field.name] ? true : false}
-                helperText={(errors[field.name]?.message as string) || " "}
-              />
-            )}
-          />
-        </div> */}
         {errors.root && (
           <div css={errorMessageStyle}>{errors.root.message}</div>
         )}
+        <button type="submit" css={okButtonStyle (theme)}>
+          保存 / Save
+        </button>
       </form>
     </>
   );
@@ -338,6 +333,24 @@ const formInputStyle = css`
 const errorMessageStyle = css`
   font-size: 14px;
   color: red;
+`;
+
+
+const okButtonStyle = (theme: Theme) => css`
+  background-color: ${theme.palette.primary.main};
+  color: white;
+  border-radius: 40px;
+  border: none;
+  width: 120px;
+  height: 45px;
+  margin: 30px;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+  font-size: 12pt;
+  font-weight: 300;
+  &:hover {
+    background-color: ${theme.palette.primary.light};
+  }
 `;
 
 export { ViewLeaderboard, EditLeaderboard };
