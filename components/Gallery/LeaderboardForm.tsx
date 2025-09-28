@@ -17,6 +17,8 @@ import { TextField } from "@mui/material";
 import type { LeaderboardItem, LeaderboardDetail, LeaderboardUpdate, Scene, Story } from "../../types/leaderboard";
 import { LeaderboardAPI } from "../../api/Leaderboard";
 
+import { LeaderboardListContext,  LeaderboardImagesContext} from "../../providers/LeaderboardProvider";
+
 import VocabularyChip from "./VocabularyChip";
 
 const rules = {
@@ -155,6 +157,8 @@ function ViewLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
 function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: LeaderboardItem, scenes: Scene[], stories: Story[] }) {
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+  const { fetchLeaderboards } = useContext(LeaderboardListContext);
+  const { fetchImages } = useContext(LeaderboardImagesContext);
 
   const {
     control,
@@ -178,10 +182,21 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
         title: data.title,
         published_at: data.published_at,
         is_public: leaderboard.is_public ? leaderboard.is_public : true,
+        scene_id: data.scene_id,
+        story_id: data.story_id ? Number(data.story_id) : undefined,
       };
       console.log(data_LeaderboardUpdate.published_at);
       await LeaderboardAPI.updateLeaderboard(leaderboard.id, data_LeaderboardUpdate);
       setAnchorEl(document.getElementById('save-button') as HTMLButtonElement);
+
+      fetchLeaderboards({ skip: 0, limit: 3}).then(leaderboards => {
+        if (leaderboards.length > 0) {
+          fetchImages(leaderboards.map(lb => lb.id));
+        }
+      }).catch(err => {
+        console.error("Failed to fetch leaderboards: ", err);
+      });
+
     } catch (e) {
       console.log(e);
     } 

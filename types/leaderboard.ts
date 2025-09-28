@@ -131,6 +131,8 @@ export interface LeaderboardUpdate {
   is_public: boolean;
   published_at?: Date;
   title?: string;
+  scene_id?: number;
+  story_id?: number;
 }
 
 export interface LeaderboardSchoolUpdate {
