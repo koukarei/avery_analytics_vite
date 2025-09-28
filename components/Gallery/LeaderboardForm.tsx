@@ -256,6 +256,7 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
                 <DatePicker
                   label="公開日/ Published Date"
                   value={field.value ? dayjs(field.value) : null} // bind value
+                  views={['year', 'month', 'day']}
                   onChange={(date) => {
                     field.onChange(date ?  date.startOf('day').format() : null); // convert to ISO for API
                   }}

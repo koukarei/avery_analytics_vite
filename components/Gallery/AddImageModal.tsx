@@ -182,26 +182,6 @@ export const AddImageModal: React.FC<AddImageModalProps> = ({ isOpen, onClose, o
             )}
           />
         </div>
-        {/* <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
-          <Controller
-            name="descriptions"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                { ...field }
-                fullWidth
-                multiline
-                minRows={2}
-                maxRows={6}
-                disabled
-                label="説明/ Description"
-                placeholder="説明"
-                error={errors[field.name] ? true : false}
-                helperText={(errors[field.name]?.message as string) || " "}
-              />
-            )}
-          />
-        </div> */}
         {errors.root && (
           <div css={errorMessageStyle}>{errors.root.message}</div>
         )}

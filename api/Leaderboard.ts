@@ -5,7 +5,12 @@ import { authAxios } from "./axios";
 export class LeaderboardAPI {
   static async fetchLeaderboardList(params: LeaderboardListParams): Promise<[Leaderboard, School][]> {
     const response = await authAxios.get("leaderboards/", {
-      params: params,
+      params: {
+        skip: params.skip ? params.skip : 0,
+        limit: params.limit ? params.limit : 10,
+        published_at_start: params.published_at_start ? params.published_at_start.format('DDMMYYYY') : null,
+        published_at_end: params.published_at_end ? params.published_at_end.format('DDMMYYYY') : null,
+      },
       paramsSerializer: { indexes: null },
       headers: sessionStorage.getItem("access_token")
         ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }

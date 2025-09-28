@@ -16,6 +16,8 @@
   "viewTitles.word_cloud": "Word Cloud",
   "viewTitles.analytics": "Writing Mistakes Analytics",
   "galleryView.noImageToDisplay": "No images to display.",
+  "galleryView.publishedAtStartDate": "Writing tasks published from",
+  "galleryView.publishedAtEndDate": "to",
   "studentCard.writingsTab": "Writings",
   "studentCard.chatLogsTab": "Chat Logs",
   "studentCard.noWritings": "No writings yet.",

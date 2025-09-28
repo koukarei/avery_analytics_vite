@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export interface GenerationItem {
   id: number;
   user: User; // User who created this generation
@@ -154,8 +156,8 @@ export interface MistakeItem {
 export type LeaderboardListParams = {
   skip?: number;
   limit?: number;
-  published_at_start?: Date;
-  published_at_end?: Date;
+  published_at_start?: dayjs.Dayjs;
+  published_at_end?: dayjs.Dayjs;
 };
 
 export type GenerationItemParams = {

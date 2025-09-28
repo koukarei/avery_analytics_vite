@@ -1,7 +1,14 @@
+/** @jsxImportSource @emotion/react */
 import React, { useState, useCallback, useEffect, useContext } from 'react';
 import { ImageGallery } from './ImageGallery';
 import { GalleryTabs } from './GalleryTab';
 import type { GalleryView } from '../../types/ui';
+import { css } from "@emotion/react";
+import {theme} from "../../src/Theme";
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LeaderboardListContext, LeaderboardAnalysisContext, LeaderboardImagesContext, WordCloudContext } from '../../providers/LeaderboardProvider';
 import type { LeaderboardListContextType, LeaderboardAnalysisContextType } from '../../providers/LeaderboardProvider';
 import { useLocalization } from '../../contexts/localizationUtils';
@@ -37,7 +44,9 @@ export default function GalleryView() {
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [galleryCurrentIndex, setGalleryCurrentIndex] = useState<number>(1);
   const [startLeaderboardIndex, setStartLeaderboardIndex] = useState<number>(0);
-  const limitLeaderboardIndex = 3;
+  const [published_at_start, setPublishedAtStart] = useState<dayjs.Dayjs>(dayjs().startOf('day').subtract(9, 'day'));
+  const [published_at_end, setPublishedAtEnd] = useState<dayjs.Dayjs>(dayjs().startOf('day'));
+  const limitLeaderboardIndex = 10;
 
   const handleGalleryScroll = useCallback((direction: 'up' | 'down') => {
     setGalleryCurrentIndex(prevIndex => {
@@ -63,36 +72,72 @@ export default function GalleryView() {
   
   useEffect(() => {
     setErrorKey(null);
-    fetchLeaderboards({ skip: startLeaderboardIndex, limit: limitLeaderboardIndex}).then(leaderboards => {
+    fetchLeaderboards({ skip: startLeaderboardIndex, limit: limitLeaderboardIndex, published_at_start: published_at_start, published_at_end: published_at_end }).then(leaderboards => {
       if (leaderboards.length > 0) {
         fetchImages(leaderboards.map(lb => lb.id));
       }
-      setStartLeaderboardIndex(prev => prev + limitLeaderboardIndex);
     }).catch(err => {
       console.error("Failed to fetch leaderboards: ", err);
       setErrorKey('error.fetch_leaderboards');
     });
 
 
-  }, []);
+  }, [fetchLeaderboards, fetchImages, startLeaderboardIndex, limitLeaderboardIndex, published_at_start, published_at_end]);
 
   const renderGallery = () => {
     switch (view) {
       case 'browsing':
         return (
-        <div className="h-full relative flex flex-col items-start bg-neutral-900 overflow-hidden pt-4 md:pt-8">
-          {leaderboards ? (
-            <ImageGallery
-              view={view}
-              setView={handleViewChange}
-              leaderboards={leaderboards}
-              images={images}
-              currentIndex={galleryCurrentIndex}
-              onScroll={handleGalleryScroll}
-            />
-          ) : (
-            <p className="text-xl text-gray-400">{t('galleryView.noImageToDisplay')}</p>
-          )}
+        <div className='h-full w-full bg-neutral-900 items-center justify-center'>
+          <div className="h-3/4 relative flex flex-col overflow-hidden pt-4 md:pt-8">
+            {leaderboards ? (
+              <ImageGallery
+                view={view}
+                setView={handleViewChange}
+                leaderboards={leaderboards}
+                images={images}
+                currentIndex={galleryCurrentIndex}
+                onScroll={handleGalleryScroll}
+              />
+            ) : (
+              <p className="text-xl text-gray-400">{t('galleryView.noImageToDisplay')}</p>
+            )}
+          </div>
+          <div css={controlPanelStyle}>
+            <div className='w-full h-full flex justify-center items-center space-x-4'>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label={t('galleryView.publishedAtStartDate')}
+                  value={published_at_start}
+                  views={['year', 'month', 'day']}
+                  onChange={(date) => {
+                    if (date) {
+                      setPublishedAtStart(date);
+                      setStartLeaderboardIndex(0);
+                      fetchLeaderboards({ skip: startLeaderboardIndex, limit: limitLeaderboardIndex, published_at_start: date, published_at_end: published_at_end }).then(leaderboards => {
+                        if (leaderboards.length > 0) {
+                          fetchImages(leaderboards.map(lb => lb.id));
+                        }
+                      }).catch(err => {
+                        console.error("Failed to fetch leaderboards: ", err);
+                        setErrorKey('error.fetch_leaderboards');
+                      });
+                    }
+                  }}
+                />
+                <DatePicker
+                  label={t('galleryView.publishedAtEndDate')}
+                  value={published_at_end}
+                  views={['year', 'month', 'day']}
+                  onChange={(date) => {
+                    if (date) {
+                      setPublishedAtEnd(date);
+                    }
+                  }}
+                />
+              </LocalizationProvider>
+            </div>
+          </div>
         </div>
         )
       case 'detail':
@@ -137,3 +182,16 @@ export default function GalleryView() {
     </div>
   );
 };
+
+const controlPanelStyle = css`
+  display: flex;
+  margin: auto;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  width: 600px;
+  max-width: 50%;
+  color: ${theme.palette.text.primary};
+  background-color: ${theme.palette.background.paper};
+  border-radius: 8px;
+`;

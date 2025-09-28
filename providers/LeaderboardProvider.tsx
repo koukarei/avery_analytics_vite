@@ -57,7 +57,7 @@ const LeaderboardListProvider = ({
   const [leaderboards, setLeaderboards] = useState<Leaderboard[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const fetchLeaderboards = async (params: LeaderboardListParams) => {
+  const fetchLeaderboards = useCallback(async (params: LeaderboardListParams) => {
     setLoading(true);
     let leaderboardData: [Leaderboard, School][] = [];
     const leaderboard: Leaderboard[] = [];
@@ -74,7 +74,7 @@ const LeaderboardListProvider = ({
     }
     setLoading(false);
     return leaderboard;
-  };
+  }, []);
 
   return (
     <LeaderboardListContext.Provider value={{ leaderboards, loading, fetchLeaderboards }}>
@@ -136,7 +136,7 @@ const LeaderboardImagesProvider = ({
 }) => {
   const [images, setImages] = useState<{ [key: number]: string }>({});
   const [loading, setLoading] = useState<boolean>(false);
-  const fetchImages = async (leaderboard_ids: number[]) => {
+  const fetchImages = useCallback(async (leaderboard_ids: number[]) => {
     setLoading(true);
     const newImages: { [key: number]: string } = { ...images };
     try {
@@ -152,7 +152,8 @@ const LeaderboardImagesProvider = ({
     }
     setLoading(false);
     return newImages;
-  };
+  }, []);
+
   return (
     <LeaderboardImagesContext.Provider value={{
       images, loading, fetchImages

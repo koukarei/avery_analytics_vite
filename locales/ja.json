@@ -16,6 +16,8 @@
   "viewTitles.word_cloud": "ワードクラウド",
   "viewTitles.analytics": "作文の間違い分析",
   "galleryView.noImageToDisplay": "表示する画像がありません。",
+  "galleryView.publishedAtStartDate": "から",
+  "galleryView.publishedAtEndDate": "まで公開されたライティングタスク",
   "studentCard.writingsTab": "作文",
   "studentCard.chatLogsTab": "チャット履歴",
   "studentCard.noWritings": "まだ作文はありません。",
