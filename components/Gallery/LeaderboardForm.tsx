@@ -32,7 +32,7 @@ const rules = {
   story_extract: {
     maxLength: {
       value: 254,
-      message: "ストーリー抜粋は 254 文字以内で入力してください",
+      message: "関連描述は 254 文字以内で入力してください",
     },
   },
   published_at: {
@@ -331,8 +331,8 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
                 multiline
                 minRows={2}
                 maxRows={6}
-                label="ストーリー抜粋/ Story Extract"
-                placeholder="ストーリー抜粋"
+                label="関連描述/ Related Narrative"
+                placeholder="関連描述"
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
               />

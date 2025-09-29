@@ -8,6 +8,9 @@ import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
 import { AddImageModal } from './AddImageModal';
 
+import { SceneProvider } from '../../providers/SceneProvider';
+import { StoryProvider } from '../../providers/StoryProvider';
+
 interface ImageItem {
   id: string;
   name: string;
@@ -245,11 +248,15 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
         </button>
-        <AddImageModal
-          isOpen={isAddImageModalOpen}
-          onClose={() => setIsAddImageModalOpen(false)}
-          onAddImage={handleAddImage}
-        />
+        <SceneProvider>
+          <StoryProvider>
+            <AddImageModal
+              isOpen={isAddImageModalOpen}
+              onClose={() => setIsAddImageModalOpen(false)}
+              onAddImage={handleAddImage}
+            />
+          </StoryProvider>
+        </SceneProvider>
       </div>
       <div 
         ref={galleryRef} 

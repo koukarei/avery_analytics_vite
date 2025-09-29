@@ -1,4 +1,4 @@
-import { Leaderboard, LeaderboardItem, School, LeaderboardAnalysis, LeaderboardListParams, LeaderboardAnalysisParams, WordCloudParams, LeaderboardUpdate} from "../types/leaderboard";
+import { Leaderboard, LeaderboardItem, School, LeaderboardAnalysis, LeaderboardListParams, LeaderboardAnalysisParams, WordCloudParams, LeaderboardUpdate, type LeaderboardCreate} from "../types/leaderboard";
 import { WritingMistake, ChatWordCloudItem } from "../types/studentWork"
 import { authAxios } from "./axios";
 
@@ -69,5 +69,13 @@ export class LeaderboardAPI {
         : {},
     });
     return response.data;
+  }
+
+  static async createLeaderboardImage(){
+    
+  }
+
+  static async createLeaderboard(data: LeaderboardCreate){
+    
   }
 }

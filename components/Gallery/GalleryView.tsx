@@ -188,10 +188,11 @@ const controlPanelStyle = css`
   margin: auto;
   justify-content: center;
   align-items: center;
-  padding: 10px;
+  padding: 15px;
   width: 600px;
   max-width: 50%;
   color: ${theme.palette.text.primary};
   background-color: ${theme.palette.background.paper};
   border-radius: 8px;
+  opacity: 0.85;
 `;
