@@ -17,6 +17,8 @@ import { GALLERY_DETAIL_VIEWS } from '../../types/ui';
 import { LeaderboardDetail } from './GalleryDetail';
 import { LeaderboardItemProvider } from '../../providers/LeaderboardProvider';
 
+import StudentWorkTable from './StudentWorkTable';
+
 import {
   SceneProvider
 } from '../../providers/SceneProvider';
@@ -134,7 +136,7 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
               )}
             </GalleryTabPanel>
             <GalleryTabPanel value={value} index={1} dir={theme.direction}>
-              Leaderboard
+              <StudentWorkTable />
             </GalleryTabPanel>
           </Box>
         </Grid>
