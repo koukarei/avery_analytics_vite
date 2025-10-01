@@ -80,7 +80,7 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
     setDetailView(GALLERY_DETAIL_VIEWS[newValue]);
     setValue(newValue);
   };
-  
+
   return (
     <Grid container spacing={0} className="w-full h-full flex justify-center">
         <Grid
@@ -92,7 +92,7 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
           {leaderboard ? (
             <ImagePanel
             leaderboard_title={leaderboard.title}
-            imageUrl={images[leaderboard?.original_image.id]}
+            imageUrl={images[leaderboard?.id]}
             isHovered={hoveredImageId === leaderboard?.id}
             onMouseEnter={() => leaderboard && setHoveredImageId(leaderboard.id)}
             onMouseLeave={() => setHoveredImageId(null)}

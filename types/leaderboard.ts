@@ -113,6 +113,16 @@ export interface LeaderboardCreate {
   vocabularies: Vocabulary[];
 }
 
+export interface LeaderboardCreateAPI {
+  title: string;
+  is_public: boolean;
+  scene_id: number;
+  story_id?: number | string | null;
+  story_extract: string;
+  published_at: Date | string;
+  original_image_id: number;
+}
+
 export interface LeaderboardDetail {
   title: string;
   scene_id: number;

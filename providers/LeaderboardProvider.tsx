@@ -6,7 +6,7 @@ import { LeaderboardAPI } from "../api/Leaderboard";
 type LeaderboardListContextType = {
   leaderboards: Leaderboard[];
   loading: boolean;
-  fetchLeaderboards: (params: LeaderboardListParams) => Promise<Leaderboard[]>;
+  fetchLeaderboards: (params: LeaderboardListParams, is_admin: boolean) => Promise<Leaderboard[]>;
 };
 
 type LeaderboardItemContextType = {
@@ -57,18 +57,23 @@ const LeaderboardListProvider = ({
   const [leaderboards, setLeaderboards] = useState<Leaderboard[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const fetchLeaderboards = useCallback(async (params: LeaderboardListParams) => {
+  const fetchLeaderboards = useCallback(async (params: LeaderboardListParams, is_admin: boolean=false) => {
     setLoading(true);
     let leaderboardData: [Leaderboard, School][] = [];
-    const leaderboard: Leaderboard[] = [];
+    let leaderboard: Leaderboard[] = [];
     const school: School[] = [];
     try {
-      leaderboardData = await LeaderboardAPI.fetchLeaderboardList(params);
-      leaderboardData.map(([leaderboardItem, schoolItem]) => {
-        leaderboard.push(leaderboardItem);
-        school.push(schoolItem);
-      });
-      setLeaderboards(leaderboard);
+      if (is_admin) {
+        leaderboard = await LeaderboardAPI.fetchLeaderboardListAdmin(params);
+        setLeaderboards(leaderboard);
+      } else {
+        leaderboardData = await LeaderboardAPI.fetchLeaderboardList(params);
+        leaderboardData.map(([leaderboardItem, schoolItem]) => {
+          leaderboard.push(leaderboardItem);
+          school.push(schoolItem);
+        });
+        setLeaderboards(leaderboard);
+      }
     } catch (e) {
       console.log(e);
     }
@@ -179,18 +184,18 @@ const LeaderboardImageProvider = ({
     const [image, setImage] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
-    const fetchImage = async (leaderboard_id: number) => {
-        setLoading(true);
-        let imageData: string | null = null;
-        try {
-            imageData = await LeaderboardAPI.fetchLeaderboardImage(leaderboard_id);
-            setImage(imageData);
-        } catch (e) {
-            console.log(e);
-        }
-        setLoading(false);
-        return imageData;
-    };
+    const fetchImage = useCallback(async (leaderboard_id: number) => {
+      setLoading(true);
+      let imageData: string | null = null;
+      try {
+        imageData = await LeaderboardAPI.fetchLeaderboardImage(leaderboard_id);
+        setImage(imageData);
+      } catch (e) {
+        console.log(e);
+      }
+      setLoading(false);
+      return imageData;
+    }, []);
 
     return (
         <LeaderboardImageContext.Provider value={{

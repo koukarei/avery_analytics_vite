@@ -1,10 +1,26 @@
-import { Leaderboard, LeaderboardItem, School, LeaderboardAnalysis, LeaderboardListParams, LeaderboardAnalysisParams, WordCloudParams, LeaderboardUpdate, type LeaderboardCreate} from "../types/leaderboard";
-import { WritingMistake, ChatWordCloudItem } from "../types/studentWork"
+import type { Leaderboard, LeaderboardItem, School, LeaderboardAnalysis, LeaderboardListParams, LeaderboardAnalysisParams, WordCloudParams, LeaderboardUpdate, LeaderboardCreateAPI} from "../types/leaderboard";
+import type { WritingMistake, ChatWordCloudItem } from "../types/studentWork"
 import { authAxios } from "./axios";
 
 export class LeaderboardAPI {
   static async fetchLeaderboardList(params: LeaderboardListParams): Promise<[Leaderboard, School][]> {
     const response = await authAxios.get("leaderboards/", {
+      params: {
+        skip: params.skip ? params.skip : 0,
+        limit: params.limit ? params.limit : 10,
+        published_at_start: params.published_at_start ? params.published_at_start.format('DDMMYYYY') : null,
+        published_at_end: params.published_at_end ? params.published_at_end.format('DDMMYYYY') : null,
+      },
+      paramsSerializer: { indexes: null },
+      headers: sessionStorage.getItem("access_token")
+        ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
+        : {},
+    });
+    return response.data;
+  }
+  
+  static async fetchLeaderboardListAdmin(params: LeaderboardListParams): Promise<Leaderboard[]> {
+    const response = await authAxios.get("leaderboards/admin/", {
       params: {
         skip: params.skip ? params.skip : 0,
         limit: params.limit ? params.limit : 10,
@@ -71,11 +87,34 @@ export class LeaderboardAPI {
     return response.data;
   }
 
-  static async createLeaderboardImage(){
-    
+  static async createLeaderboardImage(
+    imageFile: File
+  ){
+    const formData = new FormData();
+    formData.append('original_image', imageFile);
+
+    const response = await authAxios.post(`leaderboards/image`, formData, {
+      headers: sessionStorage.getItem("access_token")
+        ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
+            'Content-Type': 'multipart/form-data'}
+        : {},
+    });
+    if (response.status !== 201){
+      throw new Error(`Error uploading image: ${response}`);
+    }
+    return response.data;
   }
 
-  static async createLeaderboard(data: LeaderboardCreate){
-    
+  static async createLeaderboard(data: LeaderboardCreateAPI): Promise<LeaderboardCreateAPI | null> {
+    data.published_at = (typeof data.published_at === 'string') ? data.published_at : data.published_at.toISOString();
+    const response = await authAxios.post(`leaderboards/`, data, {
+      headers: sessionStorage.getItem("access_token")
+        ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
+        : {},
+    });
+    if (response.status !== 200 && response.status !== 201){
+      throw new Error(`Error creating leaderboard: ${response} `);
+    }
+    return response.data;
   }
 }

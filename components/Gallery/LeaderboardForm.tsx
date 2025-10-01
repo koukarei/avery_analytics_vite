@@ -20,6 +20,7 @@ import { LeaderboardAPI } from "../../api/Leaderboard";
 import { LeaderboardListContext,  LeaderboardImagesContext} from "../../providers/LeaderboardProvider";
 
 import VocabularyChip from "./VocabularyChip";
+import { AuthUserContext } from "../../providers/AuthUserProvider";
 
 const rules = {
   title: {
@@ -159,6 +160,7 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
   const { fetchLeaderboards } = useContext(LeaderboardListContext);
   const { fetchImages } = useContext(LeaderboardImagesContext);
+  const { currentUser } = useContext(AuthUserContext);
 
   const {
     control,
@@ -185,13 +187,12 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
         scene_id: data.scene_id,
         story_id: data.story_id ? Number(data.story_id) : undefined,
       };
-      console.log(data_LeaderboardUpdate.published_at);
       await LeaderboardAPI.updateLeaderboard(leaderboard.id, data_LeaderboardUpdate);
       setAnchorEl(document.getElementById('save-button') as HTMLButtonElement);
 
-      fetchLeaderboards({ skip: 0, limit: 3}).then(leaderboards => {
-        if (leaderboards.length > 0) {
-          fetchImages(leaderboards.map(lb => lb.id));
+      fetchLeaderboards({ skip: 0, limit: 50}, currentUser?.is_admin || false).then(leaderboard => {
+        if (leaderboard.length > 0) {
+          fetchImages(leaderboard.map(lb => lb.id));
         }
       }).catch(err => {
         console.error("Failed to fetch leaderboards: ", err);

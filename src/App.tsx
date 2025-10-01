@@ -20,15 +20,8 @@ import { LocalizationProvider } from '../contexts/LocalizationContext';
 import { AuthUserProvider } from '../providers/AuthUserProvider';
 import { 
   LeaderboardListProvider,
-  LeaderboardAnalysisProvider,
   LeaderboardImagesProvider,
-  LeaderboardImageProvider,
-  WordCloudProvider,
-  LeaderboardItemProvider
  } from '../providers/LeaderboardProvider';
-import AcademicCapIcon from '../components/icons/AcademicCapIcon';
-import LightbulbIcon from '../components/icons/LightbulbIcon';
-import ChartBarIcon from '../components/icons/ChartBarIcon';
 import { css } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../src/Theme";
@@ -82,9 +75,6 @@ const AppContent: React.FC = () => {
       <main className="flex-grow relative overflow-y-auto">
         {renderContent()}
       </main>
-      {/* <footer css={footerStyle} className='text-center p-4 mt-auto'>
-        <p>{t('footer.text', { year: new Date().getFullYear() })}</p>
-      </footer> */}
     </div>
   );
 };
@@ -133,15 +123,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-
-const footerStyle = css`
-  background-color: ${theme.palette.primary.main};
-  color: ${theme.palette.text.secondary};
-
-  width: 100%;
-  text-align: center;
-  padding: 30px 0;
-
-  position: absolute;/*←絶対位置*/
-  bottom: 0; /*下に固定*/
-`;

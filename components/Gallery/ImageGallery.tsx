@@ -11,12 +11,6 @@ import { AddImageModal } from './AddImageModal';
 import { SceneProvider } from '../../providers/SceneProvider';
 import { StoryProvider } from '../../providers/StoryProvider';
 
-interface ImageItem {
-  id: string;
-  name: string;
-  url: string;
-}
-
 interface ImageGalleryProps {
   view: GalleryView;
   setView: (view: GalleryView) => void;
@@ -46,16 +40,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   onClick 
 }) => {
   let transformClasses = 'transition-all duration-700 ease-in-out transform-gpu'; 
-  let zIndex = 10;
   let opacityClass = 'opacity-100';
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
   
   // Adjusted 3D transforms to match the example image more closely
   switch (position) {
@@ -154,7 +139,6 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
   const isSwiping = useRef<boolean>(false); // To distinguish tap from swipe
-  const [cur_images, setCurImages] = useState<Record<number, string>>(images);
   const [isAddImageModalOpen, setIsAddImageModalOpen] = useState(false);
 
   useEffect(() => {
@@ -227,13 +211,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
   const leftImage = leaderboards[currentIndex] || null;
   const centerImage = leaderboards[(currentIndex + 1) % leaderboards.length] || null;
   const rightImage = leaderboards[(currentIndex + 2) % leaderboards.length] || null;
-
-
-  const handleAddImage = (newImage: ImageItem) => {
-    setCurImages(prevImages => [...prevImages, newImage]);
-    setIsAddImageModalOpen(false);
-  };
-
+  
   return (
     <div>
       <div>
@@ -253,7 +231,6 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
             <AddImageModal
               isOpen={isAddImageModalOpen}
               onClose={() => setIsAddImageModalOpen(false)}
-              onAddImage={handleAddImage}
             />
           </StoryProvider>
         </SceneProvider>
@@ -267,7 +244,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
       >
         <ImagePanel
           leaderboard={leftImage}
-          imageUrl={cur_images[leftImage?.original_image.id]}
+          imageUrl={images[leftImage?.id]}
           position="left"
           isHovered={hoveredImageId === leftImage?.id}
           onMouseEnter={() => leftImage && setHoveredImageId(leftImage.id)}
@@ -276,7 +253,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
         />
         <ImagePanel
           leaderboard={centerImage}
-          imageUrl={cur_images[centerImage?.original_image.id]}
+          imageUrl={images[centerImage?.id]}
           position="center"
           isHovered={hoveredImageId === centerImage?.id}
           onMouseEnter={() => centerImage && setHoveredImageId(centerImage.id)}
@@ -285,7 +262,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
         />
         <ImagePanel
           leaderboard={rightImage}
-          imageUrl={cur_images[rightImage?.original_image.id]}
+          imageUrl={images[rightImage?.id]}
           position="right"
           isHovered={hoveredImageId === rightImage?.id}
           onMouseEnter={() => rightImage && setHoveredImageId(rightImage.id)}

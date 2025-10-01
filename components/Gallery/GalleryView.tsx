@@ -9,8 +9,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LeaderboardListContext, LeaderboardAnalysisContext, LeaderboardImagesContext, WordCloudContext } from '../../providers/LeaderboardProvider';
-import type { LeaderboardListContextType, LeaderboardAnalysisContextType } from '../../providers/LeaderboardProvider';
+import { LeaderboardListContext, LeaderboardImagesContext } from '../../providers/LeaderboardProvider';
+import { AuthUserContext } from '../../providers/AuthUserProvider';
 import { useLocalization } from '../../contexts/localizationUtils';
 
 const LoadingSpinner: React.FC = () => {
@@ -39,6 +39,7 @@ const ErrorDisplay: React.FC<{ messageKey: string }> = ({ messageKey }) => {
 export default function GalleryView() {
   const [view, setView] = useState<GalleryView>('browsing');
   const { t } = useLocalization();
+  const { currentUser } = useContext(AuthUserContext);
   const { leaderboards, loading, fetchLeaderboards } = useContext(LeaderboardListContext);
   const { images, loading: imagesLoading, fetchImages } = useContext(LeaderboardImagesContext);
   const [errorKey, setErrorKey] = useState<string | null>(null);
@@ -64,7 +65,7 @@ export default function GalleryView() {
         return newIndex % length;
       }
     });
-  }, [leaderboards.length]);
+  }, [leaderboards]);
 
   const handleViewChange = (newView: GalleryView) => {
     setView(newView);
@@ -72,9 +73,9 @@ export default function GalleryView() {
   
   useEffect(() => {
     setErrorKey(null);
-    fetchLeaderboards({ skip: startLeaderboardIndex, limit: limitLeaderboardIndex, published_at_start: published_at_start, published_at_end: published_at_end }).then(leaderboards => {
-      if (leaderboards.length > 0) {
-        fetchImages(leaderboards.map(lb => lb.id));
+    fetchLeaderboards({ skip: startLeaderboardIndex, limit: limitLeaderboardIndex, published_at_start: published_at_start, published_at_end: published_at_end }, currentUser?.is_admin || false ).then(leaderboard => {
+      if (leaderboard.length > 0) {
+        fetchImages(leaderboard.map(lb => lb.id));
       }
     }).catch(err => {
       console.error("Failed to fetch leaderboards: ", err);
@@ -82,7 +83,7 @@ export default function GalleryView() {
     });
 
 
-  }, [fetchLeaderboards, fetchImages, startLeaderboardIndex, limitLeaderboardIndex, published_at_start, published_at_end]);
+  }, [fetchLeaderboards, fetchImages, startLeaderboardIndex, limitLeaderboardIndex, published_at_start, published_at_end, currentUser]);
 
   const renderGallery = () => {
     switch (view) {
@@ -114,9 +115,9 @@ export default function GalleryView() {
                     if (date) {
                       setPublishedAtStart(date);
                       setStartLeaderboardIndex(0);
-                      fetchLeaderboards({ skip: startLeaderboardIndex, limit: limitLeaderboardIndex, published_at_start: date, published_at_end: published_at_end }).then(leaderboards => {
-                        if (leaderboards.length > 0) {
-                          fetchImages(leaderboards.map(lb => lb.id));
+                      fetchLeaderboards({ skip: startLeaderboardIndex, limit: limitLeaderboardIndex, published_at_start: date, published_at_end: published_at_end }, currentUser?.is_admin || false).then(leaderboard => {
+                        if (leaderboard.length > 0) {
+                          fetchImages(leaderboard.map(lb => lb.id));
                         }
                       }).catch(err => {
                         console.error("Failed to fetch leaderboards: ", err);
@@ -132,6 +133,15 @@ export default function GalleryView() {
                   onChange={(date) => {
                     if (date) {
                       setPublishedAtEnd(date);
+                      setStartLeaderboardIndex(0);
+                      fetchLeaderboards({ skip: startLeaderboardIndex, limit: limitLeaderboardIndex, published_at_start: published_at_start, published_at_end: date }, currentUser?.is_admin || false).then(leaderboard => {
+                        if (leaderboard.length > 0) {
+                          fetchImages(leaderboard.map(lb => lb.id));
+                        }
+                      }).catch(err => {
+                        console.error("Failed to fetch leaderboards: ", err);
+                        setErrorKey('error.fetch_leaderboards');
+                      });
                     }
                   }}
                 />

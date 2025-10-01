@@ -1,6 +1,6 @@
 export type Language = 'en' | 'ja';
 
-export type ViewMode = 'gallery' | 'word_cloud' | 'writer';
+export type ViewMode = 'gallery' | 'word_cloud' | 'writer' | 'analytics';
 
 export type GalleryView = 'browsing' | 'detail';
 

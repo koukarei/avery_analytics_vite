@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import { useLocalization } from '../contexts/localizationUtils';
 import IconComponent from './icons/AVERYIcon';
 import LoginIcon from './icons/LoginIcon';
@@ -21,7 +21,7 @@ import type { Theme } from "@mui/material/styles";
 import {theme} from "../src/Theme";
 
 function showUserProfile() {
-  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const { currentUser, loading } = useContext(AuthUserContext);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -83,8 +83,10 @@ const Header: React.FC = () => {
     <header className="shadow-md" css={headerStyles}>
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center">
-          <IconComponent className="w-16 h-16 items-center text-white mr-2"/>
-          <h1 className="text-3xl font-bold text-white">{t('header.title')}</h1>
+          <button aria-label="Home" onClick={() => window.location.href = '/' } className="flex items-center mr-4">
+            <IconComponent className="w-16 h-16 items-center text-white mr-2"/>
+            <h1 className="text-3xl font-bold text-white">{t('header.title')}</h1>
+          </button>
         </div>
         <div className="flex space-x-2">
           {Object.keys(SUPPORTED_LANGUAGES).map((langCode) => (

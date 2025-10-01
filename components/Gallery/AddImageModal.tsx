@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { css, keyframes } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import MenuItem from "@mui/material/MenuItem";
@@ -14,8 +14,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import {theme} from "../../src/Theme";
-import { Controller, useForm } from "react-hook-form";
-import type { Control, FieldValues as TFieldValues } from "react-hook-form";
+import { Controller, set, useForm } from "react-hook-form";
 import { TextField } from "@mui/material";
 import type { LeaderboardCreate, Scene, Story } from "../../types/leaderboard";
 import VocabularyChip from "./VocabularyChip";
@@ -34,41 +33,27 @@ interface AddImageModalProps {
 }
 
 interface InfoInputFormProps {
-  setCompleteForm?: (complete: boolean) => void;
+  handleNext: (values: LeaderboardCreate) => void;
+  handleBack: () => void;
+  formValues: LeaderboardCreate;
   scenes: Scene[] | null;
   stories: Story[] | null;
 }
 
-const InfoInputForm: React.FC<InfoInputFormProps> = ({ setCompleteForm, scenes, stories }) => {
+const InfoInputForm: React.FC<InfoInputFormProps> = ({ handleNext, handleBack, formValues, scenes, stories }) => {
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<LeaderboardCreate>({});
+  } = useForm<LeaderboardCreate>({
+    defaultValues: formValues,
+  });
 
-  const onSubmit = async (imageFile: File | null, data: LeaderboardCreate, e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: LeaderboardCreate) => {
     try {
-      if (!imageFile) {
-        throw new Error("No image file selected");
-      }
-      const interpreted_image_id = await LeaderboardAPI.createLeaderboardImage(data);
-
-      const newLeaderboard = await LeaderboardAPI.createLeaderboard({
-        ...data,
-      });
-      if (!newLeaderboard) {
-        throw new Error("Failed to create a new writing task");
-      } 
-      setCompleteForm(true);
-
+      handleNext(data);
     } catch (e) {
-
       console.log(e);
-      setError("root", {
-        type: "manual",
-        message: "Failed to create a new writing task. Please try again.",
-      });
     }
   };
 
@@ -83,7 +68,8 @@ const InfoInputForm: React.FC<InfoInputFormProps> = ({ setCompleteForm, scenes, 
           <TextField
             { ...field }
             fullWidth
-            label="タイトル/ Title"
+            value={field.value || ''}
+            label="タイトル/ Title*"
             placeholder="タイトル"
             error={errors[field.name] ? true : false}
             helperText={(errors[field.name]?.message as string) || " "}
@@ -100,7 +86,7 @@ const InfoInputForm: React.FC<InfoInputFormProps> = ({ setCompleteForm, scenes, 
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               label="公開日/ Published Date"
-              value={field.value ? dayjs(field.value) : dayjs().startOf('day')}
+              value={field.value ? dayjs(field.value) : null}
               views={['year', 'month', 'day']}
               onChange={(date) => {
                   field.onChange(date ? date.startOf('day') : null);
@@ -178,7 +164,8 @@ const InfoInputForm: React.FC<InfoInputFormProps> = ({ setCompleteForm, scenes, 
             multiline
             minRows={2}
             maxRows={6}
-            label="関連描述/ Related Narrative"
+            value={field.value || ''}
+            label="関連描述/ Related Narrative*"
             placeholder="関連描述"
             error={errors[field.name] ? true : false}
             helperText={(errors[field.name]?.message as string) || " "}
@@ -190,16 +177,38 @@ const InfoInputForm: React.FC<InfoInputFormProps> = ({ setCompleteForm, scenes, 
       <div css={errorMessageStyle}>{errors.root.message}</div>
     )}
 
+    <React.Fragment>
+      <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+        <Button
+          css={cancelButtonStyle(theme)}
+          className='focus:outline-none focus:ring-2 focus:ring-teal-400'
+          onClick={handleBack}
+          sx={{ mr: 1 }}
+        >
+          戻る/ Back
+        </Button>
+        <Box sx={{ flex: '1 1 auto' }} />
+        <Button
+          css={addButtonStyle(theme)}
+          onClick={handleSubmit(onSubmit)}
+        >
+          次へ/ Next
+        </Button>
+      </Box>
+    </React.Fragment>
+        
     </form>
   )
 }
 
 interface ImageUploadProps {
+  handleNext: () => void;
+  onClose: () => void;
   file: File | null;
   setFile: (file: File | null) => void;
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ file, setFile }) => {
+const ImageUpload: React.FC<ImageUploadProps> = ({ handleNext, onClose, file, setFile }) => {
   const fileTypes = ["JPG", "PNG"];
   const handleChange = (file: File | File[]) => {
     if (Array.isArray(file)) {
@@ -218,13 +227,33 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ file, setFile }) => {
       />
       {/*選択ファイル名を表示させる*/}
       <p>{file !== null ? `ファイル名：${file['name']}` : ''}</p>
+      <React.Fragment>
+        <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+          <Button
+            css={cancelButtonStyle(theme)}
+            className='focus:outline-none focus:ring-2 focus:ring-teal-400'
+            onClick={onClose}
+            sx={{ mr: 1 }}
+          >
+            取消/ Cancel
+          </Button>
+        <Box sx={{ flex: '1 1 auto' }} />
+          <Button
+            css={addButtonStyle(theme)}
+            onClick={handleNext}
+            disabled={!file}
+          >
+            次へ/ Next
+          </Button>
+        </Box>
+      </React.Fragment>
     </>
   );
 };
 
 export const AddImageModal: React.FC<AddImageModalProps> = ({ isOpen, onClose }) => {
 
-  const [activeStep, setActiveStep] = React.useState(0);
+  const [activeStep, setActiveStep] = useState(0);
 
   const steps = ['画像のアップロード', '情報の入力', '相関単語の追加'];
 
@@ -232,12 +261,32 @@ export const AddImageModal: React.FC<AddImageModalProps> = ({ isOpen, onClose })
   const { stories } = useContext(StoryContext);
 
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [completeForm, setCompleteForm] = useState<boolean>(false);
-  
-  const handleNext = () => {
+  const [formValues, setFormValues] = useState<LeaderboardCreate>({
+    scene_id: 2,
+    published_at: new Date(),
+  } as LeaderboardCreate);
+
+  const handleNextToVocab = async (data: LeaderboardCreate) => {
+    if ( activeStep === 1 && imageFile ) {
+      LeaderboardAPI.createLeaderboardImage(
+        imageFile,
+      ).then((response) => {
+        LeaderboardAPI.createLeaderboard(
+          { ...data, original_image_id: response.id, is_public: true }
+        )
+      }).catch((error) => {
+        console.log(error);
+      });
+    }
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
+  const handleNextToForm = async () => {
+    if ( imageFile ) {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
+    
+  };
 
   if (!isOpen) {
     return null;
@@ -249,17 +298,23 @@ export const AddImageModal: React.FC<AddImageModalProps> = ({ isOpen, onClose })
 
   const handleReset = () => {
     setActiveStep(0);
+    setImageFile(null);
+    setFormValues({
+      scene_id: 2,
+      published_at: new Date(),
+    } as LeaderboardCreate);
+    onClose();
   };
 
   const renderStepContent = (step: number) => {
     switch (step) {
       case 0:
         return (
-          <ImageUpload file={imageFile} setFile={setImageFile} />
+          <ImageUpload handleNext={handleNextToForm} onClose={handleReset} file={imageFile} setFile={setImageFile} />
         );
       case 1:
         return (
-          <InfoInputForm setCompleteForm={setCompleteForm} scenes={scenes} stories={stories} />
+          <InfoInputForm handleNext={handleNextToVocab} handleBack={handleBack} formValues={formValues} scenes={scenes} stories={stories} />
         );
       case 2:
         return " : Add Related Vocabularies";
@@ -271,7 +326,7 @@ export const AddImageModal: React.FC<AddImageModalProps> = ({ isOpen, onClose })
   return (
     <div 
       css={formBackgroundStyle(theme)}
-      onClick={onClose}
+      onClick={handleReset}
       role="dialog"
       aria-modal="true"
       aria-labelledby="add-image-modal-title"
@@ -299,35 +354,13 @@ export const AddImageModal: React.FC<AddImageModalProps> = ({ isOpen, onClose })
         {activeStep === steps.length ? (
           <React.Fragment>
             <Typography sx={{ mt: 2, mb: 1 }}>
-              All steps completed - you&apos;re finished
+              ライティングタスクが正常に追加されました。
             </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-              <Box sx={{ flex: '1 1 auto' }} />
-              <Button onClick={handleReset}>Reset</Button>
-            </Box>
           </React.Fragment>
         ) : (
           <React.Fragment>
-            <Typography sx={{ mt: 2, mb: 1 }}>
+            <Box sx={{ mt: 2, mb: 1 }}>
               {renderStepContent(activeStep)}
-            </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-              <Button
-                css={cancelButtonStyle(theme)}
-                className='focus:outline-none focus:ring-2 focus:ring-teal-400'
-                onClick={activeStep === 0 ? onClose : handleBack}
-                sx={{ mr: 1 }}
-              >
-                {activeStep === 0 ? 'Cancel' : 'Back'}
-              </Button>
-              <Box sx={{ flex: '1 1 auto' }} />
-              <Button
-                css={addButtonStyle(theme)}
-                onClick={handleNext}
-                disabled={activeStep === 0 && !imageFile || activeStep === 1 && !completeForm}
-              >
-                {activeStep === steps.length - 1 ? 'Add Writing Task' : 'Next'}
-              </Button>
             </Box>
           </React.Fragment>
         )}
@@ -368,7 +401,7 @@ const formContainerStyle = (theme: Theme) => css`
   justify-content: center;
   position: relative;
   width: calc(9/10 * 100%);
-  max-width: var(--max-w-md);
+  max-width: 500px;
   transition: all 0.3s ease-in-out scale(0.95);
 `;
 

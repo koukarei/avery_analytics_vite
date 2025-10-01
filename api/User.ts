@@ -1,4 +1,4 @@
-import { User } from "../types/studentWork";
+import { User } from "../types/user";
 import { authAxios } from "./axios";
 
 export class UserAPI {
