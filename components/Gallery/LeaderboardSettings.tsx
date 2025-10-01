@@ -29,7 +29,7 @@ export const LeaderboardSettings: React.FC<LeaderboardSettingsProps> = ({ leader
     return <div>{t('loading')}...</div>;
   }
 
-  if (authUserData?.currentUser?.user_type === "student") {
+  if (authUserData?.currentUser?.is_admin === false) {
     return (
         <div>
             {t('error.not_authorized')}
