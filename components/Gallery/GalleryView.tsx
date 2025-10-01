@@ -73,16 +73,16 @@ export default function GalleryView() {
   
   useEffect(() => {
     setErrorKey(null);
-    fetchLeaderboards({ skip: startLeaderboardIndex, limit: limitLeaderboardIndex, published_at_start: published_at_start, published_at_end: published_at_end }, currentUser?.is_admin || false ).then(leaderboard => {
-      if (leaderboard.length > 0) {
-        fetchImages(leaderboard.map(lb => lb.id));
-      }
-    }).catch(err => {
-      console.error("Failed to fetch leaderboards: ", err);
-      setErrorKey('error.fetch_leaderboards');
-    });
-
-
+    if (currentUser) {
+      fetchLeaderboards({ skip: startLeaderboardIndex, limit: limitLeaderboardIndex, published_at_start: published_at_start, published_at_end: published_at_end }, currentUser?.is_admin || false ).then(leaderboard => {
+        if (leaderboard.length > 0) {
+          fetchImages(leaderboard.map(lb => lb.id));
+        }
+      }).catch(err => {
+        console.error("Failed to fetch leaderboards: ", err);
+        setErrorKey('error.fetch_leaderboards');
+      });
+    }
   }, [fetchLeaderboards, fetchImages, startLeaderboardIndex, limitLeaderboardIndex, published_at_start, published_at_end, currentUser]);
 
   const renderGallery = () => {

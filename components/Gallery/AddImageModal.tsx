@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
-import React, { useState, useContext, useEffect } from 'react';
-import { css, keyframes } from "@emotion/react";
+import React, { useState, useContext } from 'react';
+import { css } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import MenuItem from "@mui/material/MenuItem";
 import dayjs from 'dayjs';
@@ -17,7 +17,6 @@ import {theme} from "../../src/Theme";
 import { Controller, set, useForm } from "react-hook-form";
 import { TextField } from "@mui/material";
 import type { LeaderboardCreate, Scene, Story } from "../../types/leaderboard";
-import VocabularyChip from "./VocabularyChip";
 
 import { FileUploader } from "react-drag-drop-files";
 
@@ -316,7 +315,7 @@ export const AddImageModal: React.FC<AddImageModalProps> = ({ isOpen, onClose })
           <InfoInputForm handleNext={handleNextToVocab} handleBack={handleBack} formValues={formValues} scenes={scenes} stories={stories} />
         );
       case 2:
-        return " : Add Related Vocabularies";
+        return "Under development";
       default:
         break;
     }
