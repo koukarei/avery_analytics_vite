@@ -150,10 +150,11 @@ export interface LeaderboardItem {
 export interface LeaderboardUpdate {
   id: number;
   is_public: boolean;
-  published_at?: Date;
+  published_at?: Date | string;
   title?: string;
   scene_id?: number;
   story_id?: number;
+  story_extract?: string;
 }
 
 export interface LeaderboardSchoolUpdate {

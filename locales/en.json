@@ -18,6 +18,9 @@
   "galleryView.noImageToDisplay": "No images to display.",
   "galleryView.publishedAtStartDate": "Writing tasks published from",
   "galleryView.publishedAtEndDate": "to",
+  "galleryView.Tab.detail": "Detail",
+  "galleryView.Tab.leaderboard": "Leaderboard",
+  "galleryView.Tab.settings": "Settings",
   "studentCard.writingsTab": "Writings",
   "studentCard.chatLogsTab": "Chat Logs",
   "studentCard.noWritings": "No writings yet.",
@@ -35,5 +38,6 @@
   "mistakeCategories.style": "Style",
   "mistakeCategories.vocabulary": "Vocabulary",
   "languages.english": "English",
-  "languages.japanese": "日本語"
+  "languages.japanese": "日本語",
+  "error.not_authorized": "You are not authorized to view this page."
 }

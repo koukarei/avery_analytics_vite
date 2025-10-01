@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 
-import React, { useState, useRef, useContext, useEffect } from 'react';
-import { css, keyframes } from "@emotion/react";
+import React, { useState, useRef } from 'react';
+import { css } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
 
@@ -11,11 +11,12 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 
-import type { Leaderboard, LeaderboardAnalysis, Scene } from '../../types/leaderboard';
+import type { Leaderboard, Scene } from '../../types/leaderboard';
 import type { GalleryView, GalleryDetailView } from '../../types/ui';
 import { GALLERY_DETAIL_VIEWS } from '../../types/ui';
 import { LeaderboardDetail } from './GalleryDetail';
 import { LeaderboardItemProvider } from '../../providers/LeaderboardProvider';
+import { LeaderboardSettings } from './LeaderboardSettings';
 
 import StudentWorkTable from './StudentWorkTable';
 
@@ -117,8 +118,13 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
                 variant="fullWidth"
                 aria-label="full width tabs"
               >
-                <Tab label="Detail" {...a11yProps(0)} />
-                <Tab label="Leaderboard" {...a11yProps(1)} />
+                  {GALLERY_DETAIL_VIEWS.map((viewOption, index) => (
+                    <Tab
+                      key={viewOption}
+                      label={t(`galleryView.Tab.${viewOption}`)}
+                      {...a11yProps(index)}
+                    />
+                  ))}
               </Tabs>
             </AppBar>
             <GalleryTabPanel value={value} index={0} dir={theme.direction}>
@@ -137,6 +143,11 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
             </GalleryTabPanel>
             <GalleryTabPanel value={value} index={1} dir={theme.direction}>
               <StudentWorkTable />
+            </GalleryTabPanel>
+            <GalleryTabPanel value={value} index={2} dir={theme.direction}>
+              <LeaderboardItemProvider>
+                <LeaderboardSettings leaderboard={leaderboard} />
+              </LeaderboardItemProvider>
             </GalleryTabPanel>
           </Box>
         </Grid>
@@ -161,13 +172,10 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   onMouseLeave,
   onClick 
 }) => {
-  let transformClasses = 'transition-all duration-700 ease-in-out transform-gpu'; 
-  let zIndex = 10;
-  let opacityClass = 'opacity-100';
-
-  transformClasses += ' scale-100 translate-z-[20px]'; // Center panel pops slightly forward
-  zIndex = 20;
-
+  const transformClasses = 'transition-all duration-700 ease-in-out transform-gpu scale-100 translate-z-[20px]'; 
+  const zIndex = 20;
+  const opacityClass = 'opacity-100';
+  
   return (
     <div
       className={`w-full h-full aspect-[4/3] bg-neutral-800 rounded-lg shadow-2xl overflow-hidden ${transformClasses} ${opacityClass} border-2 border-neutral-600 cursor-pointer group`}

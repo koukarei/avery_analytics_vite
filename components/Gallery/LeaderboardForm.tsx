@@ -186,6 +186,7 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
         is_public: leaderboard.is_public ? leaderboard.is_public : true,
         scene_id: data.scene_id,
         story_id: data.story_id ? Number(data.story_id) : undefined,
+        story_extract: data.story_extract,
       };
       await LeaderboardAPI.updateLeaderboard(leaderboard.id, data_LeaderboardUpdate);
       setAnchorEl(document.getElementById('save-button') as HTMLButtonElement);

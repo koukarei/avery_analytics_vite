@@ -19,7 +19,6 @@ import { TextField } from "@mui/material";
 import type { LeaderboardCreate, Scene, Story } from "../../types/leaderboard";
 import VocabularyChip from "./VocabularyChip";
 
-import { ImageItem } from '../types';
 import { FileUploader } from "react-drag-drop-files";
 
 import { SceneContext } from "../../providers/SceneProvider";

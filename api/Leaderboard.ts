@@ -79,6 +79,10 @@ export class LeaderboardAPI {
   }
 
   static async updateLeaderboard(id: number, data: Partial<LeaderboardUpdate>): Promise<LeaderboardUpdate | null> {
+    // remove time from published_at if it exists
+    if (data.published_at) {
+      data.published_at = (typeof data.published_at === 'string') ? data.published_at : data.published_at.toISOString().split('T')[0];
+    }
     const response = await authAxios.put(`leaderboards/${id}/`, data, {
       headers: sessionStorage.getItem("access_token")
         ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
@@ -106,7 +110,8 @@ export class LeaderboardAPI {
   }
 
   static async createLeaderboard(data: LeaderboardCreateAPI): Promise<LeaderboardCreateAPI | null> {
-    data.published_at = (typeof data.published_at === 'string') ? data.published_at : data.published_at.toISOString();
+    // remove time from published_at
+    data.published_at = (typeof data.published_at === 'string') ? data.published_at : data.published_at.toISOString().split('T')[0];
     const response = await authAxios.post(`leaderboards/`, data, {
       headers: sessionStorage.getItem("access_token")
         ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }

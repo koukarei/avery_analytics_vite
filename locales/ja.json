@@ -18,6 +18,9 @@
   "galleryView.noImageToDisplay": "表示する画像がありません。",
   "galleryView.publishedAtStartDate": "公開日",
   "galleryView.publishedAtEndDate": "～",
+  "galleryView.Tab.detail": "詳細",
+  "galleryView.Tab.leaderboard": "リーダーボード",
+  "galleryView.Tab.settings": "設定",
   "studentCard.writingsTab": "作文",
   "studentCard.chatLogsTab": "チャット履歴",
   "studentCard.noWritings": "まだ作文はありません。",
@@ -35,5 +38,6 @@
   "mistakeCategories.style": "文体",
   "mistakeCategories.vocabulary": "語彙",
   "languages.english": "English",
-  "languages.japanese": "日本語"
+  "languages.japanese": "日本語",
+  "error.not_authorized": "このページを表示する権限がありません。"
 }
