@@ -32,7 +32,7 @@ export const LeaderboardDetail: React.FC<LeaderboardDetailProps> = ({ leaderboar
   }, [fetchLeaderboard, leaderboard_id]);
   
   // Loading state
-  if (!leaderboard || !scenes) {
+  if (loading || !leaderboard || !scenes) {
     return <div>{t('loading')}...</div>;
   }
 

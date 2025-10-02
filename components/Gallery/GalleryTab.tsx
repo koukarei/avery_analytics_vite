@@ -15,7 +15,7 @@ import type { Leaderboard, Scene } from '../../types/leaderboard';
 import type { GalleryView, GalleryDetailView } from '../../types/ui';
 import { GALLERY_DETAIL_VIEWS } from '../../types/ui';
 import { LeaderboardDetail } from './GalleryDetail';
-import { LeaderboardItemProvider } from '../../providers/LeaderboardProvider';
+import { LeaderboardItemProvider, LeaderboardSchoolProvider } from '../../providers/LeaderboardProvider';
 import { LeaderboardSettings } from './LeaderboardSettings';
 
 import StudentWorkTable from './StudentWorkTable';
@@ -145,9 +145,9 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
               <StudentWorkTable />
             </GalleryTabPanel>
             <GalleryTabPanel value={value} index={2} dir={theme.direction}>
-              <LeaderboardItemProvider>
-                <LeaderboardSettings leaderboard={leaderboard} />
-              </LeaderboardItemProvider>
+              <LeaderboardSchoolProvider>
+                <LeaderboardSettings leaderboard_id={leaderboard ? leaderboard.id : 0} />
+              </LeaderboardSchoolProvider>
             </GalleryTabPanel>
           </Box>
         </Grid>

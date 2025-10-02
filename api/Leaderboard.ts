@@ -1,4 +1,15 @@
-import type { Leaderboard, LeaderboardItem, School, LeaderboardAnalysis, LeaderboardListParams, LeaderboardAnalysisParams, WordCloudParams, LeaderboardUpdate, LeaderboardCreateAPI} from "../types/leaderboard";
+import type { 
+  Leaderboard, 
+  LeaderboardItem, 
+  School, 
+  LeaderboardAnalysis, 
+  LeaderboardListParams, 
+  LeaderboardAnalysisParams, 
+  WordCloudParams, 
+  LeaderboardUpdate, 
+  LeaderboardCreateAPI,
+  LeaderboardSchoolUpdate
+} from "../types/leaderboard";
 import type { WritingMistake, ChatWordCloudItem } from "../types/studentWork"
 import { authAxios } from "./axios";
 
@@ -71,6 +82,40 @@ export class LeaderboardAPI {
   static async fetchWordCloud(params: WordCloudParams): Promise<(WritingMistake | ChatWordCloudItem)[]> {
     const response = await authAxios.get(`analysis/get_word_cloud_items`, {
       params: params,
+      headers: sessionStorage.getItem("access_token")
+        ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
+        : {},
+    });
+    return response.data;
+  }
+
+  static async fetchLeaderboardSchools(id: number): Promise<School[]> {
+    const response = await authAxios.get(`leaderboards/${id}/schools/`, {
+      headers: sessionStorage.getItem("access_token")
+        ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
+        : {},
+    });
+    return response.data;
+  }
+
+  static async addLeaderboardSchools(id: number, data: Partial<LeaderboardSchoolUpdate>): Promise<School[]> {
+    const response = await authAxios.put(`leaderboards/${id}/school/`, data, {
+      headers: sessionStorage.getItem("access_token")
+        ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
+        : {},
+    });
+    if (response.status !== 200){
+      throw new Error(`Error updating leaderboard schools: ${response} `);
+    }
+
+    return response.data;
+  }
+
+  static async deleteLeaderboardSchool(leaderboard_id: number, school: string): Promise<School[]> {
+    const response = await authAxios.delete(`leaderboards/${leaderboard_id}/school/`, {
+      params: {
+        school: school
+      },
       headers: sessionStorage.getItem("access_token")
         ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
         : {},

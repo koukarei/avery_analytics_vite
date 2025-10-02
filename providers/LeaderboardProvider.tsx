@@ -244,6 +244,54 @@ const WordCloudProvider = ({
     );
 };
 
+
+type LeaderboardSchoolType = {
+    schoolItems: string[];
+    loading: boolean;
+    fetchSchoolItems: (id: number) => Promise<string[]>;
+}
+
+const LeaderboardSchoolContext = createContext({} as LeaderboardSchoolType);
+
+const LeaderboardSchoolProvider = ({
+    children
+}: {
+    children: React.ReactNode;
+}) => {
+    const [schoolItems, setSchoolItems] = useState<string[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const fetchSchoolItems = useCallback(async (leaderboard_id: number) => {
+    setLoading(true);
+    const schoolData: string[] = [];
+    try {
+      const schools = await LeaderboardAPI.fetchLeaderboardSchools(leaderboard_id);
+      schools.forEach(s => {
+        if (s && s.school) {
+          schoolData.push(s.school);
+        }
+      });
+      setSchoolItems(schoolData);
+    } catch (e) {
+      console.log(e);
+    }finally {
+      setLoading(false);
+    }
+
+    return schoolData;
+  }, []);
+
+    return (
+        <LeaderboardSchoolContext.Provider value={{
+            schoolItems, loading, fetchSchoolItems
+        }}>
+            {children}
+        </LeaderboardSchoolContext.Provider>
+    );
+};
+
+
+
 export { 
     LeaderboardListContext, 
     LeaderboardListProvider, 
@@ -256,5 +304,7 @@ export {
     LeaderboardImageContext, 
     LeaderboardImageProvider,
     WordCloudContext,
-    WordCloudProvider
+    WordCloudProvider,
+    LeaderboardSchoolContext,
+    LeaderboardSchoolProvider
 };
