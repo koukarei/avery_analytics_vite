@@ -28,6 +28,8 @@ interface AddImageModalProps {
   isOpen: boolean;
   activeStep?: number;
   onClose: () => void;
+  setPublishedAt_start: (date: dayjs.Dayjs) => void;
+  setPublishedAt_end: (date: dayjs.Dayjs) => void;
 }
 
 interface InfoInputFormProps {
@@ -249,7 +251,35 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ handleNext, onClose, file, se
   );
 };
 
-export const AddImageModal: React.FC<AddImageModalProps> = ({ isOpen, onClose }) => {
+interface AddRelatedVocabProps {
+  handleNext: () => void;
+}
+
+
+const AddRelatedVocab: React.FC<AddRelatedVocabProps> = ({ handleNext }) => {
+
+  return (
+    <>
+      <Box>
+        <p>Under development</p>
+      </Box>
+      <React.Fragment>
+        <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+
+        <Box sx={{ flex: '1 1 auto' }} />
+          <Button
+            css={addButtonStyle(theme)}
+            onClick={handleNext}
+          >
+            完了/ Finish
+          </Button>
+        </Box>
+      </React.Fragment>
+    </>
+  );
+};
+
+export const AddImageModal: React.FC<AddImageModalProps> = ({ isOpen, onClose, setPublishedAt_start, setPublishedAt_end }) => {
 
   const [activeStep, setActiveStep] = useState(0);
 
@@ -286,6 +316,14 @@ export const AddImageModal: React.FC<AddImageModalProps> = ({ isOpen, onClose })
     
   };
 
+  const handleNextToFinish = () => {
+    if ( activeStep === 2 ) {
+      setPublishedAt_start(dayjs(formValues.published_at));
+      setPublishedAt_end(dayjs(formValues.published_at));
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
+  };
+
   if (!isOpen) {
     return null;
   }
@@ -315,7 +353,9 @@ export const AddImageModal: React.FC<AddImageModalProps> = ({ isOpen, onClose })
           <InfoInputForm handleNext={handleNextToVocab} handleBack={handleBack} formValues={formValues} scenes={scenes} stories={stories} />
         );
       case 2:
-        return "Under development";
+        return (
+          <AddRelatedVocab handleNext={handleNextToFinish} />
+        );
       default:
         break;
     }

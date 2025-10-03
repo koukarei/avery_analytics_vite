@@ -7,6 +7,7 @@ import type { GalleryView } from '../../types/ui';
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
 import { AddImageModal } from './AddImageModal';
+import dayjs from 'dayjs';
 
 import { SceneProvider } from '../../providers/SceneProvider';
 import { StoryProvider } from '../../providers/StoryProvider';
@@ -18,6 +19,8 @@ interface ImageGalleryProps {
   images: Record<number, string>; // Mapping of leaderboard ID to image URL
   currentIndex: number; // Index of the first image in the triplet to display
   onScroll: (direction: 'up' | 'down') => void;
+  setPublishedAt_start: (date: dayjs.Dayjs ) => void;
+  setPublishedAt_end: (date: dayjs.Dayjs ) => void;
 }
 
 interface ImagePanelProps {
@@ -131,7 +134,7 @@ function useDebouncedCallback<A extends unknown[],>(
 }
 
 
-export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboards, images, currentIndex, onScroll }) => {
+export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboards, images, currentIndex, onScroll, setPublishedAt_start, setPublishedAt_end }) => {
   const galleryRef = useRef<HTMLDivElement>(null);
   const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
 
@@ -231,6 +234,8 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
             <AddImageModal
               isOpen={isAddImageModalOpen}
               onClose={() => setIsAddImageModalOpen(false)}
+              setPublishedAt_start={setPublishedAt_start}
+              setPublishedAt_end={setPublishedAt_end}
             />
           </StoryProvider>
         </SceneProvider>
