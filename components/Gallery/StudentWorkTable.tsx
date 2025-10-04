@@ -16,6 +16,7 @@ import { ChatStatsContext } from '../../providers/ChatProvider';
 import { useLocalization } from '../../contexts/localizationUtils';
 
 import { parseGrammarMistakes, parseSpellingMistakes, type GrammarMistake, type SpellingMistake } from '../../util/WritingMistake';
+import { compareWriting } from '../../util/CompareWriting';   
 
 const LoadingSpinner: React.FC = () => {
   const { t } = useLocalization();
@@ -153,7 +154,7 @@ export default function StudentWorkTable(
     fetchRounds(leaderboard_id, { program: program_name } )
       .then(async (rounds) => {
         if (!rounds || rounds.length === 0) {
-          setErrorKey('error.no_rounds');
+          setErrorKey(('error.no_rounds'));
           return;
         } 
 
@@ -204,13 +205,28 @@ export default function StudentWorkTable(
       
   }, [fetchRounds, leaderboard_id, program_name]);
 
+  const renderTableCell = (column: RoundColumn, row: Data, value: any) => {
+    switch (column.id) {
+      case 'last_writing': {
+        return (<span>{
+          compareWriting(row.first_writing, row.last_writing)
+        }</span>);
+      }
+      default:
+        return column.format && typeof value === 'number'
+          ? column.format(value)
+          : value;
+    }
+  };
+
+
   const renderRows = (rows: Data[]) => {
     if (loading || loadingFetchDetail || loadingFetchStats) {
       return <LoadingSpinner />;
     }
 
     if (errorKey) {
-      return <p className="text-xl text-gray-400">{errorKey}</p>;
+      return <p className="text-xl text-gray-400">{t(errorKey)}</p>;
     }
 
     return (
@@ -240,9 +256,7 @@ export default function StudentWorkTable(
                         const value = row[column.id];
                         return (
                           <TableCell key={column.id} align={column.align}>
-                            {column.format && typeof value === 'number'
-                              ? column.format(value)
-                              : value}
+                            {renderTableCell(column, row, value)}
                           </TableCell>
                         );
                       })}
