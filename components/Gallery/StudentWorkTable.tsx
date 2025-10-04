@@ -134,9 +134,9 @@ export default function StudentWorkTable(
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const { loading, fetchRounds } = useContext(LeaderboardRoundContext);
-  const { fetchDetail } = useContext(GenerationDetailContext);
+  const { loading: loadingFetchDetail, fetchDetail } = useContext(GenerationDetailContext);
   const [ errorKey, setErrorKey ] = useState<string | null>(null);
-  const { fetchStats } = useContext(ChatStatsContext);
+  const { loading: loadingFetchStats, fetchStats } = useContext(ChatStatsContext);
   const [ rows, setRows ] = useState<Data[]>([]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -205,7 +205,7 @@ export default function StudentWorkTable(
   }, [fetchRounds, leaderboard_id, program_name]);
 
   const renderRows = (rows: Data[]) => {
-    if (loading) {
+    if (loading || loadingFetchDetail || loadingFetchStats) {
       return <LoadingSpinner />;
     }
 
