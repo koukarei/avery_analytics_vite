@@ -14,7 +14,7 @@ export const AuthUserProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [user, setUser] = useState<AuthUser | undefined>();
+  const [user, setUser] = useState<User | undefined>();
   const [loading, setLoading] = useState<boolean>(false);
 
   const fetchCurrentUser = async () => {

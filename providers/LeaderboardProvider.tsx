@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useState } from "react";
 import type { Leaderboard, School, LeaderboardAnalysis, LeaderboardItem, LeaderboardListParams, LeaderboardAnalysisParams, WordCloudParams } from '../types/leaderboard';
-import { WritingMistake, ChatWordCloudItem } from "../types/studentWork"
+import { WritingMistake, ChatWordCloudItem, Round } from "../types/studentWork"
 import { LeaderboardAPI } from "../api/Leaderboard";
 
 type LeaderboardListContextType = {
@@ -290,7 +290,42 @@ const LeaderboardSchoolProvider = ({
     );
 };
 
+type LeaderboardRoundContextType = {
+    rounds: Round[];
+    loading: boolean;
+    fetchRounds: (leaderboard_id: number, params: { program: string }) => Promise<Round[]>;
+}
 
+const LeaderboardRoundContext = createContext({} as LeaderboardRoundContextType);
+
+const LeaderboardRoundProvider = ({
+    children
+}: {
+    children: React.ReactNode;
+}) => {
+    const [rounds, setRounds] = useState<Round[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
+    const fetchRounds = useCallback(async (leaderboard_id: number, params: { program: string }) => {
+        setLoading(true);
+        let roundData: Round[] = [];
+        try {
+            roundData = await LeaderboardAPI.fetchLeaderboardRounds(leaderboard_id, params);
+            setRounds(roundData);
+        } catch (e) {
+            console.log(e);
+        }
+        setLoading(false);
+        return roundData;
+    }, []);
+
+    return (
+        <LeaderboardRoundContext.Provider value={{
+            rounds, loading, fetchRounds
+        }}>
+            {children}
+        </LeaderboardRoundContext.Provider>
+    );
+};
 
 export { 
     LeaderboardListContext, 
@@ -306,5 +341,7 @@ export {
     WordCloudContext,
     WordCloudProvider,
     LeaderboardSchoolContext,
-    LeaderboardSchoolProvider
+    LeaderboardSchoolProvider,
+    LeaderboardRoundContext,
+    LeaderboardRoundProvider
 };

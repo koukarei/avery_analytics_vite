@@ -15,8 +15,10 @@ import type { Leaderboard, Scene } from '../../types/leaderboard';
 import type { GalleryView, GalleryDetailView } from '../../types/ui';
 import { GALLERY_DETAIL_VIEWS } from '../../types/ui';
 import { LeaderboardDetail } from './GalleryDetail';
-import { LeaderboardItemProvider, LeaderboardSchoolProvider } from '../../providers/LeaderboardProvider';
+import { LeaderboardItemProvider, LeaderboardSchoolProvider, LeaderboardRoundProvider } from '../../providers/LeaderboardProvider';
+import { GenerationDetailProvider, GenerationImageProvider, GenerationEvaluationProvider } from '../../providers/GenerationProvider';
 import { LeaderboardSettings } from './LeaderboardSettings';
+import { ChatStatsProvider } from '../../providers/ChatProvider';
 
 import StudentWorkTable from './StudentWorkTable';
 
@@ -75,6 +77,7 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
   const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
   const [detailView, setDetailView] = useState<GalleryDetailView>('detail');
   const [value, setValue] = useState<number>(GALLERY_DETAIL_VIEWS.indexOf(detailView));
+  const program_name = sessionStorage.getItem('program') ? sessionStorage.getItem('program') as string : '';
   const { t } = useLocalization();
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -142,7 +145,21 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
               )}
             </GalleryTabPanel>
             <GalleryTabPanel value={value} index={1} dir={theme.direction}>
-              <StudentWorkTable />
+              { leaderboard ? (
+                <LeaderboardRoundProvider>
+                  <ChatStatsProvider>
+                    <GenerationDetailProvider>
+                      <GenerationImageProvider>
+                        <GenerationEvaluationProvider>
+                          <StudentWorkTable leaderboard_id={leaderboard.id} program_name={program_name} />
+                        </GenerationEvaluationProvider>
+                      </GenerationImageProvider>
+                    </GenerationDetailProvider>
+                  </ChatStatsProvider>
+                </LeaderboardRoundProvider>
+              ) : (
+                <p className="text-xl text-gray-400">{t('galleryView.noRoundToDisplay')}</p>
+              )}
             </GalleryTabPanel>
             <GalleryTabPanel value={value} index={2} dir={theme.direction}>
               <LeaderboardSchoolProvider>

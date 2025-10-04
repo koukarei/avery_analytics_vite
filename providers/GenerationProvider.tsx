@@ -1,5 +1,6 @@
 import React, { createContext, useState } from "react";
 import type { GenerationItem, GenerationItemParams } from '../types/leaderboard';
+import type { GenerationDetail, ChatMessage } from "../types/studentWork";
 import { GenerationItemAPI } from "../api/Generation";
 
 type GenerationContextType = {
@@ -76,4 +77,85 @@ const GenerationImageProvider = ({
   );
 };
 
-export { GenerationListContext, GenerationListProvider, GenerationImageContext, GenerationImageProvider };
+type GenerationDetailContextType = {
+  detail: GenerationDetail | null;
+  loading: boolean;
+  fetchDetail: (generation_id: number) => Promise<GenerationDetail | null>;
+};
+
+const GenerationDetailContext = createContext({} as GenerationDetailContextType);
+
+const GenerationDetailProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const [detail, setDetail] = useState<GenerationDetail | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const fetchDetail = async (generation_id: number) => {
+    setLoading(true);
+    let detailData: GenerationDetail | null = null;
+    try {
+      detailData = await GenerationItemAPI.fetchGenerationDetail(generation_id);
+      setDetail(detailData);
+    } catch (e) {
+      console.log(e);
+    }
+    setLoading(false);
+    return detailData;
+  };
+
+  return (
+    <GenerationDetailContext.Provider value={{ detail, loading, fetchDetail }}>
+      {children}
+    </GenerationDetailContext.Provider>
+  );
+};
+
+type GenerationEvaluationContextType = {
+  evaluation_msg: ChatMessage | null;
+  loading: boolean;
+  fetchEvaluation: (generation_id: number) => Promise<ChatMessage | null>;
+};
+
+const GenerationEvaluationContext = createContext({} as GenerationEvaluationContextType);
+
+const GenerationEvaluationProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const [evaluation_msg, setEvaluationMsg] = useState<ChatMessage | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const fetchEvaluation = async (generation_id: number) => {
+    setLoading(true);
+    let evaluationData: ChatMessage | null = null;
+    try {
+      evaluationData = await GenerationItemAPI.fetchGenerationEvaluation(generation_id);
+      setEvaluationMsg(evaluationData);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+    return evaluationData;
+  };
+
+  return (
+    <GenerationEvaluationContext.Provider value={{ evaluation_msg, loading, fetchEvaluation }}>
+      {children}
+    </GenerationEvaluationContext.Provider>
+  );
+};
+
+export { 
+  GenerationListContext, 
+  GenerationListProvider, 
+  GenerationImageContext, 
+  GenerationImageProvider, 
+  GenerationDetailContext, 
+  GenerationDetailProvider,
+  GenerationEvaluationContext,
+  GenerationEvaluationProvider
+};

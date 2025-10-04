@@ -1,4 +1,8 @@
-import type { User } from './user';
+import type { User, Profile } from './user';
+
+export interface IdOnly {
+  id: number;
+}
 
 export interface Student {
   id: string;
@@ -16,14 +20,22 @@ export interface WritingEntry {
 
 export interface ChatMessage {
   id: number;
-  chat_id: number; // ID of the chat this message belongs to
+  is_hint: boolean;
+  is_evaluation: boolean;
+  response_id?: string;
+  content: string; 
   sender: 'user' | 'assistant';
-  context: string; // This might remain in original language for mock data
   created_at: string;
 }
 
 export interface ChatRecord {
   messages: ChatMessage[];
+}
+
+export interface ChatStats {
+  n_messages: number;
+  n_user_messages: number;
+  n_assistant_messages: number;
 }
 
 export interface StudentWork {
@@ -61,4 +73,42 @@ export interface ChatWordCloudItem {
   frequency: number;
   color: string;
   chat_messages: ChatMessage[];
+}
+
+export interface Score {
+  generation_id: number;
+  grammar_score: number;
+  spelling_score: number;
+  vividness_score: number;
+  convention: boolean;
+  structure_score: number;
+  content_score: number;
+  id: number;
+  image_similarity: number;
+}
+
+export interface GenerationDetail {
+  id: number;
+  grammar_errors: string;
+  spelling_errors: string;
+  evaluation_id: number;
+  total_score: number;
+  rank: string;
+  duration: number;
+  is_completed: boolean;
+  sentence: string;
+  corrected_sentence: string;
+  interpreted_image: {
+    id: number;
+  };
+  score: Score;
+}
+
+export interface Round {
+  id: number;
+  player: Profile;
+  created_at: Date;
+  last_generation_id: number;
+  chat_history: number;
+  generations: IdOnly[];
 }

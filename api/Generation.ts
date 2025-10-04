@@ -1,4 +1,5 @@
 import { GenerationItem, GenerationItemParams} from "../types/leaderboard";
+import type { ChatMessage, GenerationDetail } from "../types/studentWork";
 import { authAxios } from "./axios";
 
 export class GenerationItemAPI {
@@ -20,7 +21,31 @@ export class GenerationItemAPI {
         ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
         : {},
     });
-    
+    if (response.status !== 200) {
+      return "";
+    };
     return `data:image/png;base64,${response.data}`;
+  }
+
+  static async fetchGenerationDetail(generation_id: number): Promise<GenerationDetail | null> {
+    const response = await authAxios.get(`generation/${generation_id}/`, {
+      headers: sessionStorage.getItem("access_token")
+        ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
+        : {},
+    });
+
+    return response.data;
+  }
+
+  static async fetchGenerationEvaluation(generation_id: number): Promise<ChatMessage | null> {
+    const response = await authAxios.get(`evaluation_msg/${generation_id}/`, {
+      headers: sessionStorage.getItem("access_token")
+        ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
+        : {},
+    });
+    if (response.status !== 200) {
+      return null;
+    };
+    return response.data;
   }
 }

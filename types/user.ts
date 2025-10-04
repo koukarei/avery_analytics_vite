@@ -1,5 +1,7 @@
 export interface Profile {
+  id?: number;
   display_name: string;
+  level?: number;
 }
 
 export interface User {

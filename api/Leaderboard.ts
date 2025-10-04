@@ -10,7 +10,7 @@ import type {
   LeaderboardCreateAPI,
   LeaderboardSchoolUpdate
 } from "../types/leaderboard";
-import type { WritingMistake, ChatWordCloudItem } from "../types/studentWork"
+import type { WritingMistake, ChatWordCloudItem, Round } from "../types/studentWork"
 import { authAxios } from "./axios";
 
 export class LeaderboardAPI {
@@ -76,6 +76,20 @@ export class LeaderboardAPI {
         ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
         : {},
     });
+    return response.data;
+  }
+
+  static async fetchLeaderboardRounds(leaderboard_id: number, params: { program: string }): Promise<Round[]> {
+    const response = await authAxios.get(`leaderboards/${leaderboard_id}/rounds/`, {
+      params: params,
+      headers: sessionStorage.getItem("access_token")
+        ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
+        : {},
+    });
+    if (response.status !== 200){
+      throw new Error(`Error fetching leaderboard rounds: ${response} `);
+    }
+    
     return response.data;
   }
 
