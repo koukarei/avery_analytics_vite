@@ -6,6 +6,7 @@
   "loading.text": "Loading data...",
   "error.title": "Error!",
   "error.fetchMessage": "Could not fetch necessary data. Please try again later.",
+  "error.no_rounds": "No writing record to display.",
   "navigation.gallery": "Student Gallery",
   "navigation.writer": "Writer",
   "navigation.word_cloud": "Word Cloud",

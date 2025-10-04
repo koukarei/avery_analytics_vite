@@ -129,16 +129,18 @@ function createWritingData(
   return { sentence, correct_sentence, img_feedback, awe_feedback, grammar_errors, spelling_errors };
 }
 
-export default function StudentWorkTable(
-  { leaderboard_id, program_name }: { leaderboard_id: number, program_name: string }
-) {
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+const StudentWorkTable: React.FC<{ leaderboard_id: number, program_name: string }> = ({
+  leaderboard_id,
+  program_name
+}) => {
+  const [ page, setPage ] = useState(0);
+  const [ rowsPerPage, setRowsPerPage ] = useState(10);
   const { loading, fetchRounds } = useContext(LeaderboardRoundContext);
   const { loading: loadingFetchDetail, fetchDetail } = useContext(GenerationDetailContext);
   const [ errorKey, setErrorKey ] = useState<string | null>(null);
   const { loading: loadingFetchStats, fetchStats } = useContext(ChatStatsContext);
   const [ rows, setRows ] = useState<Data[]>([]);
+  const { t } = useLocalization();
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -154,7 +156,7 @@ export default function StudentWorkTable(
     fetchRounds(leaderboard_id, { program: program_name } )
       .then(async (rounds) => {
         if (!rounds || rounds.length === 0) {
-          setErrorKey(('error.no_rounds'));
+          setErrorKey('error.no_rounds');
           return;
         } 
 
@@ -220,7 +222,7 @@ export default function StudentWorkTable(
   };
 
 
-  const renderRows = (rows: Data[]) => {
+  function renderRows(rows: Data[], t: (key: string) => string) {
     if (loading || loadingFetchDetail || loadingFetchStats) {
       return <LoadingSpinner />;
     }
@@ -281,7 +283,8 @@ export default function StudentWorkTable(
 
   return (
     <div>
-      {renderRows(rows)}
+      {renderRows(rows, t)}
     </div>
   );
 }
+export default StudentWorkTable;

@@ -79,8 +79,8 @@ export default function GalleryView() {
           fetchImages(leaderboard.map(lb => lb.id));
         }
       }).catch(err => {
-        console.error("Failed to fetch leaderboards: ", err);
         setErrorKey('error.fetch_leaderboards');
+        console.error("Failed to fetch leaderboards: ", err);
       });
     }
   }, [fetchLeaderboards, fetchImages, startLeaderboardIndex, limitLeaderboardIndex, published_at_start, published_at_end, currentUser]);
