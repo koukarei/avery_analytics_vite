@@ -13,9 +13,10 @@ interface WritingFrameProps {
     imageUrl: string;
     writingText: string;
     setWritingText: (text: string) => void;
+    submitWritingFn: () => void;
 }
 
-export const WritingFrame: React.FC<WritingFrameProps> = ({ imageUrl, writingText, setWritingText }) => {
+export const WritingFrame: React.FC<WritingFrameProps> = ({ imageUrl, writingText, setWritingText, submitWritingFn }) => {
     const { t } = useLocalization();
 
     return (
@@ -36,7 +37,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ imageUrl, writingTex
                     variant="outlined"
                     placeholder={t("writerView.writingFrame.placeholder")}
                 />
-                <Button css={SubmitWritingButton(theme)} variant="contained">Submit Writing</Button>
+                <Button css={SubmitWritingButton(theme)} onClick={submitWritingFn} variant="contained">Submit Writing</Button>
             </div>
         </Card>
     )

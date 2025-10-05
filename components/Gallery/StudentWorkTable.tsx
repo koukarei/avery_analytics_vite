@@ -12,8 +12,8 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import ImageListItem from '@mui/material/ImageListItem';
 import IconButton from '@mui/material/IconButton';
+import { LoadingSpinner } from '../Common/LoadingSpinner';
 
 import type { ChatMessage, ChatStats, GenerationDetail, Round } from '../../types/studentWork';
 import { LeaderboardRoundContext } from '../../providers/LeaderboardProvider';
@@ -21,22 +21,9 @@ import { GenerationDetailContext, GenerationImageContext, GenerationEvaluationCo
 import { ChatStatsContext } from '../../providers/ChatProvider';
 import { useLocalization } from '../../contexts/localizationUtils';
 
-import { parseGrammarMistakes, parseSpellingMistakes, type GrammarMistake, type SpellingMistake } from '../../util/WritingMistake';
+import { parseGrammarMistakes, parseSpellingMistakes } from '../../util/WritingMistake';
 import { compareWriting } from '../../util/CompareWriting';   
-import { set } from 'react-hook-form';
-
-const LoadingSpinner: React.FC = () => {
-  const { t } = useLocalization();
-  return (
-    <div className="flex justify-center items-center h-64" role="status" aria-live="polite">
-      <svg className="animate-spin -ml-1 mr-3 h-10 w-10 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      <p className="text-slate-600">{t('loading.text')}</p>
-    </div>
-  );
-};
+import { MarkdownViewer } from '../../util/showMD';
 
 interface RoundColumn {
   id: 'student_name' | 'created_at' | 'number_of_writings' | 'number_of_messages_sent' | 'first_writing' | 'last_writing';
@@ -191,7 +178,7 @@ const RenderTableRow: React.FC<RenderTableRowProps> = ({
       }
       case 'awe_feedback': {
         return typeof value === 'string'
-          ? <span dangerouslySetInnerHTML={{ __html: value.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+          ? <MarkdownViewer content={value} />
           : "No Feedback";
         }
       case 'grammar_errors': {

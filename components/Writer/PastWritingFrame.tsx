@@ -1,5 +1,6 @@
 /** @jsxImportSource @emotion/react */
 
+import Modal from '@mui/material/Modal';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
@@ -10,95 +11,186 @@ import { blueGrey } from '@mui/material/colors';
 
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { css, keyframes } from "@emotion/react";
-import Flashcard from './FlipCard';
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
 import dayjs from 'dayjs';
 import { Button } from '@mui/material';
+import { MarkdownEvalViewer } from '../../util/showMD';
+import { compareWriting } from '../../util/CompareWriting';
+
+import { LoadingSpinner } from '../Common/LoadingSpinner';
+
+import { GenerationDetailContext, GenerationImageContext, GenerationEvaluationContext } from '../../providers/GenerationProvider';
+import { GenerationDetail } from '../../types/studentWork';
 
 interface PastWritingsProps {
   generation_ids: number[];
   onClick: (id: number) => void;
 }
 
-interface PastWritingProps {
+interface PastWritingModalProps {
   generation_id: number | null;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-const PastWriting: React.FC<PastWritingProps> = ({ 
+const PastWritingModal: React.FC<PastWritingModalProps> = ({ 
   generation_id, 
+  isOpen,
+  onClose
 }) => {
-  
-  if (!generation_id) {
-    return (
-      <div 
-        style={{ transformStyle: 'preserve-3d' }}
-        aria-hidden="true"
-      >
-        {/* Empty panel placeholder */}
-      </div>
-    );
-  }
-  
-  return (
-    <Card
-      style={{ transformStyle: 'preserve-3d'}}
-      role="button" // Role implies clickability
-    >
-        <Flashcard css={flashcardStyle(theme)} generation_id={generation_id} view={'Select'} />
-    </Card>
-  );
-};
+    const [showImage, setShowImage] = useState(false);
+    const [showAWE, setShowAWE] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorKey, setErrorKey] = useState<string | null>(null);
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
+    const [aWEText, setAWEText] = useState<string | null>(null);
+    const [detailData, setDetailData] = useState<GenerationDetail | null>(null);
+    const [currentWritingId, setCurrentWritingId] = useState<number | null>(null);
 
+    const {fetchDetail} = useContext(GenerationDetailContext);
+    const {fetchImage} = useContext(GenerationImageContext);
+    
+    const {fetchEvaluation} = useContext(GenerationEvaluationContext);
 
-const PastWritings: React.FC<PastWritingsProps> = ({ generation_ids }) => {
-  const galleryRef = useRef<HTMLDivElement>(null);
-
-  if (!generation_ids || generation_ids.length === 0) return null;
-  
-  return (
-    <div>
-      <div 
-        ref={galleryRef} 
-        id='past-writings-gallery'
-        className="h-full w-full flex items-start justify-center space-x-[-5%] sm:space-x-[-2%] md:space-x-[-1%] relative" 
-        style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
-        role="region"
-        aria-label="Leaderboard"
-      >
-        {generation_ids.map((gen_id, index) => {
-            return (
-                <PastWriting key={index} generation_id={gen_id} />
+    useEffect(() => {
+        setErrorKey(null);
+        setIsLoading(true);
+        const fetch = async () => {
+        try {
+            const [detailData, imageData, evaluationData] = await Promise.all(
+                [
+                    generation_id ? fetchDetail(generation_id) : Promise.resolve(null),
+                    showImage && generation_id ? fetchImage({generation_id}) : Promise.resolve(null),
+                    showAWE && generation_id ? fetchEvaluation(generation_id) : Promise.resolve(null),
+                ]
             )
-        })}
-      </div>
-    </div>
-  );
-};
+            if (detailData) {
+                setCurrentWritingId(detailData.id);
+                setDetailData(detailData);
+            }
+            if (imageData && imageData) {
+                setImageUrl(imageData);
+            }
+            if (evaluationData && evaluationData.content) {
+                setAWEText(evaluationData.content);
+            }
+        } catch (e) {
+            setErrorKey("error.FetchingGenerationDetail");
+        } finally {
+            setIsLoading(false);
+        }
+        };
+        fetch();
+    }, [generation_id, showImage, showAWE]);
 
-const flashcardStyle = (theme: Theme) => css`
-  background-color: ${theme.palette.primary.dark};
-  color: ${theme.palette.primary.contrastText};
-  z-index: 10;
-  padding: 0.5rem;
-`;
+    const handleClickShowImage = () => {
+        setShowImage(!showImage);
+    };
+    const handleClickShowAWE = () => {
+        setShowAWE(!showAWE);
+    };
+
+    const handleClose = () => {
+        setImageUrl(null);
+        setAWEText(null);
+        setShowAWE(false);
+        setShowImage(false);
+        setCurrentWritingId(null);
+        onClose();
+        };
+
+    if (isLoading || currentWritingId !== generation_id) {
+        return (
+            <LoadingSpinner />
+        )
+    };
+
+    if (!currentWritingId) {
+        return (
+        <div 
+            style={{ transformStyle: 'preserve-3d' }}
+            aria-hidden="true"
+        >
+            {/* Empty panel placeholder */}
+        </div>
+        );
+    }
+        
+    return (
+        <div>
+        <Modal
+            open={isOpen}
+            onClose={handleClose}
+            aria-labelledby="past-writing-modal"
+            aria-describedby={`modal-modal-${generation_id}`}
+        >
+            <Card sx={style}>
+                <CardHeader>
+                    <Box>Past Writing Details</Box>
+                </CardHeader>
+                <CardContent>
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                        {detailData ? (
+                            compareWriting(detailData.sentence, detailData.correct_sentence)
+                        ) : "No writing detail available."}
+                    </Box>
+                    <Box>
+                        {isLoading && <p>Loading...</p>}
+                    </Box>
+                    <Button
+                        css={buttonStyle(theme)}
+                        disabled={!detailData || detailData.interpreted_image === undefined || detailData.interpreted_image?.id === undefined}
+                        onClick={handleClickShowImage}
+                    >
+                        {showImage ? "Hide Image" : "Show Image"}
+                    </Button>
+                    <Button
+                        css={buttonStyle(theme)}
+                        disabled={!detailData || detailData.evaluation_id === null}
+                        onClick={handleClickShowAWE}
+                    >
+                        {showAWE ? "Hide AWE" : "Show AWE"}
+                    </Button>
+                    <Box>
+                        {showAWE ? (
+                            <MarkdownEvalViewer content={aWEText ? aWEText : ""} />
+                        ) : null }
+                    </Box>
+                    <Box>
+                        {showImage ? (
+                            <img src={imageUrl} alt="Generated" style={{ maxWidth: '100%' }} />
+                        ) : null}
+                    </Box>
+                    <Box>
+                        {errorKey && <p style={{ color: 'red' }}>{errorKey}</p>}
+                    </Box>
+                </CardContent>
+            </Card>
+        </Modal>
+        </div>
+    );
+};
 
 interface PastWritingIconProps {
-    key: number;
     index: number;
     onClick: (id: number) => void;
 }
 
 const PastWritingIcon: React.FC<PastWritingIconProps> = ({ 
-    key, index, onClick 
+    index, onClick 
 }) => {
     const paletteKeys = [50, 100, 300, 500, 700, 900];
     const color = blueGrey[paletteKeys[index % paletteKeys.length]];
     
+    const handleClick = () =>{
+        onClick(index);
+    }
+
     return (
         <Avatar sx={{ bgcolor: color }}>
             <Button
-                onClick={() => onClick(key)}
+                onClick={handleClick}
             >
                 {index + 1}
             </Button>
@@ -106,13 +198,35 @@ const PastWritingIcon: React.FC<PastWritingIconProps> = ({
     )
 }
 const PastWritingsBar: React.FC<PastWritingsProps> = ({ generation_ids, onClick }) => {
+    
     return (
         <Box className='flex flex-nowrap justify-start flex-row'>
             <Stack direction="row">
-                {generation_ids.map((id, index) => <PastWritingIcon key={id} index={index} onClick={onClick} />)}
+                {generation_ids.map((value, index) => <PastWritingIcon index={index} onClick={onClick} />)}
             </Stack>
         </Box>
     );
 }
 
-export { PastWritingsBar };
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '90%',
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
+
+const buttonStyle = (theme: Theme) => css`
+    background-color: ${theme.palette.primary.main};
+    color: ${theme.palette.primary.contrastText};
+    margin: 4px;
+    &:hover {
+        background-color: ${theme.palette.primary.dark};
+    }
+`;
+
+export { PastWritingsBar, PastWritingModal };
