@@ -18,13 +18,16 @@ export class GenerationItemAPI {
     const response = await authAxios.get(`interpreted_image/${generation_id}`, {
       responseType: 'arraybuffer',
       headers: sessionStorage.getItem("access_token")
-        ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
+        ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}`, 
+        'Content-Type': 'image/png' }
         : {},
     });
     if (response.status !== 200) {
       return "";
     };
-    return `data:image/png;base64,${response.data}`;
+
+    const blob = new Blob([response.data], { type: response.headers['content-type'] });
+    return URL.createObjectURL(blob);
   }
 
   static async fetchGenerationDetail(generation_id: number): Promise<GenerationDetail | null> {

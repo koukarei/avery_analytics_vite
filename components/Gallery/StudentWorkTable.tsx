@@ -1,4 +1,4 @@
-import { useState, useContext, ChangeEvent, useCallback, useEffect } from 'react';
+import React, { useState, useContext, ChangeEvent, useEffect, use } from 'react';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -8,6 +8,12 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import Collapse from '@mui/material/Collapse';
 import TableRow from '@mui/material/TableRow';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import ImageListItem from '@mui/material/ImageListItem';
+import IconButton from '@mui/material/IconButton';
 
 import type { ChatMessage, ChatStats, GenerationDetail, Round } from '../../types/studentWork';
 import { LeaderboardRoundContext } from '../../providers/LeaderboardProvider';
@@ -17,6 +23,7 @@ import { useLocalization } from '../../contexts/localizationUtils';
 
 import { parseGrammarMistakes, parseSpellingMistakes, type GrammarMistake, type SpellingMistake } from '../../util/WritingMistake';
 import { compareWriting } from '../../util/CompareWriting';   
+import { set } from 'react-hook-form';
 
 const LoadingSpinner: React.FC = () => {
   const { t } = useLocalization();
@@ -76,6 +83,7 @@ interface Data {
   number_of_messages_sent: number;
   first_writing: string;
   last_writing: string;
+  generation_ids: number[];
 };
 
 function createData(
@@ -93,25 +101,42 @@ function createData(
   
   const first_writing = firstWritingDetail ? firstWritingDetail.sentence : "";
   const last_writing = lastWritingDetail ? lastWritingDetail.sentence : "";
-  
-  return { id, student_name, created_at, number_of_writings, number_of_messages_sent, first_writing, last_writing };
+  const generation_ids = roundData.generations.map(gen => gen.id);
+
+  return { id, student_name, created_at, number_of_writings, number_of_messages_sent, first_writing, last_writing, generation_ids };
 };
 
 interface WritingColumn {
-  id: 'sentence' | 'correct_sentence' | 'img_feedback' | 'awe_feedback' | 'grammar_errors' | 'spelling_errors';
+  id: 'sentence' | 'correct_sentence' | 'img_feedback' | 'awe_feedback' | 'grammar_errors' | 'spelling_errors' | 'duration';
   label: string;
   minWidth?: number;
   align?: 'right';
   format?: (value: number) => string;
 };
 
+
+const writingColumns: readonly WritingColumn[] = [
+  { id: 'sentence', label: 'Sentence', minWidth: 170 },
+  { id: 'correct_sentence', label: 'Corrected\u00a0Sentence', minWidth: 170 },
+  { 
+    id: 'img_feedback', 
+    label: 'Image\u00a0Feedback', 
+    minWidth: 170,
+  },
+  { id: 'awe_feedback', label: 'AWE\u00a0Feedback', minWidth: 170 },
+  { id: 'duration', label: 'Duration\u00a0(s)', minWidth: 100, align: 'right' },
+  { id: 'grammar_errors', label: 'Grammar\u00a0Errors', minWidth: 170 },
+  { id: 'spelling_errors', label: 'Spelling\u00a0Errors', minWidth: 170 },
+];
+
 interface WritingData {
   sentence: string;
   correct_sentence: string;
   img_feedback: string;
   awe_feedback: string;
-  grammar_errors: GrammarMistake[] | null;
-  spelling_errors: SpellingMistake[] | null;
+  duration: string;
+  grammar_errors: string[] | null;
+  spelling_errors: string[] | null;
 };
 
 function createWritingData(
@@ -120,25 +145,280 @@ function createWritingData(
   evaluation_msg: ChatMessage | null
 ): WritingData {
   const sentence = generationData.sentence;
-  const correct_sentence = generationData.corrected_sentence;
+  const correct_sentence = generationData.correct_sentence? generationData.correct_sentence : "N/A";
   const img_feedback = image || "No Image";
   const awe_feedback = evaluation_msg?.content || "No Feedback";
 
-  const grammar_errors = parseGrammarMistakes(generationData.grammar_errors);
-  const spelling_errors = parseSpellingMistakes(generationData.spelling_errors);
-  return { sentence, correct_sentence, img_feedback, awe_feedback, grammar_errors, spelling_errors };
+  const hours = Math.floor(generationData.duration / 3600);
+  const minutes = Math.floor((generationData.duration % 3600) / 60);
+  const seconds = generationData.duration % 60;
+  const duration = `${hours > 0 ? hours + 'h ' : ''}${minutes > 0 ? minutes + 'm ' : ''}${seconds}s`;
+
+  const grammar_errors_arr = parseGrammarMistakes(generationData.grammar_errors);
+  const spelling_errors_arr = parseSpellingMistakes(generationData.spelling_errors);
+
+  const grammar_errors = grammar_errors_arr.length > 0 ? grammar_errors_arr.map(mistake => (mistake.extracted_text)) : ["No Grammar Errors"];
+  const spelling_errors = spelling_errors_arr.length > 0 ? spelling_errors_arr.map(mistake => (mistake.word)) : ["No Spelling Errors"];
+
+  return { sentence, correct_sentence, img_feedback, awe_feedback, duration, grammar_errors, spelling_errors };
 }
 
-const StudentWorkTable: React.FC<{ leaderboard_id: number, program_name: string }> = ({
+interface RenderTableRowProps {
+  open: boolean;
+  errorKey: string | null;
+  writingRows: WritingData[];
+  isLoading?: boolean;
+}
+
+const RenderTableRow: React.FC<RenderTableRowProps> = ({
+  open,
+  errorKey,
+  writingRows,
+  isLoading
+}) => {
+  const { t } = useLocalization();
+
+  const renderWritingTableCell = (column: WritingColumn, row: WritingData, value: string | number | null | string[]) => {
+    
+    switch (column.id) {
+      case 'correct_sentence': {
+        return (<span>{
+          compareWriting(row.sentence, row.correct_sentence)
+        }</span>);
+      }
+      case 'img_feedback': {
+        return value ? <img src={value} alt="Interpreted" style={{ maxWidth: '100px', maxHeight: '100px' }} /> : "No Image";
+      }
+      case 'grammar_errors': {
+        if (Array.isArray(value)) {
+          return (
+          <ul>
+            {value.map((mistake, index) => (
+              <li key={index}>{mistake}</li>
+            ))}
+          </ul>)
+        } else {
+          return "No Grammar Errors";
+        }
+      }
+      case 'spelling_errors': {
+        if (Array.isArray(value)) {
+          return (
+          <ul>
+            {value.map((mistake, index) => (
+              <li key={index}>{mistake}</li>
+            ))}
+          </ul>);
+        } else {
+          return "No Spelling Errors";
+        }
+      }
+      default:
+        return column.format && typeof value === 'number'
+          ? column.format(value)
+          : value;
+    }
+  };
+
+  const renderSmallTable = (open: boolean, errorKey: string | null) => {
+    
+    if (errorKey) {
+      return (
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <p className="text-xl text-gray-400">{t(errorKey)}</p>
+        </TableCell>
+      </TableRow>
+    )}
+
+    if (isLoading) {
+      return (
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <LoadingSpinner />
+        </TableCell>
+      </TableRow>
+    )}
+
+    if (writingRows.length === 0) {
+      return (
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <p className="text-xl text-gray-400">{t('student_work.no_writings')}</p>
+        </TableCell>
+      </TableRow>
+    )}
+
+    return (
+    <TableRow>
+      <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+        <Collapse in={open} timeout="auto" unmountOnExit>
+          <Box sx={{ margin: 1 }}>
+            <Typography variant="h6" gutterBottom component="div">
+              {t('student_work.history')}
+            </Typography>
+            <Table size="small" aria-label="writing-history">
+              <TableHead>
+                <TableRow>
+                  {writingColumns.map((column) => (
+                    <TableCell
+                      key={column.id}
+                      align={column.align}
+                      style={{ minWidth: column.minWidth }}
+                    >
+                      {column.label}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {writingRows.map((row, index) => {
+                  return (
+                    <TableRow hover role="checkbox" tabIndex={-1} key={index}>
+                      {writingColumns.map((column) => {
+                        const value = row[column.id];
+                        return (
+                          <TableCell key={column.id} align={column.align}>
+                            {renderWritingTableCell(column, row, value)}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </Box>
+        </Collapse>
+      </TableCell>
+    </TableRow>
+  )}
+
+  return (
+    <>
+      {renderSmallTable(open, errorKey)}
+    </>
+  );
+}
+
+const RoundRow: React.FC<{ row: Data }> = ({ row }) => {
+  const [open, setOpen] = useState(false);
+  const [clicked, setClicked] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { fetchDetail } = useContext(GenerationDetailContext);
+  const { fetchImage } = useContext(GenerationImageContext);
+  const { fetchEvaluation } = useContext(GenerationEvaluationContext);
+  const [ writingRows, setWritingRows] = useState<WritingData[]>([]);
+  const [errorKey, setErrorKey] = useState<string | null>(null);
+
+  const renderTableCell = (column: RoundColumn, row: Data, value: any) => {
+    switch (column.id) {
+      case 'last_writing': {
+        return (<span>{
+          compareWriting(row.first_writing, row.last_writing)
+        }</span>);
+      }
+      default:
+        return column.format && typeof value === 'number'
+          ? column.format(value)
+          : value;
+    }
+  };
+
+  useEffect(() => {
+    setErrorKey(null);
+    if (clicked) {
+      setIsLoading(true);
+      const fetchWritingRows = async () => {
+        try {
+          const results = await Promise.all(
+            row.generation_ids.map(async (id) => {
+              const detail = await fetchDetail(id).catch(e => {
+                setErrorKey('error.fetch_generation_detail');
+                console.error("Failed to fetch generation detail: ", e);
+                return null;
+              });
+              if (!detail) return null;
+
+              const [image, evaluation_msg] = await Promise.all([
+                fetchImage({ generation_id: id }),
+                fetchEvaluation(id)
+              ]);
+              return createWritingData(detail, image, evaluation_msg);
+            })
+          );
+          const validRows = results.filter((row): row is WritingData => row !== null);
+          setWritingRows(validRows);
+        } catch (e) {
+          setErrorKey('error.fetch_generation');
+          console.error("Unexpected error:", e);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      fetchWritingRows();
+    }
+  }, [clicked]);
+
+  const handleClick = () => {
+    setClicked(true);
+    setOpen(!open);
+  }
+
+  return (
+    <>
+      <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+        <TableCell>
+          <IconButton
+            aria-label="expand row"
+            size="small"
+            onClick={handleClick}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+        
+          {columns.map((column) => {
+            const value = row[column.id];
+            return (
+              <TableCell key={column.id} align={column.align}>
+                {renderTableCell(column, row, value)}
+              </TableCell>
+            );
+          })}
+      </TableRow>
+      {
+        open ? (
+          <RenderTableRow 
+            open={open} 
+            errorKey={errorKey} 
+            writingRows={writingRows} 
+            isLoading={isLoading}
+          />
+        ) : null
+      }
+
+      </>
+  );
+}
+
+interface StudentWorkTableProps {
+  leaderboard_id: number;
+  program_name: string;
+}
+
+const StudentWorkTable: React.FC<StudentWorkTableProps> = ({
   leaderboard_id,
   program_name
 }) => {
   const [ page, setPage ] = useState(0);
   const [ rowsPerPage, setRowsPerPage ] = useState(10);
+  const [ isLoading, setIsLoading ] = useState<boolean>(false);
   const { loading, fetchRounds } = useContext(LeaderboardRoundContext);
-  const { loading: loadingFetchDetail, fetchDetail } = useContext(GenerationDetailContext);
+  const { fetchDetail } = useContext(GenerationDetailContext);
   const [ errorKey, setErrorKey ] = useState<string | null>(null);
-  const { loading: loadingFetchStats, fetchStats } = useContext(ChatStatsContext);
+  const { fetchStats } = useContext(ChatStatsContext);
   const [ rows, setRows ] = useState<Data[]>([]);
   const { t } = useLocalization();
 
@@ -161,7 +441,7 @@ const StudentWorkTable: React.FC<{ leaderboard_id: number, program_name: string 
         } 
 
         const newRows: Data[] = [];
-
+        setIsLoading(true);
         await Promise.all(rounds.map(async (round) => {
             let firstWritingDetail: GenerationDetail | null = null;
             let lastWritingDetail: GenerationDetail | null = null;
@@ -199,31 +479,18 @@ const StudentWorkTable: React.FC<{ leaderboard_id: number, program_name: string 
             newRows.push(row);
           }));
           setRows(newRows);
+          setIsLoading(false);
       })
       .catch(err => {
         setErrorKey('error.fetch_rounds');
         console.error("Failed to fetch rounds: ", err);
       });
       
-  }, [fetchRounds, leaderboard_id, program_name]);
-
-  const renderTableCell = (column: RoundColumn, row: Data, value: any) => {
-    switch (column.id) {
-      case 'last_writing': {
-        return (<span>{
-          compareWriting(row.first_writing, row.last_writing)
-        }</span>);
-      }
-      default:
-        return column.format && typeof value === 'number'
-          ? column.format(value)
-          : value;
-    }
-  };
+  }, [leaderboard_id, program_name]);
 
 
   function renderRows(rows: Data[], t: (key: string) => string) {
-    if (loading || loadingFetchDetail || loadingFetchStats) {
+    if (isLoading || loading) {
       return <LoadingSpinner />;
     }
 
@@ -237,6 +504,7 @@ const StudentWorkTable: React.FC<{ leaderboard_id: number, program_name: string 
           <Table stickyHeader aria-label="student work table">
             <TableHead>
               <TableRow>
+                <TableCell />
                 {columns.map((column) => (
                   <TableCell
                     key={column.id}
@@ -251,20 +519,9 @@ const StudentWorkTable: React.FC<{ leaderboard_id: number, program_name: string 
             <TableBody>
               {rows
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row) => {
-                  return (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                      {columns.map((column) => {
-                        const value = row[column.id];
-                        return (
-                          <TableCell key={column.id} align={column.align}>
-                            {renderTableCell(column, row, value)}
-                          </TableCell>
-                        );
-                      })}
-                    </TableRow>
-                  );
-                })}
+                .map((row) => (
+                  <RoundRow key={row.id} row={row} />
+                ))}
             </TableBody>
           </Table>
         </TableContainer>

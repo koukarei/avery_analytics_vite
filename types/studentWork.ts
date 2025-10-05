@@ -55,7 +55,7 @@ export interface GenerationItem {
   user: User; // User who created this generation
   round_id: number; // ID of the round this generation belongs to
   sentence: string;
-  corrected_sentence: string; // Corrected sentence after grammar check
+  correct_sentence: string; // Corrected sentence after grammar check
   mistakes: MistakeItem[]; // List of grammar mistakes in the
 }
 
@@ -97,7 +97,7 @@ export interface GenerationDetail {
   duration: number;
   is_completed: boolean;
   sentence: string;
-  corrected_sentence: string;
+  correct_sentence: string;
   interpreted_image: {
     id: number;
   };

@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useCallback, useState } from "react";
 import type { GenerationItem, GenerationItemParams } from '../types/leaderboard';
 import type { GenerationDetail, ChatMessage } from "../types/studentWork";
 import { GenerationItemAPI } from "../api/Generation";
@@ -55,7 +55,7 @@ const GenerationImageProvider = ({
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const fetchImage = async ({ generation_id }: { generation_id: number }) => {
+  const fetchImage = useCallback(async ({ generation_id }: { generation_id: number }) => {
     setLoading(true);
     let imageData: string | null = null;
     try {
@@ -66,7 +66,7 @@ const GenerationImageProvider = ({
     }
     setLoading(false);
     return imageData;
-  };
+  }, []);
 
   return (
     <GenerationImageContext.Provider value={{ 
@@ -93,7 +93,7 @@ const GenerationDetailProvider = ({
   const [detail, setDetail] = useState<GenerationDetail | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const fetchDetail = async (generation_id: number) => {
+  const fetchDetail = useCallback(async (generation_id: number) => {
     setLoading(true);
     let detailData: GenerationDetail | null = null;
     try {
@@ -104,7 +104,7 @@ const GenerationDetailProvider = ({
     }
     setLoading(false);
     return detailData;
-  };
+  }, []);
 
   return (
     <GenerationDetailContext.Provider value={{ detail, loading, fetchDetail }}>
@@ -128,7 +128,7 @@ const GenerationEvaluationProvider = ({
 }) => {
   const [evaluation_msg, setEvaluationMsg] = useState<ChatMessage | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const fetchEvaluation = async (generation_id: number) => {
+  const fetchEvaluation = useCallback(async (generation_id: number) => {
     setLoading(true);
     let evaluationData: ChatMessage | null = null;
     try {
@@ -140,7 +140,7 @@ const GenerationEvaluationProvider = ({
       setLoading(false);
     }
     return evaluationData;
-  };
+  },[]);
 
   return (
     <GenerationEvaluationContext.Provider value={{ evaluation_msg, loading, fetchEvaluation }}>
