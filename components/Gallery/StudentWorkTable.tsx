@@ -157,8 +157,8 @@ function createWritingData(
   const grammar_errors_arr = parseGrammarMistakes(generationData.grammar_errors);
   const spelling_errors_arr = parseSpellingMistakes(generationData.spelling_errors);
 
-  const grammar_errors = grammar_errors_arr.length > 0 ? grammar_errors_arr.map(mistake => (mistake.extracted_text)) : ["No Grammar Errors"];
-  const spelling_errors = spelling_errors_arr.length > 0 ? spelling_errors_arr.map(mistake => (mistake.word)) : ["No Spelling Errors"];
+  const grammar_errors = grammar_errors_arr.length > 0 ? grammar_errors_arr.map(mistake => ([mistake.extracted_text, "=>", mistake.correction].join("\u00a0"))) : ["No Grammar Errors"];
+  const spelling_errors = spelling_errors_arr.length > 0 ? spelling_errors_arr.map(mistake => ([mistake.word,"=>", mistake.correction].join("\u00a0"))) : ["No Spelling Errors"];
 
   return { sentence, correct_sentence, img_feedback, awe_feedback, duration, grammar_errors, spelling_errors };
 }
@@ -189,14 +189,23 @@ const RenderTableRow: React.FC<RenderTableRowProps> = ({
       case 'img_feedback': {
         return value ? <img src={value} alt="Interpreted" style={{ maxWidth: '100px', maxHeight: '100px' }} /> : "No Image";
       }
+      case 'awe_feedback': {
+        return typeof value === 'string'
+          ? <span dangerouslySetInnerHTML={{ __html: value.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+          : "No Feedback";
+        }
       case 'grammar_errors': {
         if (Array.isArray(value)) {
           return (
-          <ul>
-            {value.map((mistake, index) => (
-              <li key={index}>{mistake}</li>
-            ))}
-          </ul>)
+            value.length > 1 ? (
+              <ul>
+                {value.map((mistake, index) => (
+                  <li key={index}>{index + 1}. {mistake}</li>
+                ))}
+              </ul>) : (
+                <span>{value[0]}</span>
+              )
+          );
         } else {
           return "No Grammar Errors";
         }
@@ -255,7 +264,7 @@ const RenderTableRow: React.FC<RenderTableRowProps> = ({
         <Collapse in={open} timeout="auto" unmountOnExit>
           <Box sx={{ margin: 1 }}>
             <Typography variant="h6" gutterBottom component="div">
-              {t('student_work.history')}
+              {t('galleryView.Tab.leaderboard.history')}
             </Typography>
             <Table size="small" aria-label="writing-history">
               <TableHead>
