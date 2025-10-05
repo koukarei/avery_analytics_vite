@@ -60,6 +60,21 @@ const rules = {
       message: "使用できない文字が含まれています",
     },
   },
+  password_login: {
+    required: "パスワードを入力してください",
+    minLength: {
+      value: 8,
+      message: "パスワードは 8 文字以上 30 文字以内で入力してください",
+    },
+    maxLength: {
+      value: 30,
+      message: "パスワードは 8 文字以上 30 文字以内で入力してください",
+    },
+    pattern: {
+      value: /^.*$/,
+      message: "使用できない文字が含まれています",
+    },
+  },
   display_name: {
     required: "表示名を入力してください",
     maxLength: {
@@ -157,7 +172,7 @@ function Signin() {
           <Controller
             name="password"
             control={control}
-            rules={rules.password}
+            rules={rules.password_login}
             render={({ field }) => (
               <TextField
                 {...field}

@@ -46,8 +46,8 @@ interface RoundColumn {
   format?: (value: number) => string;
 }
 
-const columns: readonly RoundColumn[] = [
-  { id: 'student_name', label: 'Student\u00a0Name', minWidth: 170 },
+const columns: RoundColumn[] = [
+  { id: 'student_name', label: 'Name', minWidth: 170 },
   { id: 'created_at', label: 'Created\u00a0At', minWidth: 100 },
   {
     id: 'number_of_writings',
@@ -93,7 +93,7 @@ function createData(
   lastWritingDetail: GenerationDetail | null
 ): Data {
   const id = roundData.id;
-  const student_name = roundData.player.display_name;
+  const student_name = roundData.player?.display_name ? roundData.player.display_name : "Anonymous";
   const created_at = roundData.created_at ? new Date(roundData.created_at).toLocaleDateString() : "N/A";
   const number_of_writings = roundData.generations.length;
 
@@ -310,7 +310,7 @@ const RenderTableRow: React.FC<RenderTableRowProps> = ({
   );
 }
 
-const RoundRow: React.FC<{ row: Data }> = ({ row }) => {
+const RoundRow: React.FC<{ showStudentNames: boolean; row: Data }> = ({ showStudentNames, row }) => {
   const [open, setOpen] = useState(false);
   const [clicked, setClicked] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -322,6 +322,9 @@ const RoundRow: React.FC<{ row: Data }> = ({ row }) => {
 
   const renderTableCell = (column: RoundColumn, row: Data, value: any) => {
     switch (column.id) {
+      case 'student_name': {
+        return showStudentNames ? value : "Anonymous";
+      }
       case 'last_writing': {
         return (<span>{
           compareWriting(row.first_writing, row.last_writing)
@@ -415,11 +418,13 @@ const RoundRow: React.FC<{ row: Data }> = ({ row }) => {
 interface StudentWorkTableProps {
   leaderboard_id: number;
   program_name: string;
+  showStudentNames: boolean;
 }
 
 const StudentWorkTable: React.FC<StudentWorkTableProps> = ({
   leaderboard_id,
-  program_name
+  program_name,
+  showStudentNames
 }) => {
   const [ page, setPage ] = useState(0);
   const [ rowsPerPage, setRowsPerPage ] = useState(10);
@@ -495,8 +500,7 @@ const StudentWorkTable: React.FC<StudentWorkTableProps> = ({
         console.error("Failed to fetch rounds: ", err);
       });
       
-  }, [leaderboard_id, program_name]);
-
+  }, [leaderboard_id, program_name, showStudentNames]);
 
   function renderRows(rows: Data[], t: (key: string) => string) {
     if (isLoading || loading) {
@@ -529,7 +533,7 @@ const StudentWorkTable: React.FC<StudentWorkTableProps> = ({
               {rows
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => (
-                  <RoundRow key={row.id} row={row} />
+                  <RoundRow showStudentNames={showStudentNames} key={row.id} row={row} />
                 ))}
             </TableBody>
           </Table>

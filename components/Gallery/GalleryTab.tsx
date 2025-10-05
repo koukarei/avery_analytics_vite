@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import { css } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
@@ -19,6 +19,7 @@ import { LeaderboardItemProvider, LeaderboardSchoolProvider, LeaderboardRoundPro
 import { GenerationDetailProvider, GenerationImageProvider, GenerationEvaluationProvider } from '../../providers/GenerationProvider';
 import { LeaderboardSettings } from './LeaderboardSettings';
 import { ChatStatsProvider } from '../../providers/ChatProvider';
+import { AuthUserContext } from '../../providers/AuthUserProvider';
 
 import StudentWorkTable from './StudentWorkTable';
 
@@ -70,15 +71,17 @@ interface GalleryTabProps {
   setView: (view: GalleryView) => void;
   images: Record<number, string>; // Mapping of leaderboard ID to image URL
   leaderboard: Leaderboard | null;
+  showStudentNames?: boolean;
 }
 
-export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leaderboard }) => {
+export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leaderboard, showStudentNames }) => {
   const galleryRef = useRef<HTMLDivElement>(null);
   const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
-  const [detailView, setDetailView] = useState<GalleryDetailView>('detail');
+  const [detailView, setDetailView] = useState<GalleryDetailView>(GALLERY_DETAIL_VIEWS[0]);
   const [value, setValue] = useState<number>(GALLERY_DETAIL_VIEWS.indexOf(detailView));
   const program_name = sessionStorage.getItem('program') ? sessionStorage.getItem('program') as string : '';
   const { t } = useLocalization();
+  const { currentUser } = useContext(AuthUserContext);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setDetailView(GALLERY_DETAIL_VIEWS[newValue]);
@@ -122,9 +125,10 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
                 aria-label="full width tabs"
               >
                   {GALLERY_DETAIL_VIEWS.map((viewOption, index) => (
+                    currentUser && (currentUser.user_type === 'instructor' || viewOption.displayToStudents) ) && (
                     <Tab
-                      key={viewOption}
-                      label={t(`galleryView.Tab.${viewOption}`)}
+                      key={viewOption.viewName}
+                      label={t(`galleryView.Tab.${viewOption.viewName}`)}
                       {...a11yProps(index)}
                     />
                   ))}
@@ -151,7 +155,7 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
                     <GenerationDetailProvider>
                       <GenerationImageProvider>
                         <GenerationEvaluationProvider>
-                          <StudentWorkTable leaderboard_id={leaderboard.id} program_name={program_name} />
+                          <StudentWorkTable leaderboard_id={leaderboard.id} program_name={program_name} showStudentNames={showStudentNames} />
                         </GenerationEvaluationProvider>
                       </GenerationImageProvider>
                     </GenerationDetailProvider>

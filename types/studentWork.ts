@@ -106,7 +106,7 @@ export interface GenerationDetail {
 
 export interface Round {
   id: number;
-  player: Profile;
+  player?: Profile;
   created_at: Date;
   last_generation_id: number;
   chat_history: number;

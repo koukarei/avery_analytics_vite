@@ -1,8 +1,8 @@
 /** @jsxImportSource @emotion/react */
 import React, { useState, useCallback, useEffect, useContext } from 'react';
 import { ImageGallery } from './ImageGallery';
-import { GalleryTabs } from './GalleryTab';
 import type { GalleryView } from '../../types/ui';
+import { WritingPage } from './WritingPage';
 import { css } from "@emotion/react";
 import {theme} from "../../src/Theme";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -36,7 +36,7 @@ const ErrorDisplay: React.FC<{ messageKey: string }> = ({ messageKey }) => {
   );
 };
 
-export default function GalleryView({showStudentNames}: {showStudentNames: boolean}) {
+export default function Writer({showStudentNames}: {showStudentNames: boolean}) {
   const [view, setView] = useState<GalleryView>('browsing');
   const { t } = useLocalization();
   const { currentUser } = useContext(AuthUserContext);
@@ -47,6 +47,7 @@ export default function GalleryView({showStudentNames}: {showStudentNames: boole
   const [startLeaderboardIndex, setStartLeaderboardIndex] = useState<number>(0);
   const [published_at_start, setPublishedAtStart] = useState<dayjs.Dayjs>(dayjs().startOf('day').subtract(9, 'day'));
   const [published_at_end, setPublishedAtEnd] = useState<dayjs.Dayjs>(dayjs().startOf('day'));
+  const [currentImageUrl, setCurrentImageUrl] = useState<string>("");
   const limitLeaderboardIndex = 10;
 
   const handleGalleryScroll = useCallback((direction: 'up' | 'down') => {
@@ -84,6 +85,10 @@ export default function GalleryView({showStudentNames}: {showStudentNames: boole
       });
     }
   }, [startLeaderboardIndex, limitLeaderboardIndex, published_at_start, published_at_end, currentUser]);
+
+  useEffect(() => {
+    setCurrentImageUrl(images[leaderboards[(galleryCurrentIndex + 1) % leaderboards.length]?.id] || "");
+  }, [galleryCurrentIndex]);
 
   const renderGallery = () => {
     switch (view) {
@@ -154,14 +159,13 @@ export default function GalleryView({showStudentNames}: {showStudentNames: boole
         )
       case 'detail':
         return (
-        <div className="h-full w-full pt-4 md:pt-8">
+        <div className="h-full w-full bg-neutral-900 pt-4 md:pt-8">
           {leaderboards ? (
-            <GalleryTabs
+            <WritingPage
               view={view}
               setView={handleViewChange}
               leaderboard={leaderboards[(galleryCurrentIndex + 1) % leaderboards.length] || null}
-              images={images}
-              showStudentNames={showStudentNames}
+              imageUrl={currentImageUrl}
             />
           ) : (
             <p className="text-xl text-gray-400">{t('galleryView.noImageToDisplay')}</p>

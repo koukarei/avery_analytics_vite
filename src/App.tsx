@@ -12,6 +12,7 @@ import Header from '../components/Header';
 import LoginPage from '../components/Login/LoginPage';
 import GalleryView from '../components/Gallery/GalleryView';
 import Navigation from '../components/Navigation';
+import WriterView from '../components/Writer/WriterView';
 import MistakesList from '../components/MistakesList';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import type { ViewMode } from '../types/ui';
@@ -28,7 +29,7 @@ import {theme} from "../src/Theme";
 
 const AppContent: React.FC = () => {
   const { t } = useLocalization();
-  const [activeView, setActiveView] = useState<ViewMode>('gallery');
+  const [activeView, setActiveView] = useState<ViewMode>('writer');
   const [showStudentNames, setShowStudentNames] = useState<boolean>(false);
   const toggleShowStudentNames = () => {
     setShowStudentNames(prev => !prev);
@@ -41,27 +42,25 @@ const AppContent: React.FC = () => {
         return (
             <LeaderboardListProvider>
                 <LeaderboardImagesProvider>
-                  <GalleryView />
+                  <GalleryView showStudentNames={showStudentNames} />
                 </LeaderboardImagesProvider>
             </LeaderboardListProvider>
               
         )
-      // case 'word_cloud':
-      //   return <MistakesList mistakes={writingMistakes} />;
-      // case 'analytics':
-      //   return <AnalyticsDashboard mistakes={writingMistakes} />;
-      // case 'writer':
-      //   return (
-      //         <LeaderboardListProvider>
-      //           <LeaderboardAnalysisProvider>
-      //             <LeaderboardImageProvider>
-      //               <WordCloudProvider>
-      //                 <WriterView />
-      //               </WordCloudProvider>
-      //             </LeaderboardImageProvider>
-      //           </LeaderboardAnalysisProvider>
-      //         </LeaderboardListProvider>
-      //   )
+      case 'word_cloud':
+        //return <MistakesList mistakes={writingMistakes} />;
+        return <p className="text-slate-500 text-center py-10">{t('placeholders.comingSoon')}</p>;
+      case 'analytics':
+        //return <AnalyticsDashboard mistakes={writingMistakes} />;
+        return <p className="text-slate-500 text-center py-10">{t('placeholders.comingSoon')}</p>;
+      case 'writer':
+        return (
+              <LeaderboardListProvider>
+                <LeaderboardImagesProvider>
+                  <WriterView />
+                </LeaderboardImagesProvider>
+              </LeaderboardListProvider>
+        )
       default:
         return <p className="text-slate-500 text-center py-10">{t('placeholders.selectView')}</p>;
     }

@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import React from 'react';
+import React, { useContext } from 'react';
 import { css } from '@emotion/react';
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../src/Theme";
@@ -11,6 +11,7 @@ import LightbulbIcon from './icons/LightbulbIcon';
 import ChartBarIcon from './icons/ChartBarIcon';
 import EyeIcon from './icons/EyeIcon';
 import EyeSlashIcon from './icons/EyeSlashIcon';
+import { AuthUserContext } from '../providers/AuthUserProvider';
 
 interface NavigationProps {
   activeView: ViewMode;
@@ -18,6 +19,35 @@ interface NavigationProps {
   showStudentNames: boolean;
   toggleShowStudentNames: () => void;
 }
+
+
+function showToggleStudentName({
+  showStudentNames,
+  toggleShowStudentNames
+} : {
+  showStudentNames: boolean;
+  toggleShowStudentNames: () => void;
+}) {
+  const { currentUser, loading } = useContext(AuthUserContext);
+  const { t } = useLocalization();
+  if (loading || currentUser?.user_type !== 'instructor') {
+    return null;
+  }
+  return (
+    <div>
+        <button
+          onClick={toggleShowStudentNames}
+          className="flex items-center py-2 px-3 text-sm font-medium transition-colors duration-150 rounded-md"
+          aria-pressed={!showStudentNames}
+          title={showStudentNames ? t('navigation.toggleStudentNames.hide') : t('navigation.toggleStudentNames.show')}
+        >
+          {showStudentNames ? <EyeSlashIcon className="w-5 h-5 mr-1.5" /> : <EyeIcon className="w-5 h-5 mr-1.5" />}
+          {showStudentNames ? t('navigation.toggleStudentNames.hide') : t('navigation.toggleStudentNames.show')}
+        </button>
+    </div>
+  );
+}
+
 
 const Navigation: React.FC<NavigationProps> = ({ activeView, setActiveView, showStudentNames, toggleShowStudentNames }) => {
   const { t } = useLocalization();
@@ -50,15 +80,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeView, setActiveView, show
             </li>
           ))}
         </ul>
-        <button
-          onClick={toggleShowStudentNames}
-          className="flex items-center py-2 px-3 text-sm font-medium transition-colors duration-150 rounded-md"
-          aria-pressed={!showStudentNames}
-          title={showStudentNames ? t('navigation.toggleStudentNames.hide') : t('navigation.toggleStudentNames.show')}
-        >
-          {showStudentNames ? <EyeSlashIcon className="w-5 h-5 mr-1.5" /> : <EyeIcon className="w-5 h-5 mr-1.5" />}
-          {showStudentNames ? t('navigation.toggleStudentNames.hide') : t('navigation.toggleStudentNames.show')}
-        </button>
+          {showToggleStudentName({ showStudentNames, toggleShowStudentNames })}
       </div>
     </nav>
   );
