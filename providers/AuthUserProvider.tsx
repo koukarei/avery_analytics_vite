@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useEffect, useState } from "react";
 import type { User } from '../types/user';
 import { UserAPI } from "../api/User";
 
@@ -17,7 +17,7 @@ export const AuthUserProvider = ({
   const [user, setUser] = useState<User | undefined>();
   const [loading, setLoading] = useState<boolean>(false);
 
-  const fetchCurrentUser = async () => {
+  const fetchCurrentUser = useCallback(async () => {
     setLoading(true);
     try {
       const userData = await UserAPI.fetchAuthUser();
@@ -26,7 +26,7 @@ export const AuthUserProvider = ({
       console.log(e);
     }
     setLoading(false);
-  };
+  }, []);
 
   useEffect(() => {
     fetchCurrentUser();

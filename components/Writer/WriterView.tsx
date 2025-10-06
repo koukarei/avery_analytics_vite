@@ -13,6 +13,7 @@ import { LeaderboardListContext, LeaderboardImagesContext } from '../../provider
 import { AuthUserContext } from '../../providers/AuthUserProvider';
 import { useLocalization } from '../../contexts/localizationUtils';
 import { GenerationDetailProvider, GenerationEvaluationProvider, GenerationImageProvider } from '../../providers/GenerationProvider';
+import { WsProvider } from '../../providers/WsProvider';
 
 import { LoadingSpinner } from '../Common/LoadingSpinner';
 
@@ -154,12 +155,14 @@ export default function Writer({showStudentNames}: {showStudentNames: boolean}) 
             <GenerationDetailProvider>
               <GenerationImageProvider>
                 <GenerationEvaluationProvider>
-                  <WritingPage
-                    view={view}
-                    setView={handleViewChange}
-                    leaderboard={leaderboards[(galleryCurrentIndex + 1) % leaderboards.length] || null}
-                    imageUrl={currentImageUrl}
-                  />
+                  <WsProvider>
+                    <WritingPage
+                      view={view}
+                      setView={handleViewChange}
+                      leaderboard={leaderboards[(galleryCurrentIndex + 1) % leaderboards.length] || null}
+                      imageUrl={currentImageUrl}
+                    />
+                  </WsProvider>
                 </GenerationEvaluationProvider>
               </GenerationImageProvider>
             </GenerationDetailProvider>

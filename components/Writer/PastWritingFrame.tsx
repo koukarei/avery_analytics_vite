@@ -100,7 +100,7 @@ const PastWritingModal: React.FC<PastWritingModalProps> = ({
         onClose();
         };
 
-    if (isLoading || currentWritingId !== generation_id) {
+    if (isLoading || ( isOpen && currentWritingId !== generation_id)) {
         return (
             <LoadingSpinner />
         )
@@ -123,7 +123,7 @@ const PastWritingModal: React.FC<PastWritingModalProps> = ({
             open={isOpen}
             onClose={handleClose}
             aria-labelledby="past-writing-modal"
-            aria-describedby={`modal-modal-${generation_id}`}
+            aria-describedby={`modal-modal-${currentWritingId}`}
         >
             <Card sx={style}>
                 <CardHeader>
@@ -201,7 +201,7 @@ const PastWritingsBar: React.FC<PastWritingsProps> = ({ generation_ids, onClick 
     
     return (
         <Box className='flex flex-nowrap justify-start flex-row'>
-            <Stack direction="row">
+            <Stack direction="row" spacing={1}>
                 {generation_ids.map((value, index) => <PastWritingIcon index={index} onClick={onClick} />)}
             </Stack>
         </Box>
