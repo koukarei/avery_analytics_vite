@@ -19,16 +19,4 @@ export class wsAPI {
     };
     return response.data;
   }
-
-  static async createWebSocketConnection(params: websocketParams, request: websocketRequest): Promise<websocketResponse | null> {
-    const response = await authAxios.get(`ws_token`, {
-      headers: sessionStorage.getItem("access_token")
-        ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
-        : {},
-    });
-    if (response.status !== 200) {
-      return null;
-    };
-    return response.data;
-  }
 }

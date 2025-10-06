@@ -1,4 +1,4 @@
-import React, {useRef, useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import { WritingFrame } from "./WritingFrame";
 import { PastWritingsBar, PastWritingModal } from "./PastWritingFrame";
 import { GalleryView } from "../../types/ui";
@@ -7,8 +7,9 @@ import { websocketRequest, websocketResponse } from "../../types/websocketAPI";
 import { LoadingSpinner } from "../Common/LoadingSpinner";
 
 import { WsContext } from "../../providers/WsProvider";
-import { GenerationDetailProvider, GenerationEvaluationProvider, GenerationImageProvider } from "../../providers/GenerationProvider";
-import PastWritingFrame from "./PastWritingFrame";
+
+import { WebSocketClient } from "../../util/websocketClient";
+// ...existing code...
 
 
 interface WritingPageProps {
@@ -19,34 +20,22 @@ interface WritingPageProps {
 }
 
 
-export const WritingPage: React.FC<WritingPageProps> = ({ view, setView, leaderboard, imageUrl }) => {
+export const WritingPage: React.FC<WritingPageProps> = ({ view: _view, setView: _setView, leaderboard, imageUrl }) => {
     const [writingText, setWritingText] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [errorKey, setErrorKey] = useState<string | null>(null);
-    const [generation_ids, setGenerationIds] = useState<number[]>([1,20,3,83,112]);
-    const [writingGenerationId, setWritingGenerationId] = useState<number | null>(null);
+    const [_errorKey, setErrorKey] = useState<string | null>(null);
+    const [generation_ids, _setGenerationIds] = useState<number[]>([1,20,3,83,112]);
+    const [writingGenerationId, _setWritingGenerationId] = useState<number | null>(null);
     const [selectedGenerationId, setSelectedGenerationId] = useState<number | null>(null);
     const [isPastWritingModalOpen, setIsPastWritingModalOpen] = useState(false);
-    const [isChatbotModalOpen, setIsChatbotModalOpen] = useState(false);
-    const [closeWritingPage, setCloseWritingPage] = useState(false);
+    const [_isChatbotModalOpen, _setIsChatbotModalOpen] = useState(false);
+    const [userAction, _setUserAction] = useState<'start' | 'resume' | 'hint' | 'submit' | 'evaluate' | 'end'>('start');
 
-    const [websocketJsonMessage, setWebsocketJsonMessage] = useState<websocketRequest | null>({
-        action: "start",
-        program: sessionStorage.getItem("program") || "none",
-        obj: {
-            leaderboard_id: leaderboard ? leaderboard.id : 0,
-            model: "gpt-4o-mini",
-            program: sessionStorage.getItem("program") || "none",
-            created_at: new Date(),
-        }
-    });
-    const [websocketMessage, setWebsocketMessage] = useState<string | null>(null);
-    const [websocketJsonResponse, setWebsocketJsonResponse] = useState<websocketResponse | null>(null);
-    const [websocketResponseMsg, setWebsocketResponseMsg] = useState<string | null>(null);
+    const [_websocketJsonMessage, setWebsocketJsonMessage] = useState<websocketRequest | null>(null);
+    const [_websocketJsonResponse, setWebsocketJsonResponse] = useState<websocketResponse | null>(null);
     
     const {fetchWsToken} = useContext(WsContext);
-
-    const socketRef = useRef<WebSocket>()
+    
 
     const handleClickPastWritingIcon = (
         index: number
@@ -58,36 +47,67 @@ export const WritingPage: React.FC<WritingPageProps> = ({ view, setView, leaderb
     const handleSubmitWriting = () => {
         setSelectedGenerationId(writingGenerationId);
         setIsPastWritingModalOpen(true);
-    }
-
-    window.addEventListener('close', () => {
-        if (socketRef.current) {
-            setCloseWritingPage(true);
-        }
-    })
+    };
     
     useEffect(() => {
         setErrorKey(null);
         setIsLoading(true);
         try {
             if (leaderboard) {
-                // #1.WebSocketオブジェクトを生成しサーバとの接続を開始
-                fetchWsToken().then((wsTokenResponse) => {
-                    console.log("Fetched WS Token: ", wsTokenResponse);
-                    if (wsTokenResponse) {
-                        const wsLink = import.meta.env.VITE_WS_URL + `/${leaderboard.id}/?token=${wsTokenResponse.ws_token}`;
-                        console.log("Connecting to WebSocket URL: ", wsLink);
-                        const websocket = new WebSocket(wsLink);
-                        socketRef.current = websocket;
-                        const onMessage = (event: MessageEvent<string>) => {
-                        setMessage(event.data)
-                        }
-                        websocket.addEventListener('message', onMessage)
-                        return () => {
-                        websocket.close()
-                        websocket.removeEventListener('message', onMessage)
-                        }
-                    }
+                // #fetch WebSocket token and connect to WebSocket server
+                fetchWsToken().then((wsTokenResponse ) => {
+                            if (wsTokenResponse) {
+                                    // import.meta.env typing varies by build; access via cast
+                                    const wsLink = (import.meta as unknown as { env: { VITE_WS_URL: string } }).env.VITE_WS_URL + `/${leaderboard.id}?token=${wsTokenResponse.ws_token}`;
+                                    console.log("Connecting to WebSocket URL: ", wsLink);
+                                    // create WebSocket client
+                                    const client = new WebSocketClient({urls: [wsLink]});
+                                    client.open();
+
+                                    // prepare message for the start action
+                                    let message: websocketRequest | null = null
+                                    switch (userAction) {
+                                        case 'start':
+                                            message = {
+                                                action: 'start',
+                                                program: sessionStorage.getItem('program') || 'none',
+                                                obj: {
+                                                    leaderboard_id: leaderboard ? leaderboard.id : 0,
+                                                    model: 'gpt-4o-mini',
+                                                    program: sessionStorage.getItem('program') || 'none',
+                                                    created_at: new Date(),
+                                                }
+                                            }
+                                            break
+                                        default:
+                                            break
+                                    }
+
+                                    // send message (if prepared). WebSocketClient will queue until ready.
+                                    if (message) {
+                                      client.send(wsLink, message)
+                                      setWebsocketJsonMessage(message)
+                                    }
+
+                                    // subscribe to messages for this url
+                                                            // subscriber receives unknown; cast to websocketResponse for our usage
+                                                            const onMessage = (data: unknown) => {
+                                                                const parsed = data as websocketResponse
+                                                                setWebsocketJsonResponse(parsed)
+                                                                console.log('WebSocket response data: ', parsed)
+                                                            }
+                                                            client.subscribe(wsLink, onMessage)
+
+                                    // Disconnect when user closes the tab or browser
+                                    const handleBeforeUnload = () => client.close()
+                                    window.addEventListener('beforeunload', handleBeforeUnload)
+
+                                    return () => {
+                                        client.unsubscribe(wsLink, onMessage)
+                                        window.removeEventListener('beforeunload', handleBeforeUnload)
+                                        client.close();
+                                    }
+                                }
                 });
             }
 
@@ -97,11 +117,13 @@ export const WritingPage: React.FC<WritingPageProps> = ({ view, setView, leaderb
         } finally {
             setIsLoading(false);
         }
-    }, [leaderboard]);
+    }, [leaderboard, fetchWsToken, userAction]);
 
     if (isLoading) {
         return <LoadingSpinner />;
     }
+
+
 
     return (
         <div className="bg-neutral-900 flex-col md:flex-row items-center">
