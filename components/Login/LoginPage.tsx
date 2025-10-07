@@ -6,7 +6,7 @@ import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
-import { Box, IconButton, InputAdornment, TextField } from "@mui/material";
+import { Box, FormHelperText, IconButton, InputAdornment, TextField } from "@mui/material";
 import HighlightOffIcon from '../icons/HighlightOffIcon';
 import type { SigninData, SignupData } from "../../types/auth";
 import { UserAuthAPI } from "../../api/UserAuth";
@@ -56,8 +56,8 @@ const rules = {
       message: "パスワードは 8 文字以上 30 文字以内で入力してください",
     },
     pattern: {
-      value: /^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\d)(?=.*[!#$%&? "]).*$/,
-      message: "使用できない文字が含まれています",
+      value: /^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[^A-Za-z0-9]).{8,}$/,
+      message: "パスワードは英大文字・英小文字・数字・記号をそれぞれ1文字以上含む必要があります",
     },
   },
   password_login: {
@@ -159,11 +159,11 @@ function Signin() {
                 placeholder="ユーザー名"
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
-                InputProps={{
+                slotProps={{htmlInput: {
                   endAdornment: (
                     <ClearAdornment name={field.name} setValue={setValue} />
                   ),
-                }}
+                }}}
               />
             )}
           />
@@ -181,11 +181,11 @@ function Signin() {
                 label="パスワード"
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
-                InputProps={{
+                slotProps={{htmlInput: {
                   endAdornment: (
                     <ClearAdornment name={field.name} setValue={setValue} />
                   ),
-                }}
+                }}}
               />
             )}
           />
@@ -234,13 +234,9 @@ function Signup() {
     handleSubmit,
     setValue,
     getValues,
+    setError,
     formState: { errors },
-  } = useForm<SignupData>({
-    defaultValues:{
-        is_admin: false,
-        user_type: "student"
-    }
-  });
+  } = useForm<SignupData>({});
   const navigate = useNavigate();
 
   const onSubmit = async (data: SignupData) => {
@@ -249,7 +245,20 @@ function Signup() {
       navigate("/login?signin");
     } catch (e) {
       console.log(e);
-    }
+      if (e.response && e.response.status === 400) {
+        const detail = e.response.data?.detail;
+        if (detail === "Email already registered") {
+          setError("email", { type: "manual", message: "このメールアドレスは既に登録されています" });
+        } else if (detail === "Username already registered") {
+          setError("username", { type: "manual", message: "このユーザー名は既に使用されています" });
+        } else {
+          setError("root", {
+            type: "manual",
+            message: "新規登録に失敗しました"
+          });
+        }
+      }
+    };
   };
 
   return (
@@ -263,19 +272,19 @@ function Signup() {
             rules={rules.email}
             render={({ field }) => (
               <TextField
-          {...field}
-          fullWidth
-          label="メールアドレス"
-          placeholder="email@example.com"
-          error={errors[field.name] ? true : false}
-          helperText={(errors[field.name]?.message as string) || " "}
-          slotProps={{
-            input: {
-              endAdornment: (
-                <ClearAdornment name={field.name} setValue={setValue} />
-              ),
-            },
-          }}
+                {...field}
+                fullWidth
+                label="メールアドレス"
+                placeholder="email@example.com"
+                error={errors[field.name] ? true : false}
+                helperText={(errors[field.name]?.message as string) || " "}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <ClearAdornment name={field.name} setValue={setValue} />
+                    ),
+                  },
+                }}
               />
             )}
           />
@@ -305,7 +314,7 @@ function Signup() {
         </div>
         <div css={formInputStyle}>
           <Controller
-            name="password1"
+            name="password"
             control={control}
             rules={rules.password}
             render={({ field }) => (
@@ -334,7 +343,7 @@ function Signup() {
             rules={{
               required: "確認用のパスワードを入力してください",
               validate: (input) => {
-                if (input !== getValues("password1")) {
+                if (input !== getValues("password")) {
                   return "パスワードが一致していません";
                 }
               },

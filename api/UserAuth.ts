@@ -1,7 +1,7 @@
 import { authAxios } from "./axios";
 import type {
   SigninData,
-  SignupData,
+  SignupData
 } from "../types/auth";
 
 export class UserAuthAPI {

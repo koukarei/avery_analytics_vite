@@ -7,6 +7,8 @@ import Card from "@mui/material/Card";
 import Button from '@mui/material/Button';
 import { theme } from "../../src/Theme";
 import ImageListItem from "@mui/material/ImageListItem";
+import { useForm, Controller } from "react-hook-form";
+
 import { useLocalization } from '../../contexts/localizationUtils';
 
 interface WritingFrameProps {
@@ -19,27 +21,65 @@ interface WritingFrameProps {
 export const WritingFrame: React.FC<WritingFrameProps> = ({ imageUrl, writingText, setWritingText, submitWritingFn }) => {
     const { t } = useLocalization();
 
+    const {
+        control,
+        handleSubmit,
+        setValue,
+        setError,
+        formState: { errors },
+    } = useForm<{ writing: string }>({
+        defaultValues: { writing: writingText },
+        mode: "onChange",
+    });
+
+    const rules = {
+        writing: {
+            required: {
+                value: true,
+                message: t("writerView.writingFrame.error.required")
+            },
+            maxLength: {
+                value: 16777215,
+                message: t("writerView.writingFrame.error.maxLength")
+            }, // MediumText limit in MySQL
+            minLength: {
+                value: 10,
+                message: t("writerView.writingFrame.error.minLength")
+            },
+            pattern: {
+                value: /^[A-Za-z0-9 .,?!'"\n]+$/,
+                message: t("writerView.writingFrame.error.pattern")
+            }
+        }
+    };
+
+
     return (
-        <Card css={WritingFrameStyle(theme)} variant="outlined">
-            {imageUrl && (
-                <ImageListItem style={{ minWidth: '200px', maxWidth: '60%', padding: 5, marginBottom: '8px' }}>
-                    <img src={imageUrl} alt="Writing" />
-                </ImageListItem>
-            )}
-            <div css={typingAreaStyle(theme)}>
-                <TextField
-                    css={typingFieldStyle(theme)}
-                    value={writingText}
-                    onChange={(e) => setWritingText(e.target.value)}
-                    multiline
-                    fullWidth
-                    minRows={10}
-                    variant="outlined"
-                    placeholder={t("writerView.writingFrame.placeholder")}
-                />
-                <Button css={SubmitWritingButton(theme)} onClick={submitWritingFn} variant="contained">Submit Writing</Button>
-            </div>
-        </Card>
+        <form onSubmit={handleSubmit(submitWritingFn)}>
+            <Card css={WritingFrameStyle(theme)} variant="outlined">
+                {imageUrl && (
+                    <ImageListItem style={{ minWidth: '200px', maxWidth: '60%', padding: 5, marginBottom: '8px' }}>
+                        <img src={imageUrl} alt="Writing" />
+                    </ImageListItem>
+                )}
+                <div css={typingAreaStyle(theme)}>
+                    <TextField
+                        name="writing"
+                        css={typingFieldStyle(theme)}
+                        value={writingText}
+                        onChange={(e) => setWritingText(e.target.value)}
+                        multiline
+                        fullWidth
+                        minRows={10}
+                        variant="outlined"
+                        error={errors('writing', writingText) ? true : false}
+                        helperText={(errors('writing', writingText)?.message as string) || ""}
+                        placeholder={t("writerView.writingFrame.placeholder")}
+                    />
+                    <Button css={SubmitWritingButton(theme)} onClick={submitWritingFn} variant="contained">Submit Writing</Button>
+                </div>
+            </Card>
+        </form>
     )
 };
 const typingFieldStyle = (theme: Theme) => css`
@@ -58,6 +98,7 @@ const WritingFrameStyle = (theme: Theme) =>css`
     height: 100%;
     width: 100%;
     display: flex;
+    opacity: 0.95;
     
     flex-direction: row;
     
