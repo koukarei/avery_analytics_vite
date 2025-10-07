@@ -448,7 +448,6 @@ const backStyle = (theme: Theme) => css`
       rgba(255, 255, 255, 0) 20%,
       ${theme.palette.primary.main} 100%
     ),
-    url(${process.env.PUBLIC_URL + "/images/background.jpg"});
   background-position: center bottom;
   background-size: 140%;
   background-repeat: no-repeat;
