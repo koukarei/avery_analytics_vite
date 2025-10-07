@@ -1,20 +1,16 @@
 /** @jsxImportSource @emotion/react */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   BrowserRouter,
   Routes,
   Route,
-  Outlet,
-  Navigate,
 } from 'react-router-dom';
 import Header from '../components/Header';
 import LoginPage from '../components/Login/LoginPage';
 import GalleryView from '../components/Gallery/GalleryView';
 import Navigation from '../components/Navigation';
 import WriterView from '../components/Writer/WriterView';
-import MistakesList from '../components/MistakesList';
-import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import type { ViewMode } from '../types/ui';
 import { useLocalization } from '../contexts/localizationUtils';
 import { LocalizationProvider } from '../contexts/LocalizationContext';
@@ -23,9 +19,6 @@ import {
   LeaderboardListProvider,
   LeaderboardImagesProvider,
  } from '../providers/LeaderboardProvider';
-import { css } from "@emotion/react";
-import type { Theme } from "@mui/material/styles";
-import {theme} from "../src/Theme";
 
 const AppContent: React.FC = () => {
   const { t } = useLocalization();
@@ -91,20 +84,6 @@ const App: React.FC = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        {/* Gallery Route */}
-        <Route path="/gallery" element={
-          <AuthUserProvider>
-            <RequireAuth>
-              <LocalizationProvider>
-                <LeaderboardListProvider>
-                    <LeaderboardImagesProvider>
-                      <GalleryView />
-                    </LeaderboardImagesProvider>
-                </LeaderboardListProvider>
-              </LocalizationProvider>
-            </RequireAuth>
-          </AuthUserProvider>
-        } />
         {/* Main Route */}
         <Route path="/" element={
           <AuthUserProvider>

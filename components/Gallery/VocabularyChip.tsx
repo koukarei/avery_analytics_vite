@@ -3,7 +3,7 @@
 import React from 'react';
 import { css } from '@emotion/react';
 import Chip from '@mui/material/Chip';
-import { Close } from '@mui/icons-material';
+//import { Close } from '@mui/icons-material';
 
 interface Props {
   label: string;

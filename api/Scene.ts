@@ -1,4 +1,4 @@
-import { Scene, BaseListParams } from "../types/leaderboard";
+import type { Scene, BaseListParams } from "../types/leaderboard";
 import { authAxios } from "./axios";
 
 export class SceneAPI {

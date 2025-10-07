@@ -1,8 +1,6 @@
 
-import React, { useState, useRef, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import Container from '@mui/material/Container';
-import type { Leaderboard, LeaderboardAnalysis, Scene } from '../../types/leaderboard';
-import type { WordCloudType } from '../../types/ui';
 import { AuthUserContext } from '../../providers/AuthUserProvider';
 import { LeaderboardItemContext } from "../../providers/LeaderboardProvider";
 import { SceneContext } from "../../providers/SceneProvider";
@@ -10,6 +8,7 @@ import { StoryContext } from "../../providers/StoryProvider";
 
 import { ViewLeaderboard, EditLeaderboard } from './LeaderboardForm';
 import { useLocalization } from '../../contexts/localizationUtils';
+import { ErrorDisplay } from '../Common/ErrorDisplay';
 
 interface LeaderboardDetailProps {
     leaderboard_id: number
@@ -34,6 +33,9 @@ export const LeaderboardDetail: React.FC<LeaderboardDetailProps> = ({ leaderboar
   // Loading state
   if (loading || !leaderboard || !scenes) {
     return <div>{t('loading')}...</div>;
+  }
+  if (errorKey) {
+    return <ErrorDisplay messageKey={errorKey} />;
   }
 
   if (authUserData?.currentUser?.user_type === "student") {

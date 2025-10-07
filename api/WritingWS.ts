@@ -1,7 +1,4 @@
 import type { 
-    websocketParams,
-    websocketResponse,
-    websocketRequest,
     wsTokenResponse
  } from "../types/websocketAPI";
 import { authAxios } from "./axios";

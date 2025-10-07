@@ -16,16 +16,15 @@ interface WritingFrameProps {
     writingText: string;
     setWritingText: (text: string) => void;
     submitWritingFn: () => void;
+    setView: ()=>void;
 }
 
-export const WritingFrame: React.FC<WritingFrameProps> = ({ imageUrl, writingText, setWritingText, submitWritingFn }) => {
+export const WritingFrame: React.FC<WritingFrameProps> = ({ imageUrl, writingText, setWritingText, submitWritingFn, setView }) => {
     const { t } = useLocalization();
 
     const {
         control,
         handleSubmit,
-        setValue,
-        setError,
         formState: { errors },
     } = useForm<{ writing: string }>({
         defaultValues: { writing: writingText },
@@ -59,36 +58,39 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ imageUrl, writingTex
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
-            <Card css={WritingFrameStyle(theme)} variant="outlined">
-                {imageUrl && (
-                    <ImageListItem style={{ minWidth: '200px', maxWidth: '60%', padding: 5, marginBottom: '8px' }}>
-                        <img src={imageUrl} alt="Writing" />
-                    </ImageListItem>
-                )}
-                <div css={typingAreaStyle(theme)}>
-                <Controller
-                    name="writing"
-                    control={control}
-                    rules={rules.writing}
-                    render={({ field }) => (
-                        <TextField
-                            {...field}
-                            css={typingFieldStyle(theme)}
-                            multiline
-                            fullWidth
-                            minRows={10}
-                            variant="outlined"
-                            error={errors[field.name] ? true : false}
-                            helperText={(errors[field.name]?.message as string) || " "}
-                            placeholder={t("writerView.writingFrame.placeholder")}
-                        />
+        <div>
+            <button onClick={setView}></button>
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <Card css={WritingFrameStyle(theme)} variant="outlined">
+                    {imageUrl && (
+                        <ImageListItem style={{ minWidth: '200px', maxWidth: '60%', padding: 5, marginBottom: '8px' }}>
+                            <img src={imageUrl} alt="Writing" />
+                        </ImageListItem>
                     )}
-                    />
-                    <Button css={SubmitWritingButton(theme)} type="submit" variant="contained">Submit Writing</Button>
-                </div>
-            </Card>
-        </form>
+                    <div css={typingAreaStyle}>
+                    <Controller
+                        name="writing"
+                        control={control}
+                        rules={rules.writing}
+                        render={({ field }) => (
+                            <TextField
+                                {...field}
+                                css={typingFieldStyle(theme)}
+                                multiline
+                                fullWidth
+                                minRows={10}
+                                variant="outlined"
+                                error={errors[field.name] ? true : false}
+                                helperText={(errors[field.name]?.message as string) || " "}
+                                placeholder={t("writerView.writingFrame.placeholder")}
+                            />
+                        )}
+                        />
+                        <Button css={SubmitWritingButton(theme)} type="submit" variant="contained">Submit Writing</Button>
+                    </div>
+                </Card>
+            </form>
+        </div>
     )
 };
 const typingFieldStyle = (theme: Theme) => css`
@@ -97,7 +99,7 @@ const typingFieldStyle = (theme: Theme) => css`
     width: 90%;
 `
 
-const typingAreaStyle = (theme: Theme) => css`
+const typingAreaStyle = css`
     flex-direction: column;
     width: 100%;
 `

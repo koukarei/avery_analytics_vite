@@ -1,10 +1,11 @@
 import React, {useContext, useEffect, useState} from "react";
 import { WritingFrame } from "./WritingFrame";
 import { PastWritingsBar, PastWritingModal } from "./PastWritingFrame";
-import { GalleryView } from "../../types/ui";
-import { Leaderboard } from "../../types/leaderboard";
-import { websocketRequest, websocketResponse } from "../../types/websocketAPI";
+import type { GalleryView } from "../../types/ui";
+import type { Leaderboard } from "../../types/leaderboard";
+import type { websocketRequest, websocketResponse } from "../../types/websocketAPI";
 import { LoadingSpinner } from "../Common/LoadingSpinner";
+import { ErrorDisplay } from "../Common/ErrorDisplay";
 import Alert from '@mui/material/Alert';
 
 import { WsContext } from "../../providers/WsProvider";
@@ -14,20 +15,18 @@ import { useLocalization } from '../../contexts/localizationUtils';
 
 
 interface WritingPageProps {
-    view: GalleryView;
     setView: (view: GalleryView) => void;
     leaderboard: Leaderboard | null;
     imageUrl: string | null;
 }
 
 
-export const WritingPage: React.FC<WritingPageProps> = ({ view: _view, setView: _setView, leaderboard, imageUrl }) => {
+export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, imageUrl }) => {
     const [writingText, setWritingText] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [_errorKey, setErrorKey] = useState<string | null>(null);
+    const [errorKey, setErrorKey] = useState<string | null>(null);
     
     const [roundId, _setRoundId] = useState<number>(0);
-    const [feedbackId, _setFeedbackId] = useState<number | null>(null);
 
     const [generation_ids, _setGenerationIds] = useState<number[]>([]);
     const [writingGenerationId, _setWritingGenerationId] = useState<number | null>(null);
@@ -38,13 +37,9 @@ export const WritingPage: React.FC<WritingPageProps> = ({ view: _view, setView: 
     const [warningMsg, setWarningMsg] = useState<string>("");
 
     const [isPastWritingModalOpen, setIsPastWritingModalOpen] = useState(false);
-    const [_isChatbotModalOpen, _setIsChatbotModalOpen] = useState(false);
 
     const [userAction, setUserAction] = useState<'start' | 'resume' | 'hint' | 'submit' | 'evaluate' | 'end'>('start');
 
-    const [_websocketJsonMessage, setWebsocketJsonMessage] = useState<websocketRequest | null>(null);
-    const [_websocketJsonResponse, setWebsocketJsonResponse] = useState<websocketResponse | null>(null);
-    
     const {fetchWsToken} = useContext(WsContext);
     const { t } = useLocalization();
     
@@ -140,7 +135,6 @@ export const WritingPage: React.FC<WritingPageProps> = ({ view: _view, setView: 
                                     // send message (if prepared). WebSocketClient will queue until ready.
                                     if (message) {
                                       client.send(wsLink, message)
-                                      setWebsocketJsonMessage(message)
                                     }
 
                                     // subscribe to messages for this url
@@ -148,8 +142,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ view: _view, setView: 
                                     const onMessage = (data: unknown) => {
                                         const parsed = data as websocketResponse
                                         console.log('WebSocket response data: ', parsed)
-                                        setWebsocketJsonResponse(parsed)
-
+                                        
                                         switch (userAction) {
                                             case 'start':{
                                                 if (parsed.round && parsed.generation && parsed.leaderboard) {
@@ -221,8 +214,10 @@ export const WritingPage: React.FC<WritingPageProps> = ({ view: _view, setView: 
         return <LoadingSpinner />;
     }
 
-
-
+    if (errorKey) {
+        return <ErrorDisplay messageKey={errorKey} />;
+    }
+    
     return (
         <div className="bg-neutral-900 flex-col md:flex-row items-center">
             <div className="h-1/8 w-full">
@@ -243,6 +238,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ view: _view, setView: 
                 writingText={writingText}
                 setWritingText={setWritingText}
                 submitWritingFn={handleSubmitWriting}
+                setView={ () => setView('browsing') }
             />
             </div>
         </div>

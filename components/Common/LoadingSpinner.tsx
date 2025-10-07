@@ -1,4 +1,4 @@
-import { FC } from 'react'; 
+import type { FC } from 'react'; 
 import { useLocalization } from '../../contexts/localizationUtils';
 
 export const LoadingSpinner: FC = () => {

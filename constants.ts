@@ -1,4 +1,4 @@
-import type { ImageItem, GrammarMistakeItem } from './types/gallery';
+import type { GrammarMistakeItem } from './types/gallery';
 export const API_DELAY = 500; // ms
 
 // These are now keys for localization

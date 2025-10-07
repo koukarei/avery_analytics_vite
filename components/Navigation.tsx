@@ -1,7 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import React, { useContext } from 'react';
 import { css } from '@emotion/react';
-import type { Theme } from "@mui/material/styles";
 import {theme} from "../src/Theme";
 import type { ViewMode } from '../types/ui';
 import { useLocalization } from '../contexts/localizationUtils';
@@ -20,14 +19,13 @@ interface NavigationProps {
   toggleShowStudentNames: () => void;
 }
 
-
-function showToggleStudentName({
-  showStudentNames,
-  toggleShowStudentNames
-} : {
+interface ShowToggleStudentNameProps {
   showStudentNames: boolean;
   toggleShowStudentNames: () => void;
-}) {
+}
+
+const ShowToggleStudentName: React.FC<ShowToggleStudentNameProps> = ({
+  showStudentNames, toggleShowStudentNames}) => {
   const { currentUser, loading } = useContext(AuthUserContext);
   const { t } = useLocalization();
   if (loading || currentUser?.user_type !== 'instructor') {
@@ -80,7 +78,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeView, setActiveView, show
             </li>
           ))}
         </ul>
-          {showToggleStudentName({ showStudentNames, toggleShowStudentNames })}
+          <ShowToggleStudentName showStudentNames={showStudentNames} toggleShowStudentNames={toggleShowStudentNames} />
       </div>
     </nav>
   );

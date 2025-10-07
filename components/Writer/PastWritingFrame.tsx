@@ -9,11 +9,10 @@ import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import { blueGrey } from '@mui/material/colors';
 
-import React, { useState, useContext, useEffect, useRef } from 'react';
-import { css, keyframes } from "@emotion/react";
+import React, { useState, useContext, useEffect } from 'react';
+import { css } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
-import dayjs from 'dayjs';
 import { Button } from '@mui/material';
 import { MarkdownEvalViewer } from '../../util/showMD';
 import { compareWriting } from '../../util/CompareWriting';
@@ -21,7 +20,7 @@ import { compareWriting } from '../../util/CompareWriting';
 import { LoadingSpinner } from '../Common/LoadingSpinner';
 
 import { GenerationDetailContext, GenerationImageContext, GenerationEvaluationContext } from '../../providers/GenerationProvider';
-import { GenerationDetail } from '../../types/studentWork';
+import type { GenerationDetail } from '../../types/studentWork';
 
 interface PastWritingsProps {
   generation_ids: number[];
@@ -76,6 +75,7 @@ const PastWritingModal: React.FC<PastWritingModalProps> = ({
                 setAWEText(evaluationData.content);
             }
         } catch (e) {
+            console.error("Failed to fetch generation detail: ", e);
             setErrorKey("error.FetchingGenerationDetail");
         } finally {
             setIsLoading(false);
@@ -159,7 +159,7 @@ const PastWritingModal: React.FC<PastWritingModalProps> = ({
                     </Box>
                     <Box>
                         {showImage ? (
-                            <img src={imageUrl} alt="Generated" style={{ maxWidth: '100%' }} />
+                            <img src={imageUrl ? imageUrl : ""} alt="Generated" style={{ maxWidth: '100%' }} />
                         ) : null}
                     </Box>
                     <Box>
@@ -181,7 +181,7 @@ const PastWritingIcon: React.FC<PastWritingIconProps> = ({
     index, onClick 
 }) => {
     const paletteKeys = [50, 100, 300, 500, 700, 900];
-    const color = blueGrey[paletteKeys[index % paletteKeys.length]];
+    const color = blueGrey[paletteKeys[index % paletteKeys.length] as keyof typeof blueGrey];
     
     const handleClick = () =>{
         onClick(index);
@@ -202,7 +202,7 @@ const PastWritingsBar: React.FC<PastWritingsProps> = ({ generation_ids, onClick 
     return (
         <Box className='flex flex-nowrap justify-start flex-row'>
             <Stack direction="row" spacing={1}>
-                {generation_ids.map((value, index) => <PastWritingIcon index={index} onClick={onClick} />)}
+                {generation_ids.map((index) => <PastWritingIcon index={index} onClick={onClick} />)}
             </Stack>
         </Box>
     );

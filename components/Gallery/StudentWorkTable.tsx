@@ -1,4 +1,4 @@
-import React, { useState, useContext, ChangeEvent, useEffect, use } from 'react';
+import React, { useState, useContext, type ChangeEvent, useEffect } from 'react';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -174,7 +174,7 @@ const RenderTableRow: React.FC<RenderTableRowProps> = ({
         }</span>);
       }
       case 'img_feedback': {
-        return value ? <img src={value} alt="Interpreted" style={{ maxWidth: '100px', maxHeight: '100px' }} /> : "No Image";
+        return value ? <img src={value as string} alt="Interpreted" style={{ maxWidth: '100px', maxHeight: '100px' }} /> : "No Image";
       }
       case 'awe_feedback': {
         return typeof value === 'string'
@@ -307,7 +307,7 @@ const RoundRow: React.FC<{ showStudentNames: boolean; row: Data }> = ({ showStud
   const [ writingRows, setWritingRows] = useState<WritingData[]>([]);
   const [errorKey, setErrorKey] = useState<string | null>(null);
 
-  const renderTableCell = (column: RoundColumn, row: Data, value: any) => {
+  const renderTableCell = (column: RoundColumn, row: Data, value: string | number ) => {
     switch (column.id) {
       case 'student_name': {
         return showStudentNames ? value : "Anonymous";
@@ -423,7 +423,7 @@ const StudentWorkTable: React.FC<StudentWorkTableProps> = ({
   const [ rows, setRows ] = useState<Data[]>([]);
   const { t } = useLocalization();
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
 

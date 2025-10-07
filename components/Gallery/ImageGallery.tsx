@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 
-import React, { useState, useRef, useEffect, useContext } from 'react';
-import { css, keyframes } from "@emotion/react";
+import React, { useState, useRef, useEffect } from 'react';
+import { css } from "@emotion/react";
 import type { Leaderboard } from '../../types/leaderboard';
 import type { GalleryView } from '../../types/ui';
 import type { Theme } from "@mui/material/styles";
@@ -91,7 +91,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
         }
       }}
     >
-      <img src={imageUrl} alt={leaderboard?.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-focus:scale-105" />
+      <img src={imageUrl ? imageUrl : ""} alt={leaderboard?.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-focus:scale-105" />
       <div className="absolute top-0 right-0 m-2">
           <span css={sceneStyles(theme)} className="inline-block bg-cyan-500 text-white text-xs font-semibold px-2 py-1 rounded-full uppercase tracking-wider">
           {leaderboard.scene.name}

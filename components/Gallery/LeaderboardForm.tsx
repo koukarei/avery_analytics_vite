@@ -1,7 +1,6 @@
 /** @jsxImportSource @emotion/react */
-import React, { useContext, useState, useRef } from "react";
-import type { ChangeEvent } from "react";
-import { css, keyframes } from "@emotion/react";
+import React, { useContext } from "react";
+import { css } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import MenuItem from "@mui/material/MenuItem";
 import Popover from '@mui/material/Popover';
@@ -19,7 +18,6 @@ import { LeaderboardAPI } from "../../api/Leaderboard";
 
 import { LeaderboardListContext,  LeaderboardImagesContext} from "../../providers/LeaderboardProvider";
 
-import VocabularyChip from "./VocabularyChip";
 import { AuthUserContext } from "../../providers/AuthUserProvider";
 
 const rules = {
@@ -84,7 +82,7 @@ function ViewLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
             name="published_at"
             control={control}
             rules={rules.published_at}
-            render={({ field }) => (
+            render={() => (
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoItem>
                   <DatePicker

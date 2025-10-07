@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import React, { useState, useCallback, useEffect, useContext } from 'react';
+import { useState, useCallback, useEffect, useContext } from 'react';
 import { ImageGallery } from './ImageGallery';
 import { GalleryTabs } from './GalleryTab';
 import type { GalleryView } from '../../types/ui';

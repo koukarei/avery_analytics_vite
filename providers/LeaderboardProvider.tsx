@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useState } from "react";
 import type { Leaderboard, School, LeaderboardAnalysis, LeaderboardItem, LeaderboardListParams, LeaderboardAnalysisParams, WordCloudParams } from '../types/leaderboard';
-import { WritingMistake, ChatWordCloudItem, Round } from "../types/studentWork"
+import type { WritingMistake, ChatWordCloudItem, Round } from "../types/studentWork"
 import { LeaderboardAPI } from "../api/Leaderboard";
 
 type LeaderboardListContextType = {

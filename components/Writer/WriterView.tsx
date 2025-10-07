@@ -27,7 +27,7 @@ const ErrorDisplay: React.FC<{ messageKey: string }> = ({ messageKey }) => {
   );
 };
 
-export default function Writer({showStudentNames}: {showStudentNames: boolean}) {
+export default function Writer() {
   const [view, setView] = useState<GalleryView>('browsing');
   const { t } = useLocalization();
   const { currentUser } = useContext(AuthUserContext);
@@ -95,8 +95,6 @@ export default function Writer({showStudentNames}: {showStudentNames: boolean}) 
                 images={images}
                 currentIndex={galleryCurrentIndex}
                 onScroll={handleGalleryScroll}
-                setPublishedAt_start={setPublishedAtStart}
-                setPublishedAt_end={setPublishedAtEnd}
               />
             ) : (
               <p className="text-xl text-gray-400">{t('galleryView.noImageToDisplay')}</p>
@@ -157,7 +155,6 @@ export default function Writer({showStudentNames}: {showStudentNames: boolean}) 
                 <GenerationEvaluationProvider>
                   <WsProvider>
                     <WritingPage
-                      view={view}
                       setView={handleViewChange}
                       leaderboard={leaderboards[(galleryCurrentIndex + 1) % leaderboards.length] || null}
                       imageUrl={currentImageUrl}

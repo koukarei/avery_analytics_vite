@@ -1,4 +1,4 @@
-import { GenerationItem, GenerationItemParams} from "../types/leaderboard";
+import type { GenerationItem, GenerationItemParams} from "../types/leaderboard";
 import type { ChatMessage, GenerationDetail } from "../types/studentWork";
 import { authAxios } from "./axios";
 

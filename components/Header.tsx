@@ -6,7 +6,6 @@ import IconComponent from './icons/AVERYIcon';
 import LoginIcon from './icons/LoginIcon';
 import LogoutIcon from './icons/LogoutIcon';
 import { AuthUserContext } from '../providers/AuthUserProvider';
-import type { User } from '../types/user';
 import IconButton from '@mui/material/IconButton';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
@@ -17,10 +16,9 @@ import { SUPPORTED_LANGUAGES } from '../constants';
 import type { Language } from '../types/ui';
 import { Button } from '@mui/material';
 import { css } from "@emotion/react";
-import type { Theme } from "@mui/material/styles";
 import {theme} from "../src/Theme";
 
-function showUserProfile() {
+const ShowUserProfile: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const { currentUser, loading } = useContext(AuthUserContext);
 
@@ -103,7 +101,7 @@ const Header: React.FC = () => {
               {SUPPORTED_LANGUAGES[langCode as Language].name}
             </button>
           ))}
-          {showUserProfile()}
+          <ShowUserProfile />
         </div>
       </div>
     </header>

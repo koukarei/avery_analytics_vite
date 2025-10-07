@@ -11,7 +11,7 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 
-import type { Leaderboard, Scene } from '../../types/leaderboard';
+import type { Leaderboard } from '../../types/leaderboard';
 import type { GalleryView, GalleryDetailView } from '../../types/ui';
 import { GALLERY_DETAIL_VIEWS } from '../../types/ui';
 import { LeaderboardDetail } from './GalleryDetail';
@@ -71,7 +71,7 @@ interface GalleryTabProps {
   setView: (view: GalleryView) => void;
   images: Record<number, string>; // Mapping of leaderboard ID to image URL
   leaderboard: Leaderboard | null;
-  showStudentNames?: boolean;
+  showStudentNames: boolean;
 }
 
 export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leaderboard, showStudentNames }) => {
@@ -83,7 +83,7 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
   const { t } = useLocalization();
   const { currentUser } = useContext(AuthUserContext);
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setDetailView(GALLERY_DETAIL_VIEWS[newValue]);
     setValue(newValue);
   };
@@ -155,7 +155,7 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
                     <GenerationDetailProvider>
                       <GenerationImageProvider>
                         <GenerationEvaluationProvider>
-                          <StudentWorkTable leaderboard_id={leaderboard.id} program_name={program_name} showStudentNames={showStudentNames} />
+                          <StudentWorkTable leaderboard_id={leaderboard.id} program_name={program_name} showStudentNames={showStudentNames } />
                         </GenerationEvaluationProvider>
                       </GenerationImageProvider>
                     </GenerationDetailProvider>

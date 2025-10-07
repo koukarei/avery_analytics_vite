@@ -1,4 +1,4 @@
-import { ChatRecord, ChatMessage, ChatStats } from "../types/studentWork";
+import type { ChatRecord, ChatStats } from "../types/studentWork";
 import { authAxios } from "./axios";
 
 export class ChatAPI {

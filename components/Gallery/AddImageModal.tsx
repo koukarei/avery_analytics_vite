@@ -376,7 +376,7 @@ export const AddImageModal: React.FC<AddImageModalProps> = ({ isOpen, onClose, s
       >
         <h2 id="add-image-modal-title" css={formTitleStyle(theme)}>Add a New Writing Task</h2>
         <Stepper activeStep={activeStep}>
-          {steps.map((label, index) => {
+          {steps.map((label) => {
             const stepProps: { completed?: boolean } = {};
             const labelProps: {
               optional?: React.ReactNode;

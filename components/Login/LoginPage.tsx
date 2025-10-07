@@ -1,20 +1,29 @@
 /** @jsxImportSource @emotion/react */
-import React from "react";
 import { css, keyframes } from "@emotion/react";
 import MenuItem from "@mui/material/MenuItem";
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Controller, useForm } from "react-hook-form";
-import { Box, FormHelperText, IconButton, InputAdornment, TextField } from "@mui/material";
+import { Controller, useForm, type UseFormSetValue, type FieldValues, type Path } from "react-hook-form";
+import { Box, IconButton, InputAdornment, TextField } from "@mui/material";
 import HighlightOffIcon from '../icons/HighlightOffIcon';
 import type { SigninData, SignupData } from "../../types/auth";
 import { UserAuthAPI } from "../../api/UserAuth";
 
-function ClearAdornment({ name, setValue }: { name: string; setValue: any }) {
+function ClearAdornment<T extends FieldValues>({ 
+  name, 
+  setValue 
+}: { 
+  name: Path<T>; 
+  setValue: UseFormSetValue<T> 
+}) {
   return (
     <InputAdornment position="end">
-      <IconButton onClick={() => setValue(name, "")} edge="end" tabIndex={-1}>
+      <IconButton 
+        onClick={() => setValue(name, "" as any)} 
+        edge="end" 
+        tabIndex={-1}
+      >
         <HighlightOffIcon />
       </IconButton>
     </InputAdornment>
@@ -30,7 +39,7 @@ const rules = {
     },
     pattern: {
       value:
-        /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
+        /^[a-zA-Z0-9.!#$%&'*+=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
       message: "メールアドレスの形式が不正です",
     },
   },
@@ -239,26 +248,57 @@ function Signup() {
   } = useForm<SignupData>({});
   const navigate = useNavigate();
 
+  // Define a type for the error
+  type ApiError = {
+    response: {
+      status: number;
+      data: {
+        detail: string;
+      };
+    };
+  };
+
+  // Create a type guard
+  function isApiError(error: unknown): error is ApiError {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'response' in error &&
+      typeof (error as any).response === 'object'
+    );
+  }
+
   const onSubmit = async (data: SignupData) => {
     try {
       await UserAuthAPI.signup(data);
       navigate("/login?signin");
     } catch (e) {
       console.log(e);
-      if (e.response && e.response.status === 400) {
-        const detail = e.response.data?.detail;
-        if (detail === "Email already registered") {
-          setError("email", { type: "manual", message: "このメールアドレスは既に登録されています" });
-        } else if (detail === "Username already registered") {
-          setError("username", { type: "manual", message: "このユーザー名は既に使用されています" });
+      
+      if (isApiError(e) && e.response.status === 400) {
+        if (e.response.data.detail === "Email already registered") {
+          setError("email", { 
+            type: "manual", 
+            message: "このメールアドレスは既に登録されています" 
+          });
+        } else if (e.response.data.detail === "Username already registered") {
+          setError("username", { 
+            type: "manual", 
+            message: "このユーザー名は既に使用されています" 
+          });
         } else {
           setError("root", {
             type: "manual",
             message: "新規登録に失敗しました"
           });
         }
+      } else {
+        setError("root", {
+          type: "manual",
+          message: "新規登録に失敗しました"
+        });
       }
-    };
+    }
   };
 
   return (

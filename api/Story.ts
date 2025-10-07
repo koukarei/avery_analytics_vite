@@ -1,4 +1,4 @@
-import { Story, BaseListParams } from "../types/leaderboard";
+import type { Story, BaseListParams } from "../types/leaderboard";
 import { authAxios } from "./axios";
 
 export class StoryAPI {

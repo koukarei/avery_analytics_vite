@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useState } from "react";
 import { wsAPI } from "../api/WritingWS";
-import { wsTokenResponse } from "../types/websocketAPI";
+import type { wsTokenResponse } from "../types/websocketAPI";
 
 type WsContextType = {
   wsToken: string | null;
