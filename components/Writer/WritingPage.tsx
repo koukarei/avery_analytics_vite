@@ -7,6 +7,7 @@ import type { websocketRequest, websocketResponse } from "../../types/websocketA
 import { LoadingSpinner } from "../Common/LoadingSpinner";
 import { ErrorDisplay } from "../Common/ErrorDisplay";
 import Alert from '@mui/material/Alert';
+import { LeaderboardPlayableContext } from "../../providers/LeaderboardProvider";
 
 import { WsContext } from "../../providers/WsProvider";
 
@@ -23,6 +24,7 @@ interface WritingPageProps {
 
 export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, imageUrl }) => {
     const [writingText, setWritingText] = useState("");
+    const [isPlayable, setPlayable] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [errorKey, setErrorKey] = useState<string | null>(null);
     
@@ -40,7 +42,8 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
 
     const [userAction, setUserAction] = useState<'start' | 'resume' | 'hint' | 'submit' | 'evaluate' | 'end'>('start');
 
-    const {fetchWsToken} = useContext(WsContext);
+    const { fetchWsToken } = useContext(WsContext);
+    const { fetchLeaderboard } = useContext(LeaderboardPlayableContext);
     const { t } = useLocalization();
     
 
@@ -79,6 +82,22 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
         setIsLoading(true);
         try {
             if (leaderboard) {
+                const getPlayableData = async () => {
+                    const playableData = await fetchLeaderboard(
+                        leaderboard.id, sessionStorage.getItem('program') || 'none'
+                    )
+                    if (playableData) {
+                        setPlayable(playableData.is_playable);
+                    }
+                }
+                getPlayableData();
+            }
+        } catch (e) {
+            setErrorKey("error.FetchingLeaderboardPlayable");
+            console.log(e);
+        }
+        try {
+            if (leaderboard && isPlayable) {
                 // #fetch WebSocket token and connect to WebSocket server
                 fetchWsToken().then((wsTokenResponse ) => {
                             if (wsTokenResponse) {
@@ -208,7 +227,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
         } finally {
             setIsLoading(false);
         }
-    }, [leaderboardImage, userAction]);
+    }, [isPlayable, leaderboardImage, userAction]);
 
     if (isLoading) {
         return <LoadingSpinner />;

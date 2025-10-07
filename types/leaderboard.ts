@@ -92,6 +92,11 @@ export interface School {
   school: string;
 }
 
+export interface LeaderboardPlayable {
+  id: number;
+  is_playable: boolean;
+}
+
 export interface LeaderboardAnalysis {
   id: number;
   title: string;

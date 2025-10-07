@@ -8,7 +8,8 @@ import type {
   WordCloudParams, 
   LeaderboardUpdate, 
   LeaderboardCreateAPI,
-  LeaderboardSchoolUpdate
+  LeaderboardSchoolUpdate,
+  LeaderboardPlayable
 } from "../types/leaderboard";
 import type { WritingMistake, ChatWordCloudItem, Round } from "../types/studentWork"
 import { authAxios } from "./axios";
@@ -66,6 +67,16 @@ export class LeaderboardAPI {
     
     const blob = new Blob([response.data], { type: response.headers['content-type'] });
     return URL.createObjectURL(blob);
+  }
+
+  static async fetchLeaderboardPlayable(leaderboard_id: number, program: string): Promise<LeaderboardPlayable> {
+
+    const response = await authAxios.get(`leaderboards/${leaderboard_id}/playable?program=${program}/`, {
+      headers: sessionStorage.getItem("access_token")
+        ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
+        : {},
+    });
+    return response.data;
   }
 
   static async fetchLeaderboardAnalysis(leaderboard_id: number, program_name: string, params: LeaderboardAnalysisParams): Promise<LeaderboardAnalysis> {

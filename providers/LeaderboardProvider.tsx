@@ -1,13 +1,7 @@
 import React, { createContext, useCallback, useState } from "react";
-import type { Leaderboard, School, LeaderboardAnalysis, LeaderboardItem, LeaderboardListParams, LeaderboardAnalysisParams, WordCloudParams } from '../types/leaderboard';
+import type { Leaderboard, School, LeaderboardPlayable, LeaderboardAnalysis, LeaderboardItem, LeaderboardListParams, LeaderboardAnalysisParams, WordCloudParams } from '../types/leaderboard';
 import type { WritingMistake, ChatWordCloudItem, Round } from "../types/studentWork"
 import { LeaderboardAPI } from "../api/Leaderboard";
-
-type LeaderboardListContextType = {
-  leaderboards: Leaderboard[];
-  loading: boolean;
-  fetchLeaderboards: (params: LeaderboardListParams, is_admin: boolean) => Promise<Leaderboard[]>;
-};
 
 type LeaderboardItemContextType = {
   leaderboard: LeaderboardItem | null;
@@ -45,6 +39,12 @@ const LeaderboardItemProvider = ({
       {children}
     </LeaderboardItemContext.Provider>
   );
+};
+
+type LeaderboardListContextType = {
+  leaderboards: Leaderboard[];
+  loading: boolean;
+  fetchLeaderboards: (params: LeaderboardListParams, is_admin: boolean) => Promise<Leaderboard[]>;
 };
 
 const LeaderboardListContext = createContext({} as LeaderboardListContextType);
@@ -85,6 +85,45 @@ const LeaderboardListProvider = ({
     <LeaderboardListContext.Provider value={{ leaderboards, loading, fetchLeaderboards }}>
       {children}
     </LeaderboardListContext.Provider>
+  );
+};
+
+
+type LeaderboardPlayableContextType = {
+  leaderboard: LeaderboardPlayable | null;
+  loading: boolean;
+  fetchLeaderboard: (leaderboard_id: number, program: string) => Promise<LeaderboardPlayable | null>;
+};
+
+const LeaderboardPlayableContext = createContext({} as LeaderboardPlayableContextType);
+
+const LeaderboardPlayableProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const [leaderboard, setLeaderboard] = useState<LeaderboardPlayable | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const fetchLeaderboard = useCallback(async (leaderboard_id: number, program: string) => {
+    setLoading(true);
+    let leaderboardData: LeaderboardPlayable | null = null;
+    try {
+      leaderboardData = await LeaderboardAPI.fetchLeaderboardPlayable(leaderboard_id, program);
+      setLeaderboard(leaderboardData);
+    } catch (e) {
+      console.log(e);
+    }finally {
+      setLoading(false);
+    }
+
+    return leaderboardData;
+  }, []);
+
+  return (
+    <LeaderboardPlayableContext.Provider value={{ leaderboard, loading, fetchLeaderboard }}>
+      {children}
+    </LeaderboardPlayableContext.Provider>
   );
 };
 
@@ -330,6 +369,8 @@ const LeaderboardRoundProvider = ({
 export { 
     LeaderboardListContext, 
     LeaderboardListProvider, 
+    LeaderboardPlayableContext,
+    LeaderboardPlayableProvider,
     LeaderboardItemContext,
     LeaderboardItemProvider,
     LeaderboardAnalysisContext, 
