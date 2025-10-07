@@ -1,6 +1,6 @@
 {
-  "name": "Student Success Hub",
-  "description": "A gallery app for teachers to view student writings, chatbot records, related images, common writing mistakes, and analytics charts. Designed for clarity and ease of use.",
+  "name": "Avery Analytics",
+  "description": "Picture-cued writing task for language learners with generated images and analytics.",
   "requestFramePermissions": [],
   "prompt": ""
 }
