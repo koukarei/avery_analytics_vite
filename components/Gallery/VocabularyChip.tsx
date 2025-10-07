@@ -10,12 +10,12 @@ interface Props {
   onDelete: () => void;
 }
 
-const VocabularyChip: React.FC<Props> = ({ label, handleDelete }) => {
+const VocabularyChip: React.FC<Props> = ({ label, onDelete }) => {
   return (
     <div css={chipStyle}>
       {label}
 
-      <Chip color="primary" onDelete={handleDelete} />
+      <Chip color="primary" onDelete={onDelete} />
     </div>
   );
 };
