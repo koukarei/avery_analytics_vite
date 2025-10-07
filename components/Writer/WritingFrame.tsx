@@ -53,9 +53,13 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ imageUrl, writingTex
         }
     };
 
+    const onSubmit = (data: { writing: string }) => {
+        setWritingText(data.writing);
+        submitWritingFn();
+    };
 
     return (
-        <form onSubmit={handleSubmit(submitWritingFn)}>
+        <form onSubmit={handleSubmit(onSubmit)}>
             <Card css={WritingFrameStyle(theme)} variant="outlined">
                 {imageUrl && (
                     <ImageListItem style={{ minWidth: '200px', maxWidth: '60%', padding: 5, marginBottom: '8px' }}>
@@ -63,20 +67,25 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ imageUrl, writingTex
                     </ImageListItem>
                 )}
                 <div css={typingAreaStyle(theme)}>
-                    <TextField
-                        name="writing"
-                        css={typingFieldStyle(theme)}
-                        value={writingText}
-                        onChange={(e) => setWritingText(e.target.value)}
-                        multiline
-                        fullWidth
-                        minRows={10}
-                        variant="outlined"
-                        error={errors('writing', writingText) ? true : false}
-                        helperText={(errors('writing', writingText)?.message as string) || ""}
-                        placeholder={t("writerView.writingFrame.placeholder")}
+                <Controller
+                    name="writing"
+                    control={control}
+                    rules={rules.writing}
+                    render={({ field }) => (
+                        <TextField
+                            {...field}
+                            css={typingFieldStyle(theme)}
+                            multiline
+                            fullWidth
+                            minRows={10}
+                            variant="outlined"
+                            error={errors[field.name] ? true : false}
+                            helperText={(errors[field.name]?.message as string) || " "}
+                            placeholder={t("writerView.writingFrame.placeholder")}
+                        />
+                    )}
                     />
-                    <Button css={SubmitWritingButton(theme)} onClick={submitWritingFn} variant="contained">Submit Writing</Button>
+                    <Button css={SubmitWritingButton(theme)} type="submit" variant="contained">Submit Writing</Button>
                 </div>
             </Card>
         </form>

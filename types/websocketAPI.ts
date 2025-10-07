@@ -43,6 +43,9 @@ export type ResponseRound = {
 export type MessageReceived = {
     id: number;
     sender: 'user' | 'assistant';
+    content: string;
+    created_at: Date;
+    is_hint?: boolean;
 }
 
 export type Chat = {
