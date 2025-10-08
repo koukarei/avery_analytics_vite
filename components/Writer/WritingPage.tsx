@@ -158,29 +158,25 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
 
                 wsClientRef.current.send_user_action(obj ? obj : undefined);
 
-                wsClientRef.current.receive_response()
-                            
+                wsClientRef.current.receive_response().then((data)=>{
+                console.log("response received in writing page: ", data);
                 switch (userAction) {
                     case 'start':{
-                        if (wsClientRef.current.writingData) {
-                            const data = wsClientRef.current.writingData;
+                        if (data) {
                             const pastGenerationIds = data.past_generation_ids && data.writing_generation_id ? data.past_generation_ids.filter(gid => gid !== writingGenerationId) : [];
                             _setGenerationIds([...pastGenerationIds])
                             _setRoundId(data.round_id ? data.round_id : 0);
                             _setWritingGenerationId(data.writing_generation_id ? data.writing_generation_id : null)
                             _setGenerationTime(data.generation_time ? data.generation_time : 0)
-                            
                             const blob = base64ToBlob(data.leaderboard_image);
                             const blobUrl = URL.createObjectURL(blob);
                             setLeaderboardImage(blobUrl);
 
-                            setUserAction('none');
                         }
                         break;
                     }
                     case 'resume':{
-                        if (wsClientRef.current.writingData) {
-                            const data = wsClientRef.current.writingData;
+                        if (data) {
                             const pastGenerationIds = data.past_generation_ids && data.writing_generation_id ? data.past_generation_ids.filter(gid => gid !== writingGenerationId) : [];
                             _setGenerationIds([...pastGenerationIds])
                             _setRoundId(data.round_id ? data.round_id : 0);
@@ -191,13 +187,12 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                             const blobUrl = URL.createObjectURL(blob);
                             setLeaderboardImage(blobUrl);
 
-                            setUserAction('none');
                         }
                         break;
                     }
                     case 'submit': {
-                        if (wsClientRef.current.writingData) {
-                            const messages = wsClientRef.current.writingData.chat_messages;
+                        if (data) {
+                            const messages = data.chat_messages;
                             if (messages.length > 0 ? messages[messages.length - 1].content.startsWith("ブー！") : false){
                                 // remind user to type in English or language of choice
                                 setWarningMsg(messages.length > 0 ? messages[messages.length - 1].content : "");
@@ -213,7 +208,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                         break;
                     }
                     case 'evaluate': {
-                        if (wsClientRef.current.writingData.generation_time === 5) {
+                        if (data.generation_time === 5) {
                             setUserAction('end');
                             _setGenerationIds(prev => writingGenerationId ? [writingGenerationId, ...prev] : prev);
                         }
@@ -221,22 +216,26 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                     }
                     default:
                         break;
+                }})
+                .catch(e => {
+                    console.error('Error receiving response:', e);
+                    setErrorKey("error.ReceivingGenerationDetail");
+                });
+
                 }
-                setUserAction('none');
-            }
+            
 
             return () => {
                 if (wsClientRef.current === null) return;
-                wsClientRef.current.close();
             }
-
+        
         } catch (e) {
             setErrorKey("error.FetchingGenerationDetail");
             console.log(e);
         } finally {
             setIsLoading(false);
         }
-    }, [isPlayable, leaderboardImage, userAction]);
+    }, [isPlayable, userAction]);
 
     if (isLoading) {
         return <LoadingSpinner />;

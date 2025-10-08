@@ -3,11 +3,6 @@ import type { RoundStart, MessageSend, GenerationStart, websocketRequest, websoc
 import type { MessageReceived } from "../../types/websocketAPI";
 import { wsAPI } from "../../api/WritingWS";
 
-type socketClsConfig = {
-    wsLink: string;
-    client: WebSocketClient | null;
-}
-
 type writingClsData = {
     leaderboard_id: number;
     leaderboard_image: string;
@@ -22,8 +17,10 @@ type writingClsData = {
 }
 
 export class socketCls {
-    private socketConfig!: socketClsConfig;
+    private client: WebSocketClient | null = null;
+    private wsLink: string | null = null;
     private messageHandler?: (data: unknown) => void;
+    private sendQueue: websocketRequest[] = [];
 
     currentAction: 'none' | 'start' | 'resume' | 'hint' | 'submit' | 'evaluate' | 'end' = 'none';
 
@@ -43,39 +40,73 @@ export class socketCls {
     constructor(
         leaderboard_id: number,
     ){
-        let wsTokenCache: wsTokenResponse | null = null;
         wsAPI.fetchWsToken().then( token  => {
-            wsTokenCache = token;
-            if (wsTokenCache?.ws_token) {
-                const wsToken = wsTokenCache.ws_token;
+            if (token?.ws_token) {
+                const wsToken = token.ws_token;
                 const wsLink = (import.meta as unknown as { env: { VITE_WS_URL: string } }).env.VITE_WS_URL + `/${leaderboard_id}?token=${wsToken}`;
+                this.wsLink = wsLink;
                 const client = new WebSocketClient({urls: [wsLink]});
+                this.client = client;
                 client.open();
+                client.subscribe(wsLink, (data: unknown) => {
+                    if (this.messageHandler) this.messageHandler(data);
+                });
+                
+                this.flushQueue();
+                
                 window.addEventListener('beforeunload', this.handleBeforeUnload);
-                this.socketConfig = { wsLink, client };
+                
             }
-        })
+        }).catch( err => {
+            console.error('Failed to fetch ws token:', err);
+        });
     }
 
-    private send = (message: websocketRequest) => {
-        if (this.socketConfig.client) {
-            this.socketConfig.client.send(this.socketConfig.wsLink, message)
+    private flushQueue() {
+        if (!this.client || !this.wsLink) return;
+        while (this.sendQueue.length > 0) {
+            const msg = this.sendQueue.shift();
+            if (msg) {
+                try {
+                    this.client.send(this.wsLink, msg);
+                } catch (err) {
+                    console.error('Error sending queued message, re-queueing:', err);
+                    this.sendQueue.unshift(msg); // put it back and stop to avoid tight loop
+                    break;
+                }
+            }
         }
     }
 
+    private send = (message: websocketRequest) => {
+        if (this.client && this.wsLink) {
+            try {
+                this.client.send(this.wsLink, message);
+                return;
+            } catch (err) {
+                console.error('WebSocketClient.send failed, queuing message:', err);
+                this.sendQueue.push(message);
+                return;
+            }
+        }
+        // client not ready yet — queue for later
+        this.sendQueue.push(message);
+    }
+
     private receive = (callback: (data: websocketResponse) => void) => {
-        if (this.socketConfig.client) {
-            this.messageHandler = (data: unknown) => {
-                const parsed = data as websocketResponse;
-                callback(parsed);
-            };
-            this.socketConfig.client.subscribe(this.socketConfig.wsLink, this.messageHandler)
+        // store handler and subscribe if client is available
+        this.messageHandler = (data: unknown) => {
+            const parsed = data as websocketResponse;
+            callback(parsed);
+        };
+        if (this.client && this.wsLink && this.messageHandler) {
+            this.client.subscribe(this.wsLink, this.messageHandler);
         }
     }
 
     private handleBeforeUnload = () => {
-        if (this.socketConfig.client) {
-            this.socketConfig.client.close()
+        if (this.client && this.wsLink) {
+            this.client.close();
         }
     }
 
@@ -143,65 +174,75 @@ export class socketCls {
             this.send(message)
         }
     }
-    receive_response = () => {
-        if (this.socketConfig.client) {
+    receive_response(): Promise<writingClsData> {
+        return new Promise((resolve, reject) => {
             this.receive((data: websocketResponse) => {
-                // handle the received data
-                console.log('current action', this.currentAction,'Received data:', data);
+                try {
+                    // handle the received data
+                    console.log('current action', this.currentAction,'Received data:', data);
 
-                switch (this.currentAction) {
-                    case 'start':
-                        if (data.round && data.leaderboard && data.generation && data.chat) {
-                            this.writingData.round_id = data.round.id;
-                            this.writingData.leaderboard_id = data.leaderboard.id;
-                            this.writingData.past_generation_ids = data.round.generations ? data.round.generations : [];
-                            this.writingData.writing_generation_id = data.generation.id;
-                            this.writingData.generation_time = data.generation.generated_time ? data.generation.generated_time : 0;
-                            this.writingData.chat_messages = data.chat.messages ? data.chat.messages : [];
-                        }
-                        break;
-                    case 'resume':
-                        if (data.round && data.leaderboard && data.generation && data.chat) {
-                            this.writingData.round_id = data.round.id;
-                            this.writingData.leaderboard_id = data.leaderboard.id;
-                            this.writingData.past_generation_ids = data.round.generations ? data.round.generations : [];
-                            this.writingData.writing_generation_id = data.generation.id;
-                            this.writingData.generation_time = data.generation.generated_time ? data.generation.generated_time : 0;
-                            this.writingData.chat_messages = data.chat.messages ? data.chat.messages : [];
-                        }
-                        break;
-                    case 'hint':
-                        if (data.chat && data.chat.messages) {
-                            this.writingData.chat_messages = data.chat.messages;
-                        }
-                        break;
-                    case 'submit':
-                        if (data.generation && data.chat && data.chat.messages) {
-                            this.writingData.chat_messages = data.chat.messages;
-                            this.writingData.correct_sentence = data.generation.correct_sentence ? data.generation.correct_sentence : '';
-                        }
-                        break;
-                    case 'evaluate':
-                        if (data.round && data.round.generated_time && data.generation) {
-                            this.writingData.generation_time = data.round.generated_time;
-                            this.writingData.evaluation_msg = data.generation.evaluation_msg ? data.generation.evaluation_msg : '';
-                            this.writingData.interpreted_image = data.generation.interpreted_image ? data.generation.interpreted_image : '';
-                        }
-                        break;
-                    case 'end':
-                        // no specific data to handle for 'end' action as of now
-                        break;
-                    default:
-                        break;
+                    switch (this.currentAction) {
+                        case 'start':
+                            if (data.round && data.leaderboard && data.generation && data.chat) {
+                                this.writingData.round_id = data.round.id;
+                                this.writingData.leaderboard_id = data.leaderboard.id;
+                                this.writingData.leaderboard_image = data.leaderboard.image;
+                                this.writingData.past_generation_ids = data.round.generations ? data.round.generations : [];
+                                this.writingData.writing_generation_id = data.generation.id;
+                                this.writingData.generation_time = data.generation.generated_time ? data.generation.generated_time : 0;
+                                this.writingData.chat_messages = data.chat.messages ? data.chat.messages : [];
+                            }
+                            break;
+                        case 'resume':
+                            if (data.round && data.leaderboard && data.generation && data.chat) {
+                                this.writingData.round_id = data.round.id;
+                                this.writingData.leaderboard_id = data.leaderboard.id;
+                                this.writingData.leaderboard_image = data.leaderboard.image;
+                                this.writingData.past_generation_ids = data.round.generations ? data.round.generations : [];
+                                this.writingData.writing_generation_id = data.generation.id;
+                                this.writingData.generation_time = data.generation.generated_time ? data.generation.generated_time : 0;
+                                this.writingData.chat_messages = data.chat.messages ? data.chat.messages : [];
+                            }
+                            break;
+                        case 'hint':
+                            if (data.chat && data.chat.messages) {
+                                this.writingData.chat_messages = data.chat.messages;
+                            }
+                            break;
+                        case 'submit':
+                            if (data.generation && data.chat && data.chat.messages) {
+                                this.writingData.chat_messages = data.chat.messages;
+                                this.writingData.correct_sentence = data.generation.correct_sentence ? data.generation.correct_sentence : '';
+                            }
+                            break;
+                        case 'evaluate':
+                            if (data.round && data.round.generated_time && data.generation) {
+                                this.writingData.generation_time = data.round.generated_time;
+                                this.writingData.evaluation_msg = data.generation.evaluation_msg ? data.generation.evaluation_msg : '';
+                                this.writingData.interpreted_image = data.generation.interpreted_image ? data.generation.interpreted_image : '';
+                            }
+                            break;
+                        case 'end':
+                            // no specific data to handle for 'end' action as of now
+                            break;
+                        default:
+                            break;
+                    }
+
+                    // resolve with the updated writingData so callers can await it
+                    resolve(this.writingData);
+                } catch (err) {
+                    reject(err);
                 }
-            })
-        }
+            });
+        });
     }
+
     close = () => {
-        if (this.socketConfig.client && this.messageHandler) {
-            this.socketConfig.client.unsubscribe(this.socketConfig.wsLink, this.messageHandler);
+        if (this.client && this.wsLink && this.messageHandler) {
+            this.client.unsubscribe(this.wsLink, this.messageHandler);
             window.removeEventListener('beforeunload', this.handleBeforeUnload);
-            this.socketConfig.client.close()
+            this.client.close()
         }
     }
     
