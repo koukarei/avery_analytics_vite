@@ -179,7 +179,6 @@ export class socketCls {
             this.receive((data: websocketResponse) => {
                 try {
                     // handle the received data
-                    console.log('current action', this.currentAction,'Received data:', data);
 
                     switch (this.currentAction) {
                         case 'start':

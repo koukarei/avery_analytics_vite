@@ -17,9 +17,10 @@ interface WritingFrameProps {
     writingText: string;
     setWritingText: (text: string) => void;
     submitWritingFn: () => void;
+    isPlayable: boolean;
 }
 
-export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writingText, setWritingText, submitWritingFn }) => {
+export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writingText, setWritingText, submitWritingFn, isPlayable }) => {
     const { t } = useLocalization();
 
     const {
@@ -92,7 +93,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                             />
                         )}
                         />
-                        <Button css={SubmitWritingButton(theme)} type="submit" variant="contained">Submit Writing</Button>
+                        <Button css={SubmitWritingButton(theme)} disabled={!isPlayable} type="submit" variant="contained">Submit Writing</Button>
                     </CardContent>
                 </Card>
             </form>

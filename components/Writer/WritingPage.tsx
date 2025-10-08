@@ -59,15 +59,12 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
     }
 
     const handleSubmitWriting = () => {
-        if (writingText.trim() === '') {
-            setWarningMsg(t('writing.warning.empty'));
-            setShowWarning(true);
-            return;
-        }
-
         if ( generationTime > 5 || isPlayable === false ) {
             setWarningMsg(t('writing.warning.time_exceeded'));
             setShowWarning(true);
+            setTimeout(() => {
+                setShowWarning(false);
+            }, 2000);
             return;
         }
         setIsLoading(true);
@@ -153,7 +150,6 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                 wsClientRef.current.send_user_action(obj ? obj : undefined);
 
                 wsClientRef.current.receive_response().then((data)=>{
-                console.log("response received in writing page: ", data);
                 switch (userAction) {
                     case 'start':{
                         if (data) {
@@ -191,6 +187,9 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                                 // remind user to type in English or language of choice
                                 setWarningMsg(messages.length > 0 ? messages[messages.length - 1].content : "");
                                 setShowWarning(true);
+                                setTimeout(() => {
+                                    setShowWarning(false);
+                                }, 2000);
                                 break;
                             } else {
                                 _setGenerationIds(prev => writingGenerationId ? [writingGenerationId, ...prev] : prev);
@@ -205,12 +204,15 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                     case 'evaluate': {
                         if (data.generation_time === 5) {
                             setUserAction('end');
+                            setPlayable(false);
                         }
                         break;
                     }
                     default:
                         break;
-                }})
+                }
+                setUserAction('none');
+            })
                 .catch(e => {
                     console.error('Error receiving response:', e);
                     setErrorKey("error.ReceivingGenerationDetail");
@@ -238,7 +240,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
     if (errorKey) {
         return <ErrorDisplay messageKey={errorKey} />;
     }
-    
+
     return (
         <div>
             <div className="bg-neutral-900 flex-col md:flex-row items-center">
@@ -264,6 +266,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                     writingText={writingText}
                     setWritingText={setWritingText}
                     submitWritingFn={handleSubmitWriting}
+                    isPlayable={isPlayable}
                 />
                 </div>
             </div>
