@@ -1,0 +1,210 @@
+import { WebSocketClient } from "../../util/websocketClient";
+import type { RoundStart, MessageSend, GenerationStart, websocketRequest, websocketResponse, wsTokenResponse } from "../../types/websocketAPI";
+import type { MessageReceived } from "../../types/websocketAPI";
+import { wsAPI } from "../../api/WritingWS";
+
+type socketClsConfig = {
+    wsLink: string;
+    client: WebSocketClient | null;
+}
+
+type writingClsData = {
+    leaderboard_id: number;
+    leaderboard_image: string;
+    round_id: number | null;
+    past_generation_ids: number[];
+    writing_generation_id: number | null;
+    generation_time: number;
+    chat_messages: MessageReceived[];
+    correct_sentence: string;
+    evaluation_msg: string;
+    interpreted_image: string;
+}
+
+export class socketCls {
+    private socketConfig!: socketClsConfig;
+
+    currentAction: 'none' | 'start' | 'resume' | 'hint' | 'submit' | 'evaluate' | 'end' = 'none';
+
+    writingData: writingClsData = {
+        leaderboard_id: 0,
+        leaderboard_image: '',
+        round_id: null,
+        past_generation_ids: [],
+        writing_generation_id: null,
+        generation_time: 0,
+        chat_messages: [],
+        correct_sentence: '',
+        evaluation_msg: '',
+        interpreted_image: '',
+    }
+
+    constructor(
+        leaderboard_id: number,
+    ){
+        let wsTokenCache: wsTokenResponse | null = null;
+        wsAPI.fetchWsToken().then( token  => {
+            wsTokenCache = token;
+            if (wsTokenCache?.ws_token) {
+                const wsToken = wsTokenCache.ws_token;
+                const wsLink = (import.meta as unknown as { env: { VITE_WS_URL: string } }).env.VITE_WS_URL + `/${leaderboard_id}?token=${wsToken}`;
+                const client = new WebSocketClient({urls: [wsLink]});
+                client.open();
+                window.addEventListener('beforeunload', this.handleBeforeUnload);
+                this.socketConfig = { wsLink, client };
+            }
+        })
+    }
+
+    private send = (message: websocketRequest) => {
+        if (this.socketConfig.client) {
+            this.socketConfig.client.send(this.socketConfig.wsLink, message)
+        }
+    }
+
+    private onMessage = (data: unknown) => {
+        return data as websocketResponse
+    }
+
+    private receive = (callback: (data: websocketResponse) => void) => {
+        if (this.socketConfig.client) {
+            this.socketConfig.client.subscribe(this.socketConfig.wsLink, (data: unknown) => {
+                const parsed = data as websocketResponse
+                callback(parsed)
+            })
+        }
+    }
+
+    private handleBeforeUnload = () => {
+        if (this.socketConfig.client) {
+            this.socketConfig.client.close()
+        }
+    }
+
+    send_user_action = (
+        object?: RoundStart| MessageSend | GenerationStart
+    ) => {
+        let message: websocketRequest | null = null
+        switch (this.currentAction) {
+            case 'start':
+                this.writingData.leaderboard_id = object && 'leaderboard_id' in object ? object.leaderboard_id : 0;
+                if (this.writingData.leaderboard_id === 0) {
+                    console.error('leaderboard_id is required to start a round.');
+                    return;
+                }
+                message = {
+                    action: 'start',
+                    program: sessionStorage.getItem('program') || 'none',
+                    obj: object as RoundStart
+                }
+                break
+
+            case 'resume':
+                this.writingData.leaderboard_id = object && 'leaderboard_id' in object ? object.leaderboard_id : 0;
+                if (this.writingData.leaderboard_id === 0) {
+                    console.error('leaderboard_id is required to start a round.');
+                    return;
+                }
+                message = {
+                    action: 'resume',
+                    program: sessionStorage.getItem('program') || 'none',
+                    obj: object as RoundStart
+                }
+                break
+                
+            case 'hint':
+                message = {
+                    action: 'hint',
+                    program: sessionStorage.getItem('program') || 'none',
+                    obj: object as MessageSend
+                }
+                break
+            case 'submit':
+                message = {
+                    action: 'submit',
+                    program: sessionStorage.getItem('program') || 'none',
+                    obj: object as GenerationStart
+                }
+                break
+            case 'evaluate':
+                message = {
+                    action: 'evaluate'
+                }
+                break
+            case 'end':
+                message = {
+                    action: 'end'
+                }
+                break
+            default:
+                message = null
+                break
+        }
+
+        if (message) {
+            this.send(message)
+        }
+    }
+    receive_response = () => {
+        if (this.socketConfig.client) {
+            this.receive((data: websocketResponse) => {
+                // handle the received data
+                console.log('current action', this.currentAction,'Received data:', data);
+
+                switch (this.currentAction) {
+                    case 'start':
+                        if (data.round && data.leaderboard && data.generation && data.chat) {
+                            this.writingData.round_id = data.round.id;
+                            this.writingData.leaderboard_id = data.leaderboard.id;
+                            this.writingData.past_generation_ids = data.round.generations ? data.round.generations : [];
+                            this.writingData.writing_generation_id = data.generation.id;
+                            this.writingData.generation_time = data.generation.generated_time ? data.generation.generated_time : 0;
+                            this.writingData.chat_messages = data.chat.messages ? data.chat.messages : [];
+                        }
+                        break;
+                    case 'resume':
+                        if (data.round && data.leaderboard && data.generation && data.chat) {
+                            this.writingData.round_id = data.round.id;
+                            this.writingData.leaderboard_id = data.leaderboard.id;
+                            this.writingData.past_generation_ids = data.round.generations ? data.round.generations : [];
+                            this.writingData.writing_generation_id = data.generation.id;
+                            this.writingData.generation_time = data.generation.generated_time ? data.generation.generated_time : 0;
+                            this.writingData.chat_messages = data.chat.messages ? data.chat.messages : [];
+                        }
+                        break;
+                    case 'hint':
+                        if (data.chat && data.chat.messages) {
+                            this.writingData.chat_messages = data.chat.messages;
+                        }
+                        break;
+                    case 'submit':
+                        if (data.generation && data.chat && data.chat.messages) {
+                            this.writingData.chat_messages = data.chat.messages;
+                            this.writingData.correct_sentence = data.generation.correct_sentence ? data.generation.correct_sentence : '';
+                        }
+                        break;
+                    case 'evaluate':
+                        if (data.round && data.round.generated_time && data.generation) {
+                            this.writingData.generation_time = data.round.generated_time;
+                            this.writingData.evaluation_msg = data.generation.evaluation_msg ? data.generation.evaluation_msg : '';
+                            this.writingData.interpreted_image = data.generation.interpreted_image ? data.generation.interpreted_image : '';
+                        }
+                        break;
+                    case 'end':
+                        // no specific data to handle for 'end' action as of now
+                        break;
+                    default:
+                        break;
+                }
+            })
+        }
+    }
+    close = () => {
+        if (this.socketConfig.client) {
+            this.socketConfig.client.unsubscribe(this.socketConfig.wsLink, this.onMessage);
+            window.removeEventListener('beforeunload', this.handleBeforeUnload);
+            this.socketConfig.client.close()
+        }
+    }
+    
+}

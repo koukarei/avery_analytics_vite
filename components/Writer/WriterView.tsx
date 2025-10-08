@@ -9,7 +9,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LeaderboardListContext, LeaderboardImagesContext } from '../../providers/LeaderboardProvider';
+import { LeaderboardListContext, LeaderboardImagesContext, LeaderboardPlayableProvider } from '../../providers/LeaderboardProvider';
 import { AuthUserContext } from '../../providers/AuthUserProvider';
 import { useLocalization } from '../../contexts/localizationUtils';
 import { GenerationDetailProvider, GenerationEvaluationProvider, GenerationImageProvider } from '../../providers/GenerationProvider';
@@ -154,11 +154,13 @@ export default function Writer() {
               <GenerationImageProvider>
                 <GenerationEvaluationProvider>
                   <WsProvider>
-                    <WritingPage
-                      setView={handleViewChange}
-                      leaderboard={leaderboards[(galleryCurrentIndex + 1) % leaderboards.length] || null}
-                      imageUrl={currentImageUrl}
-                    />
+                    <LeaderboardPlayableProvider>
+                      <WritingPage
+                        setView={handleViewChange}
+                        leaderboard={leaderboards[(galleryCurrentIndex + 1) % leaderboards.length] || null}
+                        imageUrl={currentImageUrl}
+                      />
+                    </LeaderboardPlayableProvider>
                   </WsProvider>
                 </GenerationEvaluationProvider>
               </GenerationImageProvider>

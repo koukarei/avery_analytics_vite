@@ -1,20 +1,18 @@
 /** @jsxImportSource @emotion/react */
-import React, {useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useState, useRef } from "react";
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { WritingFrame } from "./WritingFrame";
 import { PastWritingsBar, PastWritingModal } from "./PastWritingFrame";
 import type { GalleryView } from "../../types/ui";
 import type { Leaderboard } from "../../types/leaderboard";
-import type { websocketRequest, websocketResponse } from "../../types/websocketAPI";
+import type { RoundStart, websocketRequest, websocketResponse } from "../../types/websocketAPI";
 import { LoadingSpinner } from "../Common/LoadingSpinner";
 import { ErrorDisplay } from "../Common/ErrorDisplay";
 import Alert from '@mui/material/Alert';
 import { LeaderboardPlayableContext } from "../../providers/LeaderboardProvider";
-import { LeaderboardAPI } from '../../api/Leaderboard';
 
-import { WsContext } from "../../providers/WsProvider";
+import { socketCls } from "./socketCls";
 
-import { WebSocketClient } from "../../util/websocketClient";
 import { base64ToBlob } from "../../util/convertBase64";
 import { useLocalization } from '../../contexts/localizationUtils';
 
@@ -33,25 +31,24 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
     const [writingText, setWritingText] = useState("");
     const [isPlayable, setPlayable] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [played, setPlayed] = useState(false);
     const [errorKey, setErrorKey] = useState<string | null>(null);
     
     const [roundId, _setRoundId] = useState<number>(0);
-
     const [generation_ids, _setGenerationIds] = useState<number[]>([]);
     const [writingGenerationId, _setWritingGenerationId] = useState<number | null>(null);
     const [selectedGenerationId, setSelectedGenerationId] = useState<number | null>(null);
     const [generationTime, _setGenerationTime] = useState<number>(0);
     const [leaderboardImage, setLeaderboardImage] = useState<string | null>(imageUrl);
+
     const [showWarning, setShowWarning] = useState(false);
     const [warningMsg, setWarningMsg] = useState<string>("");
 
     const [isPastWritingModalOpen, setIsPastWritingModalOpen] = useState(false);
 
-    const [userAction, setUserAction] = useState<'none' | 'start' | 'resume' | 'hint' | 'submit' | 'evaluate' | 'end'>('start');
+    const [userAction, setUserAction] = useState<'none' | 'start' | 'resume' | 'hint' | 'submit' | 'evaluate' | 'end'>('resume');
 
-    const { fetchWsToken } = useContext(WsContext);
     const { fetchLeaderboard } = useContext(LeaderboardPlayableContext);
+    const wsClientRef = useRef<socketCls | null>(null);
     const { t } = useLocalization();
     
 
@@ -63,7 +60,6 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
     }
 
     const handleSubmitWriting = () => {
-        console.log('writingText before submit:', JSON.stringify(writingText));
         if (writingText.trim() === '') {
             setWarningMsg(t('writing.warning.empty'));
             setShowWarning(true);
@@ -75,7 +71,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
             return;
         }
 
-        if ( generationTime > 5) {
+        if ( generationTime > 5 || isPlayable === false ) {
             setWarningMsg(t('writing.warning.time_exceeded'));
             setShowWarning(true);
             return;
@@ -91,19 +87,10 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
         setIsLoading(true);
             try {
                 if (leaderboard) {
-                    const program = sessionStorage.getItem('program') || 'none'
-                    // If the context provider isn't wrapping this component, fetchLeaderboard
-                    // may be undefined. Fall back to calling the API directly.
-                    const fetchPlayable = typeof fetchLeaderboard === 'function'
-                        ? fetchLeaderboard
-                        : (id: number, prog: string) => LeaderboardAPI.fetchLeaderboardPlayable(id, prog)
-
-                    fetchPlayable(leaderboard.id, program).then((playableData) => {
+                    const program = sessionStorage.getItem('program') || 'none';
+                    fetchLeaderboard(leaderboard.id, program).then((playableData) => {
                         if (playableData) {
                             setPlayable(playableData.is_playable);
-                            if (playableData.is_playable === false) {
-                                setPlayed(true);
-                            }
                         }
                     }).catch(e => {
                         console.error('Failed to fetch leaderboard playable:', e)
@@ -122,149 +109,126 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
         setIsLoading(true);
 
         try {
-            if (played) {
-                return;
-            }
             if (leaderboard && isPlayable) {
-                // #fetch WebSocket token and connect to WebSocket server
-                fetchWsToken().then((wsTokenResponse ) => {
-                if (wsTokenResponse) {
-                        // import.meta.env typing varies by build; access via cast
-                        const wsLink = (import.meta as unknown as { env: { VITE_WS_URL: string } }).env.VITE_WS_URL + `/${leaderboard.id}?token=${wsTokenResponse.ws_token}`;
-                        
-                        // create WebSocket client
-                        const client = new WebSocketClient({urls: [wsLink]});
-                        client.open();
-
-                        // prepare message for the start action
-                        let message: websocketRequest | null = null
-                        switch (userAction) {
-                            case 'start':
-                                message = {
-                                    action: 'start',
-                                    program: sessionStorage.getItem('program') || 'none',
-                                    obj: {
-                                        leaderboard_id: leaderboard ? leaderboard.id : 0,
-                                        model: 'gpt-4o-mini',
-                                        program: sessionStorage.getItem('program') || 'none',
-                                        created_at: new Date(),
-                                    }
-                                }
-                                break
-                            case 'hint':
-                                message = {
-                                    action: 'hint',
-                                    program: sessionStorage.getItem('program') || 'none',
-                                    obj: {
-                                        content: 'ヒントをちょうだい',
-                                        created_at: new Date(),
-                                        is_hint: true,
-                                    }
-                                }
-                                break
-                            case 'submit':
-                                message = {
-                                    action: 'submit',
-                                    program: sessionStorage.getItem('program') || 'none',
-                                    obj: {
-                                        leaderboard_id: leaderboard ? leaderboard.id : 0,
-                                        round_id: roundId,
-                                        created_at: new Date(),
-                                        generated_time: generationTime,
-                                        sentence: writingText
-                                    }
-                                }
-                                break
-                            case 'evaluate':
-                                message = {
-                                    action: 'evaluate'
-                                }
-                                break
-                            case 'end':
-                                message = {
-                                    action: 'end'
-                                }
-                                break
-                            default:
-                                message = null
-                                break
+                if (wsClientRef.current === null) {
+                    wsClientRef.current = new socketCls(leaderboard.id);
+                }
+                let obj= null;
+                wsClientRef.current.currentAction = userAction;
+                switch (userAction) {
+                    case 'start':
+                        obj = {
+                            leaderboard_id: leaderboard ? leaderboard.id : 0,
+                            model: 'gpt-4o-mini',
+                            program: sessionStorage.getItem('program') || 'none',
+                            created_at: new Date(),
                         }
-
-                        // send message (if prepared). WebSocketClient will queue until ready.
-                        if (message) {
-                            client.send(wsLink, message)
+                        break
+                    case 'resume':
+                        obj = {
+                            leaderboard_id: leaderboard ? leaderboard.id : 0,
+                            model: 'gpt-4o-mini',
+                            program: sessionStorage.getItem('program') || 'none',
+                            created_at: new Date(),
                         }
+                        break
+                    case 'hint':
+                        obj = {
+                            content: 'ヒントをちょうだい',
+                            created_at: new Date(),
+                            is_hint: true,
+                        }
+                        break;
+                    case 'submit':
+                        obj = {
+                            leaderboard_id: leaderboard ? leaderboard.id : 0,
+                            round_id: roundId,
+                            created_at: new Date(),
+                            generated_time: generationTime,
+                            sentence: writingText
+                        }
+                        break
+                    case 'evaluate':
+                        break
+                    case 'end':
+                        break
+                    default:
+                        obj = null
+                        break
+                    }
 
-                        // subscribe to messages for this url
-                        // subscriber receives unknown; cast to websocketResponse for our usage
-                        const onMessage = (data: unknown) => {
-                            const parsed = data as websocketResponse
+                wsClientRef.current.send_user_action(obj ? obj : undefined);
+
+                wsClientRef.current.receive_response()
                             
-                            switch (userAction) {
-                                case 'start':{
-                                    console.log('start response data: ', parsed);
-                                    if (parsed.round && parsed.generation && parsed.leaderboard) {
-                                            const pastGenerationIds = parsed.round.generations && parsed.generation.id ? parsed.round.generations.filter(gid => gid !== parsed.generation?.id) : [];
-                                            _setRoundId(parsed.round.id)
-                                            _setGenerationIds([...pastGenerationIds])
-                                            _setWritingGenerationId(parsed.generation ? parsed.generation.id : null)
-                                            _setGenerationTime(parsed.generation && parsed.generation.generated_time ? parsed.generation.generated_time : 0)
-                                            
-                                            const blob = base64ToBlob(parsed.leaderboard.image);
-                                            const blobUrl = URL.createObjectURL(blob);
-                                            setLeaderboardImage(blobUrl);
+                switch (userAction) {
+                    case 'start':{
+                        if (wsClientRef.current.writingData) {
+                            const data = wsClientRef.current.writingData;
+                            const pastGenerationIds = data.past_generation_ids && data.writing_generation_id ? data.past_generation_ids.filter(gid => gid !== writingGenerationId) : [];
+                            _setGenerationIds([...pastGenerationIds])
+                            _setRoundId(data.round_id ? data.round_id : 0);
+                            _setWritingGenerationId(data.writing_generation_id ? data.writing_generation_id : null)
+                            _setGenerationTime(data.generation_time ? data.generation_time : 0)
+                            
+                            const blob = base64ToBlob(data.leaderboard_image);
+                            const blobUrl = URL.createObjectURL(blob);
+                            setLeaderboardImage(blobUrl);
 
-                                            setUserAction('none');
-                                        }
-                                    break;
-                                    }
-                                case 'submit': {
-                                    console.log('submit response data: ', parsed);
-                                    if (parsed.generation && parsed.chat && parsed.chat.messages) {
-                                        if (parsed.chat.messages.length > 0 ? parsed.chat.messages[parsed.chat.messages.length - 1].content.startsWith("ブー！") : false){
-                                            // remind user to type in English or language of choice
-                                            setWarningMsg(parsed.chat.messages.length > 0 ? parsed.chat.messages[parsed.chat.messages.length - 1].content : "");
-                                            setShowWarning(true);
-                                            break;
-                                        } else {
-                                            setSelectedGenerationId(writingGenerationId);
-                                            setIsPastWritingModalOpen(true);
-                                            setUserAction('evaluate');
-                                            break;
-                                        }
-                                    }
-                                    break;
-                                }
-                                case 'evaluate': {
-                                    console.log('evaluate response data: ', parsed);
-                                    if (parsed.round && parsed.round.generated_time) {
-                                        if (parsed.round.generated_time > 5) {
-                                            setUserAction('end');
-                                        }
-                                            _setGenerationIds(prev => writingGenerationId ? [writingGenerationId, ...prev] : prev);
-                                    }
-                                            break;
-                                }
-                                default:
-                                    console.log('other action response data: ', parsed);
-                                    break;
+                            setUserAction('none');
+                        }
+                        break;
+                    }
+                    case 'resume':{
+                        if (wsClientRef.current.writingData) {
+                            const data = wsClientRef.current.writingData;
+                            const pastGenerationIds = data.past_generation_ids && data.writing_generation_id ? data.past_generation_ids.filter(gid => gid !== writingGenerationId) : [];
+                            _setGenerationIds([...pastGenerationIds])
+                            _setRoundId(data.round_id ? data.round_id : 0);
+                            _setWritingGenerationId(data.writing_generation_id ? data.writing_generation_id : null)
+                            _setGenerationTime(data.generation_time ? data.generation_time : 0)
+                            
+                            const blob = base64ToBlob(data.leaderboard_image);
+                            const blobUrl = URL.createObjectURL(blob);
+                            setLeaderboardImage(blobUrl);
+
+                            setUserAction('none');
+                        }
+                        break;
+                    }
+                    case 'submit': {
+                        if (wsClientRef.current.writingData) {
+                            const messages = wsClientRef.current.writingData.chat_messages;
+                            if (messages.length > 0 ? messages[messages.length - 1].content.startsWith("ブー！") : false){
+                                // remind user to type in English or language of choice
+                                setWarningMsg(messages.length > 0 ? messages[messages.length - 1].content : "");
+                                setShowWarning(true);
+                                break;
+                            } else {
+                                setSelectedGenerationId(writingGenerationId);
+                                setIsPastWritingModalOpen(true);
+                                setUserAction('evaluate');
+                                break;
                             }
                         }
-                            
-                        
-                        client.subscribe(wsLink, onMessage)
-
-                        // Disconnect when user closes the tab or browser
-                        const handleBeforeUnload = () => client.close()
-                        window.addEventListener('beforeunload', handleBeforeUnload)
-
-                        return () => {
-                            client.unsubscribe(wsLink, onMessage)
-                            window.removeEventListener('beforeunload', handleBeforeUnload)
-                            client.close();
-                        }
+                        break;
                     }
-                });
+                    case 'evaluate': {
+                        if (wsClientRef.current.writingData.generation_time === 5) {
+                            setUserAction('end');
+                            _setGenerationIds(prev => writingGenerationId ? [writingGenerationId, ...prev] : prev);
+                        }
+                        break;
+                    }
+                    default:
+                        break;
+                }
+                setUserAction('none');
+            }
+
+            return () => {
+                if (wsClientRef.current === null) return;
+                wsClientRef.current.close();
             }
 
         } catch (e) {
