@@ -53,7 +53,6 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
     ) => {
         setIsPastWritingModalOpen(true);
         setSelectedGenerationId(generation_ids[index]);
-        console.log("Clicked past writing icon index: ", index, " generation_id: ", generation_ids[index], " writingGenerationId: ", writingGenerationId, " generation_ids: ", generation_ids);
     };
 
     const handleSubmitWriting = () => {
@@ -100,7 +99,6 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
         setIsLoading(true);
 
         try {
-            console.log("user action: ", userAction, " writingGenerationId: ", writingGenerationId);
             if (leaderboard && isPlayable) {
                 if (wsClientRef.current === null) {
                     wsClientRef.current = new socketCls(leaderboard.id);
@@ -213,6 +211,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                         setGeneratingLoading(false);
                         _setGenerationIds(writingGenerationId ? [...generation_ids, writingGenerationId] : generation_ids);
                         _setWritingGenerationId(null);
+                        _setGenerationTime(data.generation_time ? data.generation_time : 0);
                         setSelectedGenerationId(writingGenerationId);
                         setIsPastWritingModalOpen(true);
                         break;
@@ -233,8 +232,6 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
 
                 }
             
-            console.log("user action: ", userAction, " writingGenerationId: ", writingGenerationId, "generation_ids: ", generation_ids);
-        
         } catch (e) {
             setErrorKey("error.FetchingGenerationDetail");
             console.log(e);
