@@ -96,7 +96,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                         )}
                         />
                         <Controller
-                            name="submit"
+                            name="writing"
                             control={control}
                             render={() => (
                                 <Button

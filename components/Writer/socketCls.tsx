@@ -1,5 +1,5 @@
 import { WebSocketClient } from "../../util/websocketClient";
-import type { RoundStart, MessageSend, GenerationStart, websocketRequest, websocketResponse, wsTokenResponse } from "../../types/websocketAPI";
+import type { RoundStart, MessageSend, GenerationStart, websocketRequest, websocketResponse } from "../../types/websocketAPI";
 import type { MessageReceived } from "../../types/websocketAPI";
 import { wsAPI } from "../../api/WritingWS";
 
