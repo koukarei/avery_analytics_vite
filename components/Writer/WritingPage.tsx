@@ -13,8 +13,6 @@ import { socketCls } from "./socketCls";
 import { base64ToBlob } from "../../util/convertBase64";
 import { useLocalization } from '../../contexts/localizationUtils';
 
-import type { Theme } from "@mui/material/styles";
-
 interface WritingPageProps {
     setView: (view: GalleryView) => void;
     leaderboard: Leaderboard | null;
