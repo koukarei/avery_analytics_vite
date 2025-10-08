@@ -33,10 +33,12 @@ interface PastWritingModalProps {
   onClose: () => void;
 }
 
-const PastWritingModal: React.FC<PastWritingModalProps> = ({ 
+interface PastWritingContentProps {
+  generation_id: number | null;
+}
+
+const PastWritingContent: React.FC<PastWritingContentProps> = ({ 
   generation_id, 
-  isOpen,
-  onClose
 }) => {
     const [showImage, setShowImage] = useState(false);
     const [showAWE, setShowAWE] = useState(false);
@@ -45,7 +47,6 @@ const PastWritingModal: React.FC<PastWritingModalProps> = ({
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [aWEText, setAWEText] = useState<string | null>(null);
     const [detailData, setDetailData] = useState<GenerationDetail | null>(null);
-    const [currentWritingId, setCurrentWritingId] = useState<number | null>(null);
 
     const {fetchDetail} = useContext(GenerationDetailContext);
     const {fetchImage} = useContext(GenerationImageContext);
@@ -55,7 +56,7 @@ const PastWritingModal: React.FC<PastWritingModalProps> = ({
     useEffect(() => {
         setErrorKey(null);
         setIsLoading(true);
-        const fetch = async () => {
+        const fetch = async (): Promise<void> => {
         try {
             const [detailData, imageData, evaluationData] = await Promise.all(
                 [
@@ -65,7 +66,6 @@ const PastWritingModal: React.FC<PastWritingModalProps> = ({
                 ]
             )
             if (detailData) {
-                setCurrentWritingId(detailData.id);
                 setDetailData(detailData);
             }
             if (imageData && imageData) {
@@ -90,32 +90,62 @@ const PastWritingModal: React.FC<PastWritingModalProps> = ({
     const handleClickShowAWE = () => {
         setShowAWE(!showAWE);
     };
+        
+    return (
+        <Card sx={style}>
+            <CardHeader>
+                <Box>Past Writing Details</Box>
+            </CardHeader>
+            <CardContent>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                    {detailData ? (
+                        compareWriting(detailData.sentence, detailData.correct_sentence)
+                    ) : "No writing detail available."}
+                </Box>
+                <Box>
+                    {isLoading && <LoadingSpinner />}
+                </Box>
+                <Button
+                    css={buttonStyle(theme)}
+                    disabled={!detailData || detailData.interpreted_image === undefined || detailData.interpreted_image?.id === undefined}
+                    onClick={handleClickShowImage}
+                >
+                    {showImage ? "Hide Image" : "Show Image"}
+                </Button>
+                <Button
+                    css={buttonStyle(theme)}
+                    disabled={!detailData || detailData.evaluation_id === null}
+                    onClick={handleClickShowAWE}
+                >
+                    {showAWE ? "Hide AWE" : "Show AWE"}
+                </Button>
+                <Box>
+                    {showAWE ? (
+                        <MarkdownEvalViewer content={aWEText ? aWEText : ""} />
+                    ) : null }
+                </Box>
+                <Box>
+                    {showImage && imageUrl ? (
+                        <img src={imageUrl ? imageUrl : ""} alt="Generated" style={{ maxWidth: '100%' }} />
+                    ) : null}
+                </Box>
+                <Box>
+                    {errorKey && <p style={{ color: 'red' }}>{errorKey}</p>}
+                </Box>
+            </CardContent>
+        </Card>
+    );
+};
+
+const PastWritingModal: React.FC<PastWritingModalProps> = ({ 
+  generation_id, 
+  isOpen,
+  onClose
+}) => {
 
     const handleClose = () => {
-        setImageUrl(null);
-        setAWEText(null);
-        setShowAWE(false);
-        setShowImage(false);
-        setCurrentWritingId(null);
         onClose();
         };
-
-    if (isLoading || ( isOpen && currentWritingId !== generation_id)) {
-        return (
-            <LoadingSpinner />
-        )
-    };
-
-    if (!currentWritingId) {
-        return (
-        <div 
-            style={{ transformStyle: 'preserve-3d' }}
-            aria-hidden="true"
-        >
-            {/* Empty panel placeholder */}
-        </div>
-        );
-    }
         
     return (
         <div>
@@ -123,50 +153,9 @@ const PastWritingModal: React.FC<PastWritingModalProps> = ({
             open={isOpen}
             onClose={handleClose}
             aria-labelledby="past-writing-modal"
-            aria-describedby={`modal-modal-${currentWritingId}`}
+            aria-describedby={`modal-modal-${generation_id}`}
         >
-            <Card sx={style}>
-                <CardHeader>
-                    <Box>Past Writing Details</Box>
-                </CardHeader>
-                <CardContent>
-                    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                        {detailData ? (
-                            compareWriting(detailData.sentence, detailData.correct_sentence)
-                        ) : "No writing detail available."}
-                    </Box>
-                    <Box>
-                        {isLoading && <p>Loading...</p>}
-                    </Box>
-                    <Button
-                        css={buttonStyle(theme)}
-                        disabled={!detailData || detailData.interpreted_image === undefined || detailData.interpreted_image?.id === undefined}
-                        onClick={handleClickShowImage}
-                    >
-                        {showImage ? "Hide Image" : "Show Image"}
-                    </Button>
-                    <Button
-                        css={buttonStyle(theme)}
-                        disabled={!detailData || detailData.evaluation_id === null}
-                        onClick={handleClickShowAWE}
-                    >
-                        {showAWE ? "Hide AWE" : "Show AWE"}
-                    </Button>
-                    <Box>
-                        {showAWE ? (
-                            <MarkdownEvalViewer content={aWEText ? aWEText : ""} />
-                        ) : null }
-                    </Box>
-                    <Box>
-                        {showImage ? (
-                            <img src={imageUrl ? imageUrl : ""} alt="Generated" style={{ maxWidth: '100%' }} />
-                        ) : null}
-                    </Box>
-                    <Box>
-                        {errorKey && <p style={{ color: 'red' }}>{errorKey}</p>}
-                    </Box>
-                </CardContent>
-            </Card>
+            <PastWritingContent generation_id={generation_id} />
         </Modal>
         </div>
     );
@@ -202,7 +191,7 @@ const PastWritingsBar: React.FC<PastWritingsProps> = ({ generation_ids, onClick 
     return (
         <Box className='flex flex-nowrap justify-start flex-row'>
             <Stack direction="row" spacing={1}>
-                {generation_ids.map((index) => <PastWritingIcon index={index} onClick={onClick} />)}
+                {generation_ids.map((key, index) => <PastWritingIcon key={key} index={index} onClick={onClick} />)}
             </Stack>
         </Box>
     );
