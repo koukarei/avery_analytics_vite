@@ -210,12 +210,15 @@ export class socketCls {
                             break;
                         case 'submit':
                             if (data.generation && data.chat && data.chat.messages) {
+                                this.writingData.writing_generation_id = data.generation.id
                                 this.writingData.chat_messages = data.chat.messages;
                                 this.writingData.correct_sentence = data.generation.correct_sentence ? data.generation.correct_sentence : '';
                             }
                             break;
                         case 'evaluate':
                             if (data.round && data.round.generated_time && data.generation) {
+                                this.writingData.past_generation_ids = this.writingData.writing_generation_id ? [...this.writingData.past_generation_ids, this.writingData.writing_generation_id] : this.writingData.past_generation_ids;
+                                this.writingData.writing_generation_id = null; // reset writing_generation_id to allow new generation on next submit
                                 this.writingData.generation_time = data.round.generated_time;
                                 this.writingData.evaluation_msg = data.generation.evaluation_msg ? data.generation.evaluation_msg : '';
                                 this.writingData.interpreted_image = data.generation.interpreted_image ? data.generation.interpreted_image : '';

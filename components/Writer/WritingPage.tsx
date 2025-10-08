@@ -54,10 +54,11 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
         setIsPastWritingModalOpen(true);
         setSelectedGenerationId(generation_ids[index]);
         console.log("Clicked past writing icon index: ", index, " generation_id: ", generation_ids[index], " writingGenerationId: ", writingGenerationId, " generation_ids: ", generation_ids);
-    }
+    };
 
     const handleSubmitWriting = () => {
         setIsLoading(true);
+        setGeneratingLoading(true);
         if ( generationTime > 5 || isPlayable === false ) {
             setWarningMsg(t('writing.warning.time_exceeded'));
             setShowWarning(true);
@@ -65,6 +66,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                 setShowWarning(false);
             }, 2000);
             setIsLoading(false);
+            setGeneratingLoading(false);
             return;
         }
         setUserAction('submit');
@@ -185,6 +187,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                     case 'submit': {
                         if (data) {
                             const messages = data.chat_messages;
+                            _setWritingGenerationId(data.writing_generation_id ? data.writing_generation_id : null);
                             if (messages.length > 0 ? messages[messages.length - 1].content.startsWith("ブー！") : false){
                                 // remind user to type in English or language of choice
                                 setWarningMsg(messages.length > 0 ? messages[messages.length - 1].content : "");
@@ -193,10 +196,10 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                                     setShowWarning(false);
                                 }, 2000);
                                 setUserAction('none');
+                                setGeneratingLoading(false);
                                 break;
                             } else {
                                 setUserAction('evaluate');
-                                setGeneratingLoading(true);
                                 break;
                             }
                         }
@@ -208,7 +211,8 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                             setPlayable(false);
                         }
                         setGeneratingLoading(false);
-                        _setGenerationIds([...generation_ids, writingGenerationId ? writingGenerationId : 0]);
+                        _setGenerationIds(writingGenerationId ? [...generation_ids, writingGenerationId] : generation_ids);
+                        _setWritingGenerationId(null);
                         setSelectedGenerationId(writingGenerationId);
                         setIsPastWritingModalOpen(true);
                         break;
@@ -229,7 +233,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
 
                 }
             
-            console.log("user action: ", userAction, " writingGenerationId: ", writingGenerationId);
+            console.log("user action: ", userAction, " writingGenerationId: ", writingGenerationId, "generation_ids: ", generation_ids);
         
         } catch (e) {
             setErrorKey("error.FetchingGenerationDetail");
