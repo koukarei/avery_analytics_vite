@@ -61,7 +61,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
         <div>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <Card css={WritingFrameStyle(theme)} variant="outlined">
-                    <div className='flex-col'>
+                    <div className='flex-col w-1/3 items-center' css={css`@media (max-width: 600px) { width: 100%; }`}>
                         <CardHeader title={title} />
                         {imageUrl ? (
                             <ImageListItem style={{ minWidth: '200px', maxWidth: '60%', padding: 5, marginBottom: '8px' }}>
@@ -69,7 +69,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                             </ImageListItem>
                         ) : null}
                     </div>
-                    <CardContent css={typingAreaStyle}>
+                    <CardContent css={typingAreaStyle} className="w-2/3 md:w-1/2">
                     <Controller
                         name="writing"
                         control={control}
