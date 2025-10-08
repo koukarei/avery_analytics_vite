@@ -77,15 +77,15 @@ const App: React.FC = () => {
     if (token) {
       return props.children;
     }
-    document.location = "/login";
+    document.location = "/avery_analytics/login";
     return <></>;
   }
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/avery_analytics/login" element={<LoginPage />} />
         {/* Main Route */}
-        <Route path="/" element={
+        <Route path="/avery_analytics/" element={
           <AuthUserProvider>
             <RequireAuth>
               <LocalizationProvider>
