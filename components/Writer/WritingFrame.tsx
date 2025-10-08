@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { TextField } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import { css } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import Card from "@mui/material/Card";
@@ -12,6 +12,7 @@ import { useForm, Controller } from "react-hook-form";
 import { useLocalization } from '../../contexts/localizationUtils';
 
 interface WritingFrameProps {
+    title: string;
     imageUrl: string;
     writingText: string;
     setWritingText: (text: string) => void;
@@ -19,7 +20,7 @@ interface WritingFrameProps {
     setView: ()=>void;
 }
 
-export const WritingFrame: React.FC<WritingFrameProps> = ({ imageUrl, writingText, setWritingText, submitWritingFn, setView }) => {
+export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writingText, setWritingText, submitWritingFn, setView }) => {
     const { t } = useLocalization();
 
     const {
@@ -62,11 +63,12 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ imageUrl, writingTex
             <button onClick={setView}></button>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <Card css={WritingFrameStyle(theme)} variant="outlined">
-                    {imageUrl && (
+                    <h2>{title}</h2>
+                    {imageUrl ? (
                         <ImageListItem style={{ minWidth: '200px', maxWidth: '60%', padding: 5, marginBottom: '8px' }}>
                             <img src={imageUrl} alt="Writing" />
                         </ImageListItem>
-                    )}
+                    ) : null}
                     <div css={typingAreaStyle}>
                     <Controller
                         name="writing"

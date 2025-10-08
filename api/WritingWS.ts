@@ -10,7 +10,6 @@ export class wsAPI {
         ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
         : {},
     });
-    console.log("WS Token response: ", response);
     if (response.status !== 200) {
       return null;
     };

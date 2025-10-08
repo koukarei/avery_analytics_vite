@@ -169,7 +169,7 @@ function Signin() {
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
                 slotProps={{htmlInput: {
-                  endAdornment: (
+                  endadornment: (
                     <ClearAdornment name={field.name} setValue={setValue} />
                   ),
                 }}}
@@ -191,7 +191,7 @@ function Signin() {
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
                 slotProps={{htmlInput: {
-                  endAdornment: (
+                  endadornment: (
                     <ClearAdornment name={field.name} setValue={setValue} />
                   ),
                 }}}
@@ -320,7 +320,7 @@ function Signup() {
                 helperText={(errors[field.name]?.message as string) || " "}
                 slotProps={{
                   input: {
-                    endAdornment: (
+                    endadornment: (
                       <ClearAdornment name={field.name} setValue={setValue} />
                     ),
                   },
@@ -343,7 +343,7 @@ function Signup() {
                 helperText={(errors[field.name]?.message as string) || " "}
                 slotProps={{
                   input: {
-                    endAdornment: (
+                    endadornment: (
                       <ClearAdornment name={field.name} setValue={setValue} />
                     ),
                   },
@@ -367,7 +367,7 @@ function Signup() {
                 helperText={(errors[field.name]?.message as string) || " "}
                 slotProps={{
                   input: {
-                    endAdornment: (
+                    endadornment: (
                       <ClearAdornment name={field.name} setValue={setValue} />
                     ),
                   },
@@ -398,7 +398,7 @@ function Signup() {
                 helperText={(errors[field.name]?.message as string) || " "}
                 slotProps={{
                   input: {
-                    endAdornment: (
+                    endadornment: (
                       <ClearAdornment name={field.name} setValue={setValue} />
                     ),
                   },
@@ -421,7 +421,7 @@ function Signup() {
                 helperText={(errors[field.name]?.message as string) || " "}
                 slotProps={{
                   input: {
-                    endAdornment: (
+                    endadornment: (
                       <ClearAdornment name={field.name} setValue={setValue} />
                     ),
                   },
