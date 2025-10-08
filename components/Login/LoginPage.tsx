@@ -168,11 +168,13 @@ function Signin() {
                 placeholder="ユーザー名"
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
-                slotProps={{htmlInput: {
-                  endadornment: (
-                    <ClearAdornment name={field.name} setValue={setValue} />
-                  ),
-                }}}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <ClearAdornment name={field.name} setValue={setValue} />
+                    ),
+                  },
+                }}
               />
             )}
           />
@@ -190,11 +192,13 @@ function Signin() {
                 label="パスワード"
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
-                slotProps={{htmlInput: {
-                  endadornment: (
-                    <ClearAdornment name={field.name} setValue={setValue} />
-                  ),
-                }}}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <ClearAdornment name={field.name} setValue={setValue} />
+                    ),
+                  },
+                }}
               />
             )}
           />
@@ -320,7 +324,7 @@ function Signup() {
                 helperText={(errors[field.name]?.message as string) || " "}
                 slotProps={{
                   input: {
-                    endadornment: (
+                    endAdornment: (
                       <ClearAdornment name={field.name} setValue={setValue} />
                     ),
                   },
@@ -343,7 +347,7 @@ function Signup() {
                 helperText={(errors[field.name]?.message as string) || " "}
                 slotProps={{
                   input: {
-                    endadornment: (
+                    endAdornment: (
                       <ClearAdornment name={field.name} setValue={setValue} />
                     ),
                   },
@@ -367,7 +371,7 @@ function Signup() {
                 helperText={(errors[field.name]?.message as string) || " "}
                 slotProps={{
                   input: {
-                    endadornment: (
+                    endAdornment: (
                       <ClearAdornment name={field.name} setValue={setValue} />
                     ),
                   },
@@ -398,7 +402,7 @@ function Signup() {
                 helperText={(errors[field.name]?.message as string) || " "}
                 slotProps={{
                   input: {
-                    endadornment: (
+                    endAdornment: (
                       <ClearAdornment name={field.name} setValue={setValue} />
                     ),
                   },
@@ -421,7 +425,7 @@ function Signup() {
                 helperText={(errors[field.name]?.message as string) || " "}
                 slotProps={{
                   input: {
-                    endadornment: (
+                    endAdornment: (
                       <ClearAdornment name={field.name} setValue={setValue} />
                     ),
                   },
