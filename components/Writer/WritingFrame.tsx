@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { CardHeader, CardContent, TextField } from "@mui/material";
-import React, { useEffect } from "react";
+import React from "react";
 import { css } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import Card from "@mui/material/Card";
