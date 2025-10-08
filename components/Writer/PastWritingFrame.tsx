@@ -9,7 +9,7 @@ import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import { blueGrey } from '@mui/material/colors';
 
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, use } from 'react';
 import { css } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
@@ -24,7 +24,7 @@ import type { GenerationDetail } from '../../types/studentWork';
 
 interface PastWritingsProps {
   generation_ids: number[];
-  onClick: (id: number) => void;
+  onClick: (index: number) => void; // pass index into handler (matches usage)
 }
 
 interface PastWritingModalProps {
@@ -163,7 +163,7 @@ const PastWritingModal: React.FC<PastWritingModalProps> = ({
 
 interface PastWritingIconProps {
     index: number;
-    onClick: (id: number) => void;
+    onClick: (index: number) => void;
 }
 
 const PastWritingIcon: React.FC<PastWritingIconProps> = ({ 
@@ -187,11 +187,17 @@ const PastWritingIcon: React.FC<PastWritingIconProps> = ({
     )
 }
 const PastWritingsBar: React.FC<PastWritingsProps> = ({ generation_ids, onClick }) => {
-    
+    const [genIds, setGenIds] = useState<number[]>(generation_ids);
+    useEffect(() => {
+        setGenIds(generation_ids);
+    }, [generation_ids]);
+
     return (
         <Box className='flex flex-nowrap justify-start flex-row'>
             <Stack direction="row" spacing={1}>
-                {generation_ids.map((key, index) => <PastWritingIcon key={key} index={index} onClick={onClick} />)}
+                {genIds.map((key, index) => (
+                  <PastWritingIcon key={`${key}-${index}`} index={index} onClick={onClick} />
+                ))}
             </Stack>
         </Box>
     );

@@ -64,21 +64,15 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
             setShowWarning(true);
             return;
         }
-        if ( isLoading ) {
-            setWarningMsg(t('writing.warning.loading'));
-            setShowWarning(true);
-            return;
-        }
 
         if ( generationTime > 5 || isPlayable === false ) {
             setWarningMsg(t('writing.warning.time_exceeded'));
             setShowWarning(true);
             return;
         }
-        
-        else {
-            setUserAction('submit');
-        }
+        setIsLoading(true);
+        setUserAction('submit');
+        return;
     };
 
     useEffect(() => {
@@ -199,6 +193,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                                 setShowWarning(true);
                                 break;
                             } else {
+                                _setGenerationIds(prev => writingGenerationId ? [writingGenerationId, ...prev] : prev);
                                 setSelectedGenerationId(writingGenerationId);
                                 setIsPastWritingModalOpen(true);
                                 setUserAction('evaluate');
@@ -210,7 +205,6 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                     case 'evaluate': {
                         if (data.generation_time === 5) {
                             setUserAction('end');
-                            _setGenerationIds(prev => writingGenerationId ? [writingGenerationId, ...prev] : prev);
                         }
                         break;
                     }
