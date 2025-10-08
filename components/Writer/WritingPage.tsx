@@ -1,5 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import React, {useContext, useEffect, useState} from "react";
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { WritingFrame } from "./WritingFrame";
 import { PastWritingsBar, PastWritingModal } from "./PastWritingFrame";
 import type { GalleryView } from "../../types/ui";
@@ -285,7 +286,9 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
         <div>
             <div className="bg-neutral-900 flex-col md:flex-row items-center">
                 <div className="h-1/8 w-full">
-                    <button css={backButtonStyle(theme)} onClick={ () => setView('browsing') }>Back</button>
+                    <button css={backButtonStyle(theme)} onClick={ () => setView('browsing') }>
+                        <ArrowBackIosIcon fontSize="small" />
+                    </button>
                     { showWarning ? <Alert severity="warning">{warningMsg}</Alert> : null }
                     <PastWritingsBar 
                         generation_ids={generation_ids} 
@@ -317,9 +320,10 @@ const backButtonStyle = (theme: Theme) => css`
   font-weight: 700;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  border-radius: 0.25rem;
+  padding-left: 0.8rem;
+  padding-right: 0.5rem;
+  border-radius: calc(infinity * 1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
