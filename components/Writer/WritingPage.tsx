@@ -5,7 +5,6 @@ import { WritingFrame } from "./WritingFrame";
 import { PastWritingsBar, PastWritingModal } from "./PastWritingFrame";
 import type { GalleryView } from "../../types/ui";
 import type { Leaderboard } from "../../types/leaderboard";
-import type { RoundStart, websocketRequest, websocketResponse } from "../../types/websocketAPI";
 import { LoadingSpinner } from "../Common/LoadingSpinner";
 import { ErrorDisplay } from "../Common/ErrorDisplay";
 import Alert from '@mui/material/Alert';

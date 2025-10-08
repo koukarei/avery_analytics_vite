@@ -23,6 +23,7 @@ type writingClsData = {
 
 export class socketCls {
     private socketConfig!: socketClsConfig;
+    private messageHandler?: (data: unknown) => void;
 
     currentAction: 'none' | 'start' | 'resume' | 'hint' | 'submit' | 'evaluate' | 'end' = 'none';
 
@@ -62,16 +63,13 @@ export class socketCls {
         }
     }
 
-    private onMessage = (data: unknown) => {
-        return data as websocketResponse
-    }
-
     private receive = (callback: (data: websocketResponse) => void) => {
         if (this.socketConfig.client) {
-            this.socketConfig.client.subscribe(this.socketConfig.wsLink, (data: unknown) => {
-                const parsed = data as websocketResponse
-                callback(parsed)
-            })
+            this.messageHandler = (data: unknown) => {
+                const parsed = data as websocketResponse;
+                callback(parsed);
+            };
+            this.socketConfig.client.subscribe(this.socketConfig.wsLink, this.messageHandler)
         }
     }
 
@@ -200,8 +198,8 @@ export class socketCls {
         }
     }
     close = () => {
-        if (this.socketConfig.client) {
-            this.socketConfig.client.unsubscribe(this.socketConfig.wsLink, this.onMessage);
+        if (this.socketConfig.client && this.messageHandler) {
+            this.socketConfig.client.unsubscribe(this.socketConfig.wsLink, this.messageHandler);
             window.removeEventListener('beforeunload', this.handleBeforeUnload);
             this.socketConfig.client.close()
         }
