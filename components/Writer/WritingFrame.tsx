@@ -18,15 +18,16 @@ interface WritingFrameProps {
     setWritingText: (text: string) => void;
     submitWritingFn: () => void;
     isPlayable: boolean;
+    isLoading: boolean;
 }
 
-export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writingText, setWritingText, submitWritingFn, isPlayable }) => {
+export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writingText, setWritingText, submitWritingFn, isPlayable, isLoading }) => {
     const { t } = useLocalization();
 
     const {
         control,
         handleSubmit,
-        formState: { errors },
+        formState: { errors, isValid },
     } = useForm<{ writing: string }>({
         defaultValues: { writing: writingText },
         mode: "onChange",
@@ -50,7 +51,8 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                 value: /^[A-Za-z0-9 .,?!'"\n]+$/,
                 message: t("writerView.writingFrame.error.pattern")
             }
-        }
+        },
+        submit: {}
     };
 
     const onSubmit = (data: { writing: string }) => {
@@ -93,7 +95,20 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                             />
                         )}
                         />
-                        <Button css={SubmitWritingButton(theme)} disabled={!isPlayable} type="submit" variant="contained">Submit Writing</Button>
+                        <Controller
+                            name="submit"
+                            control={control}
+                            render={() => (
+                                <Button
+                                    css={SubmitWritingButton(theme)}
+                                    disabled={!isPlayable || !isValid || isLoading}
+                                    type="submit"
+                                    variant="contained"
+                                >
+                                    Submit Writing
+                                </Button>
+                            )}
+                        />
                     </CardContent>
                 </Card>
             </form>

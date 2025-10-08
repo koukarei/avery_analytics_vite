@@ -1,6 +1,4 @@
-/** @jsxImportSource @emotion/react */
 import React, {useContext, useEffect, useState, useRef } from "react";
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { WritingFrame } from "./WritingFrame";
 import { PastWritingsBar, PastWritingModal } from "./PastWritingFrame";
 import type { GalleryView } from "../../types/ui";
@@ -15,9 +13,7 @@ import { socketCls } from "./socketCls";
 import { base64ToBlob } from "../../util/convertBase64";
 import { useLocalization } from '../../contexts/localizationUtils';
 
-import { css } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
-import {theme} from "../../src/Theme";
 
 interface WritingPageProps {
     setView: (view: GalleryView) => void;
@@ -30,6 +26,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
     const [writingText, setWritingText] = useState("");
     const [isPlayable, setPlayable] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [generatingLoading, setGeneratingLoading] = useState(false);
     const [errorKey, setErrorKey] = useState<string | null>(null);
     
     const [roundId, _setRoundId] = useState<number>(0);
@@ -56,18 +53,20 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
     ) => {
         setIsPastWritingModalOpen(true);
         setSelectedGenerationId(generation_ids[index]);
+        console.log("Clicked past writing icon index: ", index, " generation_id: ", generation_ids[index], " writingGenerationId: ", writingGenerationId, " generation_ids: ", generation_ids);
     }
 
     const handleSubmitWriting = () => {
+        setIsLoading(true);
         if ( generationTime > 5 || isPlayable === false ) {
             setWarningMsg(t('writing.warning.time_exceeded'));
             setShowWarning(true);
             setTimeout(() => {
                 setShowWarning(false);
             }, 2000);
+            setIsLoading(false);
             return;
         }
-        setIsLoading(true);
         setUserAction('submit');
         return;
     };
@@ -99,6 +98,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
         setIsLoading(true);
 
         try {
+            console.log("user action: ", userAction, " writingGenerationId: ", writingGenerationId);
             if (leaderboard && isPlayable) {
                 if (wsClientRef.current === null) {
                     wsClientRef.current = new socketCls(leaderboard.id);
@@ -163,6 +163,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                             setLeaderboardImage(blobUrl);
 
                         }
+                        setUserAction('none');
                         break;
                     }
                     case 'resume':{
@@ -178,6 +179,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                             setLeaderboardImage(blobUrl);
 
                         }
+                        setUserAction('none');
                         break;
                     }
                     case 'submit': {
@@ -190,12 +192,11 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                                 setTimeout(() => {
                                     setShowWarning(false);
                                 }, 2000);
+                                setUserAction('none');
                                 break;
                             } else {
-                                _setGenerationIds(prev => writingGenerationId ? [writingGenerationId, ...prev] : prev);
-                                setSelectedGenerationId(writingGenerationId);
-                                setIsPastWritingModalOpen(true);
                                 setUserAction('evaluate');
+                                setGeneratingLoading(true);
                                 break;
                             }
                         }
@@ -206,12 +207,20 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                             setUserAction('end');
                             setPlayable(false);
                         }
+                        setGeneratingLoading(false);
+                        _setGenerationIds([...generation_ids, writingGenerationId ? writingGenerationId : 0]);
+                        setSelectedGenerationId(writingGenerationId);
+                        setIsPastWritingModalOpen(true);
+                        break;
+                    }
+                    case 'end': {
+                        setUserAction('none');
+                        setPlayable(false);
                         break;
                     }
                     default:
                         break;
                 }
-                setUserAction('none');
             })
                 .catch(e => {
                     console.error('Error receiving response:', e);
@@ -220,10 +229,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
 
                 }
             
-
-            return () => {
-                if (wsClientRef.current === null) return;
-            }
+            console.log("user action: ", userAction, " writingGenerationId: ", writingGenerationId);
         
         } catch (e) {
             setErrorKey("error.FetchingGenerationDetail");
@@ -245,13 +251,11 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
         <div>
             <div className="bg-neutral-900 flex-col md:flex-row items-center">
                 <div className="h-1/8 w-full">
-                    <button css={backButtonStyle(theme)} onClick={ () => setView('browsing') }>
-                        <ArrowBackIosIcon fontSize="small" />
-                    </button>
-                    { showWarning ? <Alert severity="warning">{warningMsg}</Alert> : null }
+                    { showWarning ? <Alert className="position absolute z-10 content-center left-1/3" severity="warning">{warningMsg}</Alert> : null }
                     <PastWritingsBar 
                         generation_ids={generation_ids} 
                         onClick={handleClickPastWritingIcon}
+                        getBack={ () => setView('browsing') }
                     />
                     <PastWritingModal
                         generation_id={selectedGenerationId}
@@ -267,6 +271,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                     setWritingText={setWritingText}
                     submitWritingFn={handleSubmitWriting}
                     isPlayable={isPlayable}
+                    isLoading={isLoading || generatingLoading}
                 />
                 </div>
             </div>
@@ -274,21 +279,3 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
     );
 };
 
-
-const backButtonStyle = (theme: Theme) => css`
-  color: white;
-  font-weight: 700;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  padding-left: 0.8rem;
-  padding-right: 0.5rem;
-  border-radius: calc(infinity * 1px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-  background-color: ${theme.palette.primary.main};
-  &:hover {
-    background-color: ${theme.palette.primary.light};
-  }
-`;

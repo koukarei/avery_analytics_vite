@@ -8,6 +8,7 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import { blueGrey } from '@mui/material/colors';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
 import React, { useState, useContext, useEffect, use } from 'react';
 import { css } from "@emotion/react";
@@ -25,6 +26,7 @@ import type { GenerationDetail } from '../../types/studentWork';
 interface PastWritingsProps {
   generation_ids: number[];
   onClick: (index: number) => void; // pass index into handler (matches usage)
+  getBack: () => void;
 }
 
 interface PastWritingModalProps {
@@ -172,7 +174,7 @@ const PastWritingIcon: React.FC<PastWritingIconProps> = ({
     const paletteKeys = [50, 100, 300, 500, 700, 900];
     const color = blueGrey[paletteKeys[index % paletteKeys.length] as keyof typeof blueGrey];
     
-    const handleClick = () =>{
+    const handleClick = () => {
         onClick(index);
     }
 
@@ -186,7 +188,7 @@ const PastWritingIcon: React.FC<PastWritingIconProps> = ({
         </Avatar>
     )
 }
-const PastWritingsBar: React.FC<PastWritingsProps> = ({ generation_ids, onClick }) => {
+const PastWritingsBar: React.FC<PastWritingsProps> = ({ generation_ids, onClick, getBack }) => {
     const [genIds, setGenIds] = useState<number[]>(generation_ids);
     useEffect(() => {
         setGenIds(generation_ids);
@@ -195,6 +197,9 @@ const PastWritingsBar: React.FC<PastWritingsProps> = ({ generation_ids, onClick 
     return (
         <Box className='flex flex-nowrap justify-start flex-row'>
             <Stack direction="row" spacing={1}>
+                <button css={backButtonStyle(theme)} onClick={getBack}>
+                    <ArrowBackIosIcon fontSize="small" />
+                </button>
                 {genIds.map((key, index) => (
                   <PastWritingIcon key={`${key}-${index}`} index={index} onClick={onClick} />
                 ))}
@@ -222,6 +227,24 @@ const buttonStyle = (theme: Theme) => css`
     &:hover {
         background-color: ${theme.palette.primary.dark};
     }
+`;
+
+const backButtonStyle = (theme: Theme) => css`
+  color: white;
+  font-weight: 700;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 0.8rem;
+  padding-right: 0.5rem;
+  border-radius: calc(infinity * 1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  background-color: ${theme.palette.primary.main};
+  &:hover {
+    background-color: ${theme.palette.primary.light};
+  }
 `;
 
 export { PastWritingsBar, PastWritingModal };
