@@ -1,3 +1,4 @@
+/** @jsxImportSource @emotion/react */
 import React, {useContext, useEffect, useState} from "react";
 import { WritingFrame } from "./WritingFrame";
 import { PastWritingsBar, PastWritingModal } from "./PastWritingFrame";
@@ -16,6 +17,9 @@ import { WebSocketClient } from "../../util/websocketClient";
 import { base64ToBlob } from "../../util/convertBase64";
 import { useLocalization } from '../../contexts/localizationUtils';
 
+import { css } from "@emotion/react";
+import type { Theme } from "@mui/material/styles";
+import {theme} from "../../src/Theme";
 
 interface WritingPageProps {
     setView: (view: GalleryView) => void;
@@ -278,28 +282,49 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
     }
     
     return (
-        <div className="bg-neutral-900 flex-col md:flex-row items-center">
-            <div className="h-1/8 w-full">
-                { showWarning ? <Alert severity="warning">{warningMsg}</Alert> : null }
-                <PastWritingsBar 
-                    generation_ids={generation_ids} 
-                    onClick={handleClickPastWritingIcon}
+        <div>
+            <div className="bg-neutral-900 flex-col md:flex-row items-center">
+                <div className="h-1/8 w-full">
+                    <button css={backButtonStyle(theme)} onClick={ () => setView('browsing') }>Back</button>
+                    { showWarning ? <Alert severity="warning">{warningMsg}</Alert> : null }
+                    <PastWritingsBar 
+                        generation_ids={generation_ids} 
+                        onClick={handleClickPastWritingIcon}
+                    />
+                    <PastWritingModal
+                        generation_id={selectedGenerationId}
+                        isOpen={isPastWritingModalOpen}
+                        onClose={() => setIsPastWritingModalOpen(false)}
+                    />
+                </div>
+                <div className="h-7/8 w-full">
+                <WritingFrame
+                    title={leaderboard ? leaderboard.title : t('writerView.writingFrame.noLeaderboard')}
+                    imageUrl={leaderboardImage ? leaderboardImage : ''}
+                    writingText={writingText}
+                    setWritingText={setWritingText}
+                    submitWritingFn={handleSubmitWriting}
                 />
-                <PastWritingModal
-                    generation_id={selectedGenerationId}
-                    isOpen={isPastWritingModalOpen}
-                    onClose={() => setIsPastWritingModalOpen(false)}
-                />
-            </div>
-            <div className="h-7/8">
-            <WritingFrame
-                imageUrl={leaderboardImage ? leaderboardImage : ''}
-                writingText={writingText}
-                setWritingText={setWritingText}
-                submitWritingFn={handleSubmitWriting}
-                setView={ () => setView('browsing') }
-            />
+                </div>
             </div>
         </div>
     );
 };
+
+
+const backButtonStyle = (theme: Theme) => css`
+  color: white;
+  font-weight: 700;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border-radius: 0.25rem;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  background-color: ${theme.palette.primary.main};
+  &:hover {
+    background-color: ${theme.palette.primary.light};
+  }
+`;

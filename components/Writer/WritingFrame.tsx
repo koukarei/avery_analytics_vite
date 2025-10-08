@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { TextField } from "@mui/material";
+import { CardHeader, CardContent, TextField } from "@mui/material";
 import React, { useEffect } from "react";
 import { css } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
@@ -17,10 +17,9 @@ interface WritingFrameProps {
     writingText: string;
     setWritingText: (text: string) => void;
     submitWritingFn: () => void;
-    setView: ()=>void;
 }
 
-export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writingText, setWritingText, submitWritingFn, setView }) => {
+export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writingText, setWritingText, submitWritingFn }) => {
     const { t } = useLocalization();
 
     const {
@@ -60,16 +59,17 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
 
     return (
         <div>
-            <button onClick={setView}></button>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <Card css={WritingFrameStyle(theme)} variant="outlined">
-                    <h2>{title}</h2>
-                    {imageUrl ? (
-                        <ImageListItem style={{ minWidth: '200px', maxWidth: '60%', padding: 5, marginBottom: '8px' }}>
-                            <img src={imageUrl} alt="Writing" />
-                        </ImageListItem>
-                    ) : null}
-                    <div css={typingAreaStyle}>
+                    <div className='flex-col'>
+                        <CardHeader title={title} />
+                        {imageUrl ? (
+                            <ImageListItem style={{ minWidth: '200px', maxWidth: '60%', padding: 5, marginBottom: '8px' }}>
+                                <img src={imageUrl} alt="Writing" />
+                            </ImageListItem>
+                        ) : null}
+                    </div>
+                    <CardContent css={typingAreaStyle}>
                     <Controller
                         name="writing"
                         control={control}
@@ -89,7 +89,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                         )}
                         />
                         <Button css={SubmitWritingButton(theme)} type="submit" variant="contained">Submit Writing</Button>
-                    </div>
+                    </CardContent>
                 </Card>
             </form>
         </div>
