@@ -85,6 +85,10 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                                 error={errors[field.name] ? true : false}
                                 helperText={(errors[field.name]?.message as string) || " "}
                                 placeholder={t("writerView.writingFrame.placeholder")}
+                                onChange={(e) => {
+                                    field.onChange(e);
+                                    setWritingText(e.target.value);
+                                }}
                             />
                         )}
                         />

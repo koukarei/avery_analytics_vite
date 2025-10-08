@@ -63,6 +63,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
     }
 
     const handleSubmitWriting = () => {
+        console.log('writingText before submit:', JSON.stringify(writingText));
         if (writingText.trim() === '') {
             setWarningMsg(t('writing.warning.empty'));
             setShowWarning(true);
