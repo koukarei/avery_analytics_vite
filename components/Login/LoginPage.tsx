@@ -439,7 +439,7 @@ function Signup() {
         </button>
       </form>
       <div css={navigateLinkStyle (theme)}>
-        <Link to="/login?signin">ログイン</Link>
+        <Link to="/avery_analytics/login?signin">ログイン</Link>
       </div>
     </>
   );
