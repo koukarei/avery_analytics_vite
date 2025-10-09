@@ -449,17 +449,17 @@ function Signup() {
 function Select() {
   return (
     <div css={selectLinkStyle (theme)}>
-      <Link css={selectLoginLinkStyle (theme)} to="/login?signin">
+      <Link css={selectLoginLinkStyle (theme)} to="/avery_analytics/login?signin">
         ログイン
       </Link>
-      <Link to="/login?signup">新規登録</Link>
+      <Link to="/avery_analytics/login?signup">新規登録</Link>
     </div>
   );
 }
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
-  
+
   let comp;
   if (searchParams.has("signin")) {
     comp = <Signin />;
