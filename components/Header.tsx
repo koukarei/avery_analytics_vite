@@ -35,7 +35,35 @@ const ShowUserProfile: React.FC = () => {
     sessionStorage.removeItem('refresh_token');
     sessionStorage.removeItem('token_type');
     sessionStorage.removeItem('program');
-    window.location.href = '/login';
+    
+    if (sessionStorage.getItem("school")) {
+      switch (sessionStorage.getItem("school")) {
+        case "lms":
+          window.location.href = "https://lms.let.media.kyoto-u.ac.jp/moodle/course/view.php"
+          break;
+        case "saikyo":
+          window.location.href = "https://sk.let.media.kyoto-u.ac.jp"
+          break;
+        case "hikone":
+          window.location.href = "https://leaf02.uchida.co.jp/moodle/"
+          break;
+        case "tom":
+          window.location.href = "https://dev.leaf.ederc.jp/moodle/course/view.php?id=7"
+          break;
+        case "tomsec":
+          window.location.href = "https://dev.leaf.ederc.jp/moodle/course/view.php?id=8"
+          break;
+        case "newleaf":
+          window.location.href = "https://newleaf.let.media.kyoto-u.ac.jp/moodle/course/view.php?id=2"
+          break;
+        default:
+          window.location.href = '/login';
+          break;
+      }
+      sessionStorage.removeItem("school");
+    } else {
+        window.location.href = '/login';
+      }
   };
 
   const open = Boolean(anchorEl);
