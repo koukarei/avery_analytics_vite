@@ -459,15 +459,34 @@ function Select() {
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
-  sessionStorage.removeItem("token");
+  const navigate = useNavigate();
+  sessionStorage.removeItem("access_token");
   sessionStorage.removeItem("refresh_token");
   sessionStorage.removeItem("program");
-  var n = sessionStorage.length;
-  while(n--) {
-    var key = sessionStorage.key(n);
-    if (key)
+  if (sessionStorage.getItem("school")) {
+    switch (sessionStorage.getItem("school")) {
+      case "lms":
+        navigate("https://lms.let.media.kyoto-u.ac.jp/moodle/course/view.php")
+        break;
+      case "saikyo":
+        navigate("https://sk.let.media.kyoto-u.ac.jp")
+        break;
+      case "hikone":
+        navigate("https://leaf02.uchida.co.jp/moodle/")
+        break;
+      case "tom":
+        navigate("https://dev.leaf.ederc.jp/moodle/course/view.php?id=7")
+        break;
+      case "tomsec":
+        navigate("https://dev.leaf.ederc.jp/moodle/course/view.php?id=8")
+        break;
+      case "newleaf":
+        navigate("https://newleaf.let.media.kyoto-u.ac.jp/moodle/course/view.php?id=2")
+        break;
+      default:
+        break;
+    }
   }
-
   let comp;
   if (searchParams.has("signin")) {
     comp = <Signin />;
