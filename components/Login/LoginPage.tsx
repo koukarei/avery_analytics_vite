@@ -459,8 +459,14 @@ function Select() {
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
-
   sessionStorage.removeItem("token");
+  sessionStorage.removeItem("refresh_token");
+  sessionStorage.removeItem("program");
+  var n = sessionStorage.length;
+  while(n--) {
+    var key = sessionStorage.key(n);
+    if (key)
+  }
 
   let comp;
   if (searchParams.has("signin")) {
