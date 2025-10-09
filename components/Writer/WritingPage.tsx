@@ -29,6 +29,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
     
     const [roundId, _setRoundId] = useState<number>(0);
     const [generation_ids, _setGenerationIds] = useState<number[]>([]);
+    const [loadingGenerationIds, setLoadingGenerationIds] = useState<number[]>([]);
     const [writingGenerationId, _setWritingGenerationId] = useState<number | null>(null);
     const [selectedGenerationId, setSelectedGenerationId] = useState<number | null>(null);
     const [generationTime, _setGenerationTime] = useState<number>(0);
@@ -137,6 +138,8 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                         }
                         break
                     case 'evaluate':
+                        setLoadingGenerationIds(writingGenerationId ? [...loadingGenerationIds, writingGenerationId]:loadingGenerationIds)
+                        _setGenerationIds(writingGenerationId ? [...generation_ids, writingGenerationId] : generation_ids);
                         break
                     case 'end':
                         break
@@ -207,7 +210,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                             setPlayable(false);
                         }
                         setGeneratingLoading(false);
-                        _setGenerationIds(writingGenerationId ? [...generation_ids, writingGenerationId] : generation_ids);
+                        setLoadingGenerationIds(writingGenerationId ? loadingGenerationIds.filter(gid => gid !== writingGenerationId):loadingGenerationIds)
                         _setWritingGenerationId(null);
                         _setGenerationTime(data.generation_time ? data.generation_time : 0);
                         setSelectedGenerationId(writingGenerationId);
@@ -255,6 +258,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                         generation_ids={generation_ids} 
                         onClick={handleClickPastWritingIcon}
                         getBack={ () => setView('browsing') }
+                        loadingGenerationIds={loadingGenerationIds}
                     />
                     <PastWritingModal
                         generation_id={selectedGenerationId}

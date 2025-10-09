@@ -27,6 +27,7 @@ interface PastWritingsProps {
   generation_ids: number[];
   onClick: (index: number) => void; // pass index into handler (matches usage)
   getBack: () => void;
+  loadingGenerationIds: number[]; // New prop to indicate loading state for specific IDs
 }
 
 interface PastWritingModalProps {
@@ -166,10 +167,11 @@ const PastWritingModal: React.FC<PastWritingModalProps> = ({
 interface PastWritingIconProps {
     index: number;
     onClick: (index: number) => void;
+    isLoading: boolean;
 }
 
 const PastWritingIcon: React.FC<PastWritingIconProps> = ({ 
-    index, onClick 
+    index, onClick, isLoading
 }) => {
     const paletteKeys = [50, 100, 300, 500, 700, 900];
     const color = blueGrey[paletteKeys[index % paletteKeys.length] as keyof typeof blueGrey];
@@ -178,9 +180,17 @@ const PastWritingIcon: React.FC<PastWritingIconProps> = ({
         onClick(index);
     }
 
+    const handleIsLoading=()=>{
+        if (isLoading){
+            return 'animate-spin';
+        };
+        return '';
+    }
+
     return (
-        <Avatar sx={{ bgcolor: color }}>
+        <Avatar className={handleIsLoading()} sx={{ bgcolor: color }}>
             <Button
+                disabled={!isLoading}
                 onClick={handleClick}
             >
                 {index + 1}
@@ -188,11 +198,13 @@ const PastWritingIcon: React.FC<PastWritingIconProps> = ({
         </Avatar>
     )
 }
-const PastWritingsBar: React.FC<PastWritingsProps> = ({ generation_ids, onClick, getBack }) => {
+const PastWritingsBar: React.FC<PastWritingsProps> = ({ generation_ids, onClick, getBack, loadingGenerationIds }) => {
     const [genIds, setGenIds] = useState<number[]>(generation_ids);
+    const [loadingGenids, setLoadingGenIds] = useState<number[]>(loadingGenerationIds);
     useEffect(() => {
         setGenIds(generation_ids);
-    }, [generation_ids]);
+        setLoadingGenIds(generation_ids);
+    }, [generation_ids, loadingGenerationIds]);
 
     return (
         <Box className='flex flex-nowrap justify-start flex-row'>
@@ -201,7 +213,12 @@ const PastWritingsBar: React.FC<PastWritingsProps> = ({ generation_ids, onClick,
                     <ArrowBackIosIcon fontSize="small" />
                 </button>
                 {genIds.map((key, index) => (
-                  <PastWritingIcon key={`${key}-${index}`} index={index} onClick={onClick} />
+                  <PastWritingIcon
+                    key={`${key}-${index}`}
+                    index={index}
+                    onClick={onClick}
+                    isLoading={loadingGenids.includes(key)}
+                    />
                 ))}
             </Stack>
         </Box>
