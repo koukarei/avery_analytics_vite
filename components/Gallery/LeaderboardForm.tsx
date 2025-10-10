@@ -7,7 +7,6 @@ import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
 import dayjs from 'dayjs';
 import { DemoItem } from '@mui/x-date-pickers/internals/demo';
-import FormGroup from '@mui/material/FormGroup';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -162,6 +161,7 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
   const { fetchImages } = useContext(LeaderboardImagesContext);
   const { currentUser } = useContext(AuthUserContext);
   const [openAddStoryModal, setOpenAddStoryModal] = React.useState<boolean>(false);
+  const [storiesForm, setStoriesForm] = React.useState<Story[]>([...stories]);
 
   const {
     control,
@@ -299,35 +299,35 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
           />
         </div>
         <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
-          <FormGroup className="flex flex-row">
-            <div className="flex-grow">
-              <Controller
-                name="story_id"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    select
-                    label="ストーリー/ Story"
-                    placeholder="ストーリー"
-                    error={errors[field.name] ? true : false}
-                    helperText={(errors[field.name]?.message as string) || " "}
-                  >
-                    {Array.isArray(stories) && stories.map((story) => (
-                      <MenuItem key={story.id} value={story.id}>
-                        {story.title}
-                      </MenuItem>
-                    ))}
+          <Controller
+            name="story_id"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                fullWidth
+                select
+                label="ストーリー/ Story"
+                placeholder="ストーリー"
+                error={errors[field.name] ? true : false}
+                helperText={(errors[field.name]?.message as string) || " "}
+                slotProps={{
+                  input: { 
+                    endAdornment: (
+                      <AddStoryModal scenes={scenes} open={openAddStoryModal} setOpen={setOpenAddStoryModal} setStories={setStoriesForm} />
+                    )
+                  }
+                }}
+              >
+                {Array.isArray(storiesForm) && storiesForm.map((story) => (
+                  <MenuItem key={story.id} value={story.id}>
+                    {story.title}
+                  </MenuItem>
+                ))}
 
-                  </TextField>
-                )}
-              />
-            </div>
-            <div className="w-1/6">
-              <AddStoryModal scenes={scenes} open={openAddStoryModal} setOpen={setOpenAddStoryModal} />
-            </div>
-          </FormGroup>
+              </TextField>
+            )}
+          />
         </div>
         <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
           <Controller

@@ -7,7 +7,7 @@ import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Button from '@mui/material/Button';
 import { Controller, useForm } from "react-hook-form";
-import type { StoryCreate, Scene } from "../../types/leaderboard";
+import type { StoryCreate, Scene, Story} from "../../types/leaderboard";
 import { StoryAPI } from "../../api/Story";
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
@@ -20,6 +20,7 @@ interface AddStoryModalProps {
     open: boolean;
     setOpen: (open: boolean) => void;
     scenes: Scene[];
+    setStories: (story: Story[]) => void;
 }
 
 
@@ -33,7 +34,7 @@ const rules = {
   },
 };
 
-export const AddStoryModal: React.FC<AddStoryModalProps> = ({ open, setOpen, scenes }) => {
+export const AddStoryModal: React.FC<AddStoryModalProps> = ({ open, setOpen, scenes, setStories }) => {
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const handleOpen = () => {
     setOpen(true);
@@ -50,7 +51,8 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({ open, setOpen, sce
 
   const onSubmit = async (data: StoryCreate) => {
     try {
-        await StoryAPI.createStory(data);
+        const response = await StoryAPI.createStory(data);
+        setStories(prev => [response, ...prev]);
         handleClose();
     } catch (error) {
         console.error("Error creating story:", error);
