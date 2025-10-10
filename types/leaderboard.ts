@@ -52,6 +52,12 @@ export interface Scene {
   prompt: string;
 }
 
+export interface StoryCreate {
+  story_content_file: File; // Changed from string to File for file upload
+  title: string;
+  scene_id: number;
+}
+
 export interface Story {
   id: number;
   title: string;

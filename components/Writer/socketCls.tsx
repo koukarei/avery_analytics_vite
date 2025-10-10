@@ -251,6 +251,9 @@ export class socketCls {
             this.client.unsubscribe(this.wsLink, this.messageHandler);
             window.removeEventListener('beforeunload', this.handleBeforeUnload);
         }
+        if (this.client) {
+            this.client.close();
+        }
     }
     
 }
