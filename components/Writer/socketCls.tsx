@@ -242,6 +242,8 @@ export class socketCls {
 
     close = () => {
         if (this.client && this.wsLink && this.messageHandler) {
+            this.currentAction = 'end';
+            this.send_user_action();
             this.client.unsubscribe(this.wsLink, this.messageHandler);
             window.removeEventListener('beforeunload', this.handleBeforeUnload);
             this.client.close()
