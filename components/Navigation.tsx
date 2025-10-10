@@ -11,6 +11,7 @@ import ChartBarIcon from './icons/ChartBarIcon';
 import EyeIcon from './icons/EyeIcon';
 import EyeSlashIcon from './icons/EyeSlashIcon';
 import { AuthUserContext } from '../providers/AuthUserProvider';
+import { Link } from "react-router-dom";
 
 interface NavigationProps {
   activeView: ViewMode;
@@ -63,8 +64,9 @@ const Navigation: React.FC<NavigationProps> = ({ activeView, setActiveView, show
         <ul className="flex space-x-4">
           {navItems.map((item) => (
             <li key={item.id}>
-              <button
-                onClick={() => setActiveView(item.id)}
+              <Link
+                onClick={()=>setActiveView(item.id)}
+                to={`/avery_analytics/${item.id}`}
                 className={`flex items-center py-3 px-3 font-medium border-b-4 transition-colors duration-150
                   ${activeView === item.id 
                     ? 'border-primary text-primary' 
@@ -74,7 +76,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeView, setActiveView, show
               >
                 {item.icon}
                 {t(item.labelKey)}
-              </button>
+              </Link>
             </li>
           ))}
         </ul>

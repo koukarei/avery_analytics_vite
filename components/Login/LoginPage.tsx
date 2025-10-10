@@ -141,7 +141,7 @@ function Signin() {
         sessionStorage.setItem(key, String(value));
       }
       sessionStorage.setItem("program", data.program)
-      navigate("/avery_analytics/");
+      navigate("/avery_analytics/writer");
     } catch (e) {
       console.log(e);
       setError("root", {

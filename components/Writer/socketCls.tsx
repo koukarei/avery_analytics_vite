@@ -55,6 +55,10 @@ export class socketCls {
                 this.flushQueue();
                 
                 window.addEventListener('beforeunload', this.handleBeforeUnload);
+                const backTogalleryButton = document.getElementById('back-gallery-button-icon');
+                if (backTogalleryButton) {
+                    backTogalleryButton.addEventListener('click', this.close);
+                }
                 
             }
         }).catch( err => {
