@@ -32,7 +32,6 @@ export class WebSocketClient {
     const { urls } = this.config
     urls.forEach((url) => {
       const ws = new ReconnectingWebSocket(url)
-      console.log(`connectiong... ${url}`)
       ws.addEventListener('message', (event: MessageEvent<string>) => {
         const parsedData = JSON.parse(event.data)
         this.data = { ...this.data, [url]: parsedData }
@@ -108,7 +107,6 @@ export class WebSocketClient {
   // #6. 接続先のクローズ
   close = () => {
     this.websockets.forEach((w, u) => {
-      console.log(`closing... ${u}`)
       w.close(
         1000, 'Normal Closure by client'
       )
