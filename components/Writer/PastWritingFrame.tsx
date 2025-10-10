@@ -168,7 +168,6 @@ const PastWritingModal: React.FC<PastWritingModalProps> = ({
 interface PastWritingIconProps {
     index: number;
     idx: number; //
-    generationId: number;
     onClick: (generation_id: number) => void;
     loadingGenerationIds: number[];
 }
@@ -204,7 +203,7 @@ const PastWritingsBar: React.FC<PastWritingsProps> = ({ generation_ids, onClick,
                  </Button>
                 {generation_ids.map((generation_id, index) => (
                   <PastWritingIcon
-                    key={generation_id}
+                    key={`${generation_id}-${index}`}
                     index={index}
                     idx={generation_id}
                     onClick={onClick}
