@@ -188,7 +188,6 @@ const PastWritingIcon: React.FC<PastWritingIconProps> = ({
         setId(idx);
         setIsSpinning(loadingGenerationIds.includes(id));
         setIsDisabled(loadingGenerationIds.includes(id));
-        console.log(`PastWritingIcon index: ${index}, loadingGenerationIds: ${loadingGenerationIds}, isSpinning: ${isSpinning}`);
     }, [idx, loadingGenerationIds]);
 
     return (
