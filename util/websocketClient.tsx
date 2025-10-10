@@ -106,7 +106,7 @@ export class WebSocketClient {
 
   // #6. 接続先のクローズ
   close = () => {
-    this.websockets.forEach((w, u) => {
+    this.websockets.forEach((w) => {
       w.close(
         1000, 'Normal Closure by client'
       )
