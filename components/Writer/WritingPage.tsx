@@ -39,6 +39,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
     const [warningMsg, setWarningMsg] = useState<string>("");
 
     const [isPastWritingModalOpen, setIsPastWritingModalOpen] = useState(false);
+    const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false);
 
     const [userAction, setUserAction] = useState<'none' | 'start' | 'resume' | 'hint' | 'submit' | 'evaluate' | 'end'>('resume');
 
@@ -48,10 +49,10 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
     
 
     const handleClickPastWritingIcon = (
-        index: number
+        generation_id: number,
     ) => {
         setIsPastWritingModalOpen(true);
-        setSelectedGenerationId(generation_ids[index]);
+        setSelectedGenerationId(generation_id);
     };
 
     const handleSubmitWriting = () => {
@@ -205,16 +206,14 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                         break;
                     }
                     case 'evaluate': {
-                        if (data.generation_time === 5) {
+                        if (generationTime > 4) {
                             setUserAction('end');
                             setPlayable(false);
                         }
                         setGeneratingLoading(false);
                         setLoadingGenerationIds(writingGenerationId ? loadingGenerationIds.filter(gid => gid !== writingGenerationId):loadingGenerationIds)
-                        _setWritingGenerationId(null);
                         _setGenerationTime(data.generation_time ? data.generation_time : 0);
-                        setSelectedGenerationId(writingGenerationId);
-                        setIsPastWritingModalOpen(true);
+                        setIsEvaluationModalOpen(true);
                         break;
                     }
                     case 'end': {
@@ -264,6 +263,11 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                         generation_id={selectedGenerationId}
                         isOpen={isPastWritingModalOpen}
                         onClose={() => setIsPastWritingModalOpen(false)}
+                    />
+                    <PastWritingModal
+                        generation_id={writingGenerationId}
+                        isOpen={isEvaluationModalOpen}
+                        onClose={() => setIsEvaluationModalOpen(false)}
                     />
                 </div>
                 <div className="h-7/8 w-full">

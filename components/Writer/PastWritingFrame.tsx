@@ -85,6 +85,7 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
         }
         };
         fetch();
+        console.log("Selected generation_id: ", generation_id);
     }, [generation_id, showImage, showAWE]);
 
     const handleClickShowImage = () => {
@@ -181,7 +182,7 @@ const PastWritingIcon: React.FC<PastWritingIconProps> = ({
     const [isDisabled, setIsDisabled] = useState(false);
 
     const handleClick = () => {
-        onClick(index);
+        onClick(idx);
     }
 
     useEffect(() => {
