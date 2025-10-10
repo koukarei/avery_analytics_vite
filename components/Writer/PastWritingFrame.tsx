@@ -10,8 +10,8 @@ import Avatar from '@mui/material/Avatar';
 import { blueGrey } from '@mui/material/colors';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
-import React, { useState, useContext, useEffect } from 'react';
-import { css } from "@emotion/react";
+import React, { useState, useContext, useEffect, use } from 'react';
+import { css, keyframes } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
 import { Button } from '@mui/material';
@@ -166,31 +166,35 @@ const PastWritingModal: React.FC<PastWritingModalProps> = ({
 
 interface PastWritingIconProps {
     index: number;
+    idx: number;
     onClick: (index: number) => void;
-    isLoading: boolean;
+    loadingGenerationIds: number[];
 }
 
 const PastWritingIcon: React.FC<PastWritingIconProps> = ({ 
-    index, onClick, isLoading
+    index, idx, onClick, loadingGenerationIds
 }) => {
     const paletteKeys = [50, 100, 300, 500, 700, 900];
     const color = blueGrey[paletteKeys[index % paletteKeys.length] as keyof typeof blueGrey];
-    
+    const [id, setId] = useState(idx);
+    const [isSpinning, setIsSpinning] = useState(false);
+    const [isDisabled, setIsDisabled] = useState(false);
+
     const handleClick = () => {
         onClick(index);
     }
 
-    const handleIsLoading=()=>{
-        if (isLoading){
-            return 'animate-spin';
-        };
-        return '';
-    }
+    useEffect(() => {
+        setId(idx);
+        setIsSpinning(loadingGenerationIds.includes(id));
+        setIsDisabled(loadingGenerationIds.includes(id));
+        console.log(`PastWritingIcon index: ${index}, loadingGenerationIds: ${loadingGenerationIds}, isSpinning: ${isSpinning}`);
+    }, [idx, loadingGenerationIds]);
 
     return (
-        <Avatar className={handleIsLoading()} sx={{ bgcolor: color }}>
+        <Avatar css={pastWritingIconStyle(isSpinning)} sx={{ bgcolor: color }}>
             <Button
-                disabled={!isLoading}
+                disabled={isDisabled}
                 onClick={handleClick}
             >
                 {index + 1}
@@ -200,24 +204,23 @@ const PastWritingIcon: React.FC<PastWritingIconProps> = ({
 }
 const PastWritingsBar: React.FC<PastWritingsProps> = ({ generation_ids, onClick, getBack, loadingGenerationIds }) => {
     const [genIds, setGenIds] = useState<number[]>(generation_ids);
-    const [loadingGenids, setLoadingGenIds] = useState<number[]>(loadingGenerationIds);
     useEffect(() => {
-        setGenIds(generation_ids);
-        setLoadingGenIds(generation_ids);
-    }, [generation_ids, loadingGenerationIds]);
+        setGenIds([...generation_ids]);
+    }, [generation_ids]);
 
     return (
         <Box className='flex flex-nowrap justify-start flex-row'>
             <Stack direction="row" spacing={1}>
-                <button css={backButtonStyle(theme)} onClick={getBack}>
+                <Button css={backButtonStyle(theme)} onClick={getBack}>
                     <ArrowBackIosIcon fontSize="small" />
-                </button>
+                </Button>
                 {genIds.map((key, index) => (
                   <PastWritingIcon
                     key={`${key}-${index}`}
                     index={index}
+                    idx={key}
                     onClick={onClick}
-                    isLoading={loadingGenids.includes(key)}
+                    loadingGenerationIds={loadingGenerationIds}
                     />
                 ))}
             </Stack>
@@ -262,6 +265,19 @@ const backButtonStyle = (theme: Theme) => css`
   &:hover {
     background-color: ${theme.palette.primary.light};
   }
+`;
+
+const spin = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const pastWritingIconStyle = (isSpinning: boolean) =>css`
+  animation: ${isSpinning ? spin : ''} 1s linear infinite;
 `;
 
 export { PastWritingsBar, PastWritingModal };
