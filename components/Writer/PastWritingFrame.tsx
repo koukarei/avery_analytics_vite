@@ -25,7 +25,7 @@ import type { GenerationDetail } from '../../types/studentWork';
 
 interface PastWritingsProps {
   generation_ids: number[];
-  onClick: (index: number) => void; // pass index into handler (matches usage)
+  onClick: (generation_id: number) => void; // pass generation id into handler
   getBack: () => void;
   loadingGenerationIds: number[]; // New prop to indicate loading state for specific IDs
 }
@@ -77,6 +77,7 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
             if (evaluationData && evaluationData.content) {
                 setAWEText(evaluationData.content);
             }
+            console.log("Fetched detail, image, evaluation data: ", detailData, imageData, evaluationData);
         } catch (e) {
             console.error("Failed to fetch generation detail: ", e);
             setErrorKey("error.FetchingGenerationDetail");
@@ -85,7 +86,6 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
         }
         };
         fetch();
-        console.log("Selected generation_id: ", generation_id);
     }, [generation_id, showImage, showAWE]);
 
     const handleClickShowImage = () => {
@@ -167,8 +167,8 @@ const PastWritingModal: React.FC<PastWritingModalProps> = ({
 
 interface PastWritingIconProps {
     index: number;
-    idx: number;
-    onClick: (index: number) => void;
+    generationId: number;
+    onClick: (generation_id: number) => void;
     loadingGenerationIds: number[];
 }
 
@@ -177,56 +177,43 @@ const PastWritingIcon: React.FC<PastWritingIconProps> = ({
 }) => {
     const paletteKeys = [50, 100, 300, 500, 700, 900];
     const color = blueGrey[paletteKeys[index % paletteKeys.length] as keyof typeof blueGrey];
-    const [id, setId] = useState(idx);
-    const [isSpinning, setIsSpinning] = useState(false);
-    const [isDisabled, setIsDisabled] = useState(false);
-
-    const handleClick = () => {
-        onClick(idx);
-    }
-
-    useEffect(() => {
-        setId(idx);
-        setIsSpinning(loadingGenerationIds.includes(id));
-        setIsDisabled(loadingGenerationIds.includes(id));
-    }, [idx, loadingGenerationIds]);
-
-    return (
-        <Avatar css={pastWritingIconStyle(isSpinning)} sx={{ bgcolor: color }}>
-            <Button
-                disabled={isDisabled}
-                onClick={handleClick}
-            >
-                {index + 1}
-            </Button>
-        </Avatar>
-    )
+    // derive states directly from props to avoid stale closure
+    const isSpinning = loadingGenerationIds.includes(idx);
+    const isDisabled = isSpinning;
+    const handleClick = () => onClick(idx);
+ 
+     return (
+         <Avatar css={pastWritingIconStyle(isSpinning)} sx={{ bgcolor: color }}>
+             <Button
+                 disabled={isDisabled}
+                 onClick={handleClick}
+             >
+                 {index + 1}
+             </Button>
+         </Avatar>
+     )
 }
 const PastWritingsBar: React.FC<PastWritingsProps> = ({ generation_ids, onClick, getBack, loadingGenerationIds }) => {
-    const [genIds, setGenIds] = useState<number[]>(generation_ids);
-    useEffect(() => {
-        setGenIds([...generation_ids]);
-    }, [generation_ids]);
-
-    return (
-        <Box className='flex flex-nowrap justify-start flex-row'>
-            <Stack direction="row" spacing={1}>
-                <Button css={backButtonStyle(theme)} onClick={getBack}>
-                    <ArrowBackIosIcon fontSize="small" />
-                </Button>
-                {genIds.map((key, index) => (
+ 
+     return (
+         <Box className='flex flex-nowrap justify-start flex-row'>
+             <Stack direction="row" spacing={1}>
+                 <Button css={backButtonStyle(theme)} onClick={getBack}>
+                     <ArrowBackIosIcon fontSize="small" />
+                 </Button>
+                {generation_ids.map((generation_id, index) => (
                   <PastWritingIcon
-                    key={`${key}-${index}`}
+                    key={generation_id}
                     index={index}
-                    idx={key}
+                    idx={generation_id}
                     onClick={onClick}
                     loadingGenerationIds={loadingGenerationIds}
-                    />
+                  />
                 ))}
-            </Stack>
-        </Box>
-    );
-}
+             </Stack>
+         </Box>
+     );
+ }
 
 const style = {
   position: 'absolute',
