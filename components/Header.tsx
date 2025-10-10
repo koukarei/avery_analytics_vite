@@ -90,7 +90,7 @@ const ShowUserProfile: React.FC = () => {
             <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}> {currentUser?.email} </Typography>
           </CardContent>
           <CardActions>
-            <Button sx={{ color: theme.palette.primary.dark }} onClick={handleLogout}>
+            <Button id="logout-button" sx={{ color: theme.palette.primary.dark }} onClick={handleLogout}>
               <LogoutIcon className='w-6 h-6' />
               Logout
             </Button>

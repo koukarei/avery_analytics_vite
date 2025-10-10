@@ -61,7 +61,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeView, setActiveView, show
   return (
     <nav className="shadow-sm sticky top-0 z-10" css={headerStyles}>
       <div className="container mx-auto px-4 flex justify-between items-center">
-        <ul className="flex space-x-4">
+        <ul id="navigation-bar-list" className="flex space-x-4">
           {navItems.map((item) => (
             <li key={item.id}>
               <Link

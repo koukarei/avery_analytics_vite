@@ -59,6 +59,15 @@ export class socketCls {
                 if (backTogalleryButton) {
                     backTogalleryButton.addEventListener('click', this.close);
                 }
+                const navigationBar = document.getElementById('navigation-bar-list');
+                if (navigationBar) {
+                    navigationBar.addEventListener('click', this.close);
+                }
+
+                const logoutButton = document.getElementById('logout-button');
+                if (logoutButton) {
+                    logoutButton.addEventListener('click', this.close);
+                }
                 
             }
         }).catch( err => {
