@@ -57,12 +57,12 @@ const ShowUserProfile: React.FC = () => {
           window.location.href = "https://newleaf.let.media.kyoto-u.ac.jp/moodle/course/view.php?id=2"
           break;
         default:
-          window.location.href = '/login';
+          window.location.href = '/avery_analytics/login';
           break;
       }
       sessionStorage.removeItem("school");
     } else {
-        window.location.href = '/login';
+        window.location.href = '/avery_analytics/login';
       }
   };
 
@@ -109,7 +109,7 @@ const Header: React.FC = () => {
     <header className="shadow-md" css={headerStyles}>
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center">
-          <button aria-label="Home" onClick={() => window.location.href = '/' } className="flex items-center mr-4">
+          <button aria-label="Home" onClick={() => window.location.href = '/avery_analytics' } className="flex items-center mr-4">
             <IconComponent className="w-16 h-16 items-center text-white mr-2"/>
             <h1 className="text-3xl font-bold text-white">{t('header.title')}</h1>
           </button>

@@ -11,7 +11,7 @@ import { blueGrey } from '@mui/material/colors';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
 import React, { useState, useContext, useEffect } from 'react';
-import { css } from "@emotion/react";
+import { css, keyframes } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
 import { Button } from '@mui/material';
@@ -25,7 +25,7 @@ import type { GenerationDetail } from '../../types/studentWork';
 
 interface PastWritingsProps {
   generation_ids: number[];
-  onClick: (index: number) => void; // pass index into handler (matches usage)
+  onClick: (generation_id: number) => void; // pass generation id into handler
   getBack: () => void;
   loadingGenerationIds: number[]; // New prop to indicate loading state for specific IDs
 }
@@ -77,6 +77,7 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
             if (evaluationData && evaluationData.content) {
                 setAWEText(evaluationData.content);
             }
+            console.log("Fetched detail, image, evaluation data: ", detailData, imageData, evaluationData);
         } catch (e) {
             console.error("Failed to fetch generation detail: ", e);
             setErrorKey("error.FetchingGenerationDetail");
@@ -166,64 +167,53 @@ const PastWritingModal: React.FC<PastWritingModalProps> = ({
 
 interface PastWritingIconProps {
     index: number;
-    onClick: (index: number) => void;
-    isLoading: boolean;
+    idx: number; //
+    onClick: (generation_id: number) => void;
+    loadingGenerationIds: number[];
 }
 
 const PastWritingIcon: React.FC<PastWritingIconProps> = ({ 
-    index, onClick, isLoading
+    index, idx, onClick, loadingGenerationIds
 }) => {
     const paletteKeys = [50, 100, 300, 500, 700, 900];
     const color = blueGrey[paletteKeys[index % paletteKeys.length] as keyof typeof blueGrey];
-    
-    const handleClick = () => {
-        onClick(index);
-    }
-
-    const handleIsLoading=()=>{
-        if (isLoading){
-            return 'animate-spin';
-        };
-        return '';
-    }
-
-    return (
-        <Avatar className={handleIsLoading()} sx={{ bgcolor: color }}>
-            <Button
-                disabled={!isLoading}
-                onClick={handleClick}
-            >
-                {index + 1}
-            </Button>
-        </Avatar>
-    )
+    // derive states directly from props to avoid stale closure
+    const isSpinning = loadingGenerationIds.includes(idx);
+    const isDisabled = isSpinning;
+    const handleClick = () => onClick(idx);
+ 
+     return (
+         <Avatar css={pastWritingIconStyle(isSpinning)} sx={{ bgcolor: color }}>
+             <Button
+                 disabled={isDisabled}
+                 onClick={handleClick}
+             >
+                 {index + 1}
+             </Button>
+         </Avatar>
+     )
 }
 const PastWritingsBar: React.FC<PastWritingsProps> = ({ generation_ids, onClick, getBack, loadingGenerationIds }) => {
-    const [genIds, setGenIds] = useState<number[]>(generation_ids);
-    const [loadingGenids, setLoadingGenIds] = useState<number[]>(loadingGenerationIds);
-    useEffect(() => {
-        setGenIds(generation_ids);
-        setLoadingGenIds(generation_ids);
-    }, [generation_ids, loadingGenerationIds]);
-
-    return (
-        <Box className='flex flex-nowrap justify-start flex-row'>
-            <Stack direction="row" spacing={1}>
-                <button css={backButtonStyle(theme)} onClick={getBack}>
-                    <ArrowBackIosIcon fontSize="small" />
-                </button>
-                {genIds.map((key, index) => (
+ 
+     return (
+         <Box className='flex flex-nowrap justify-start flex-row'>
+             <Stack direction="row" spacing={1}>
+                 <Button css={backButtonStyle(theme)} onClick={getBack}>
+                     <ArrowBackIosIcon fontSize="small" />
+                 </Button>
+                {generation_ids.map((generation_id, index) => (
                   <PastWritingIcon
-                    key={`${key}-${index}`}
+                    key={`${generation_id}-${index}`}
                     index={index}
+                    idx={generation_id}
                     onClick={onClick}
-                    isLoading={loadingGenids.includes(key)}
-                    />
+                    loadingGenerationIds={loadingGenerationIds}
+                  />
                 ))}
-            </Stack>
-        </Box>
-    );
-}
+             </Stack>
+         </Box>
+     );
+ }
 
 const style = {
   position: 'absolute',
@@ -262,6 +252,19 @@ const backButtonStyle = (theme: Theme) => css`
   &:hover {
     background-color: ${theme.palette.primary.light};
   }
+`;
+
+const spin = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const pastWritingIconStyle = (isSpinning: boolean) =>css`
+  animation: ${isSpinning ? spin : ''} 1s linear infinite;
 `;
 
 export { PastWritingsBar, PastWritingModal };

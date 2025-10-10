@@ -19,50 +19,66 @@ interface WritingPageProps {
     imageUrl: string | null;
 }
 
+interface WritingProps {
+    title: string;
+    imageUrl: string;
+    isPlayable: boolean;
+    setPlayable: (playable: boolean) => void;
+    leaderboard_id: number;
+    generationIds: number[];
+    setGenerationIds: (ids: number[]) => void;
+    loadingGenerationIds: number[];
+    setLoadingGenerationIds: (ids: number[]) => void;
+    writingGenerationId: number | null;
+    setWritingGenerationId: (id: number | null) => void;
+    setIsEvaluationModalOpen: (isOpen: boolean) => void;
+    setWarningMsg: (msg: string) => void;
+}
 
-export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, imageUrl }) => {
+interface BrowseWritingProps {
+    setView: (view: GalleryView) => void;
+    generation_ids: number[];
+    loadingGenerationIds: number[];
+    writingGenerationId: number | null;
+    isEvaluationModalOpen: boolean;
+    setIsEvaluationModalOpen: (isOpen: boolean) => void;
+    warningMsg: string;
+}
+
+export const Writing: React.FC<WritingProps> = ({ 
+    title,
+    imageUrl,
+    isPlayable,
+    setPlayable,
+    leaderboard_id,
+    generationIds,
+    setGenerationIds,
+    loadingGenerationIds,
+    setLoadingGenerationIds,
+    writingGenerationId,
+    setWritingGenerationId,
+    setIsEvaluationModalOpen,
+    setWarningMsg,
+}) => {
     const [writingText, setWritingText] = useState("");
-    const [isPlayable, setPlayable] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [generatingLoading, setGeneratingLoading] = useState(false);
     const [errorKey, setErrorKey] = useState<string | null>(null);
     
     const [roundId, _setRoundId] = useState<number>(0);
-    const [generation_ids, _setGenerationIds] = useState<number[]>([]);
-    const [loadingGenerationIds, setLoadingGenerationIds] = useState<number[]>([]);
-    const [writingGenerationId, _setWritingGenerationId] = useState<number | null>(null);
-    const [selectedGenerationId, setSelectedGenerationId] = useState<number | null>(null);
     const [generationTime, _setGenerationTime] = useState<number>(0);
     const [leaderboardImage, setLeaderboardImage] = useState<string | null>(imageUrl);
 
-    const [showWarning, setShowWarning] = useState(false);
-    const [warningMsg, setWarningMsg] = useState<string>("");
-
-    const [isPastWritingModalOpen, setIsPastWritingModalOpen] = useState(false);
-
     const [userAction, setUserAction] = useState<'none' | 'start' | 'resume' | 'hint' | 'submit' | 'evaluate' | 'end'>('resume');
 
-    const { fetchLeaderboard } = useContext(LeaderboardPlayableContext);
     const wsClientRef = useRef<socketCls | null>(null);
     const { t } = useLocalization();
     
-
-    const handleClickPastWritingIcon = (
-        index: number
-    ) => {
-        setIsPastWritingModalOpen(true);
-        setSelectedGenerationId(generation_ids[index]);
-    };
-
     const handleSubmitWriting = () => {
         setIsLoading(true);
         setGeneratingLoading(true);
         if ( generationTime > 5 || isPlayable === false ) {
             setWarningMsg(t('writing.warning.time_exceeded'));
-            setShowWarning(true);
-            setTimeout(() => {
-                setShowWarning(false);
-            }, 2000);
             setIsLoading(false);
             setGeneratingLoading(false);
             return;
@@ -70,44 +86,21 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
         setUserAction('submit');
         return;
     };
-
-    useEffect(() => {
-        setErrorKey(null);
-        setIsLoading(true);
-            try {
-                if (leaderboard) {
-                    const program = sessionStorage.getItem('program') || 'none';
-                    fetchLeaderboard(leaderboard.id, program).then((playableData) => {
-                        if (playableData) {
-                            setPlayable(playableData.is_playable);
-                        }
-                    }).catch(e => {
-                        console.error('Failed to fetch leaderboard playable:', e)
-                    });
-                }
-            } catch (e) {
-                setErrorKey("error.FetchingLeaderboardPlayable");
-                console.log(e);
-            } finally {
-                setIsLoading(false);
-            }
-    }, [leaderboard?.id]);
     
     useEffect(() => {
         setErrorKey(null);
         setIsLoading(true);
-
-        try {
-            if (leaderboard && isPlayable) {
+        try{
+            if (isPlayable) {
                 if (wsClientRef.current === null) {
-                    wsClientRef.current = new socketCls(leaderboard.id);
+                    wsClientRef.current = new socketCls(leaderboard_id);
                 }
                 let obj= null;
                 wsClientRef.current.currentAction = userAction;
                 switch (userAction) {
                     case 'start':
                         obj = {
-                            leaderboard_id: leaderboard ? leaderboard.id : 0,
+                            leaderboard_id: leaderboard_id,
                             model: 'gpt-4o-mini',
                             program: sessionStorage.getItem('program') || 'none',
                             created_at: new Date(),
@@ -115,7 +108,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                         break
                     case 'resume':
                         obj = {
-                            leaderboard_id: leaderboard ? leaderboard.id : 0,
+                            leaderboard_id: leaderboard_id,
                             model: 'gpt-4o-mini',
                             program: sessionStorage.getItem('program') || 'none',
                             created_at: new Date(),
@@ -130,7 +123,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                         break;
                     case 'submit':
                         obj = {
-                            leaderboard_id: leaderboard ? leaderboard.id : 0,
+                            leaderboard_id: leaderboard_id,
                             round_id: roundId,
                             created_at: new Date(),
                             generated_time: generationTime,
@@ -139,7 +132,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                         break
                     case 'evaluate':
                         setLoadingGenerationIds(writingGenerationId ? [...loadingGenerationIds, writingGenerationId]:loadingGenerationIds)
-                        _setGenerationIds(writingGenerationId ? [...generation_ids, writingGenerationId] : generation_ids);
+                        setGenerationIds(writingGenerationId ? [...generationIds, writingGenerationId] : generationIds);
                         break
                     case 'end':
                         break
@@ -155,9 +148,9 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                     case 'start':{
                         if (data) {
                             const pastGenerationIds = data.past_generation_ids && data.writing_generation_id ? data.past_generation_ids.filter(gid => gid !== writingGenerationId) : [];
-                            _setGenerationIds([...pastGenerationIds])
+                            setGenerationIds([...pastGenerationIds])
                             _setRoundId(data.round_id ? data.round_id : 0);
-                            _setWritingGenerationId(data.writing_generation_id ? data.writing_generation_id : null)
+                            setWritingGenerationId(data.writing_generation_id ? data.writing_generation_id : null)
                             _setGenerationTime(data.generation_time ? data.generation_time : 0)
                             const blob = base64ToBlob(data.leaderboard_image);
                             const blobUrl = URL.createObjectURL(blob);
@@ -170,9 +163,9 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                     case 'resume':{
                         if (data) {
                             const pastGenerationIds = data.past_generation_ids && data.writing_generation_id ? data.past_generation_ids.filter(gid => gid !== writingGenerationId) : [];
-                            _setGenerationIds([...pastGenerationIds])
+                            setGenerationIds([...pastGenerationIds])
                             _setRoundId(data.round_id ? data.round_id : 0);
-                            _setWritingGenerationId(data.writing_generation_id ? data.writing_generation_id : null)
+                            setWritingGenerationId(data.writing_generation_id ? data.writing_generation_id : null)
                             _setGenerationTime(data.generation_time ? data.generation_time : 0)
                             
                             const blob = base64ToBlob(data.leaderboard_image);
@@ -186,14 +179,10 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                     case 'submit': {
                         if (data) {
                             const messages = data.chat_messages;
-                            _setWritingGenerationId(data.writing_generation_id ? data.writing_generation_id : null);
+                            setWritingGenerationId(data.writing_generation_id ? data.writing_generation_id : null);
                             if (messages.length > 0 ? messages[messages.length - 1].content.startsWith("ブー！") : false){
                                 // remind user to type in English or language of choice
                                 setWarningMsg(messages.length > 0 ? messages[messages.length - 1].content : "");
-                                setShowWarning(true);
-                                setTimeout(() => {
-                                    setShowWarning(false);
-                                }, 2000);
                                 setUserAction('none');
                                 setGeneratingLoading(false);
                                 break;
@@ -205,16 +194,13 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                         break;
                     }
                     case 'evaluate': {
-                        if (data.generation_time === 5) {
+                        if (generationTime > 4) {
                             setUserAction('end');
-                            setPlayable(false);
                         }
                         setGeneratingLoading(false);
                         setLoadingGenerationIds(writingGenerationId ? loadingGenerationIds.filter(gid => gid !== writingGenerationId):loadingGenerationIds)
-                        _setWritingGenerationId(null);
                         _setGenerationTime(data.generation_time ? data.generation_time : 0);
-                        setSelectedGenerationId(writingGenerationId);
-                        setIsPastWritingModalOpen(true);
+                        setIsEvaluationModalOpen(true);
                         break;
                     }
                     case 'end': {
@@ -251,34 +237,174 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
 
     return (
         <div>
+            <WritingFrame
+                title={title ? title : t('writerView.writingFrame.noLeaderboard')}
+                imageUrl={leaderboardImage ? leaderboardImage : ''}
+                writingText={writingText}
+                setWritingText={setWritingText}
+                submitWritingFn={handleSubmitWriting}
+                isPlayable={isPlayable}
+                isLoading={isLoading || generatingLoading}
+            />
+        </div>
+    );
+};
+
+
+export const BrowseWriting: React.FC<BrowseWritingProps> = ({
+    setView,
+    generation_ids,
+    loadingGenerationIds,
+    writingGenerationId,
+    isEvaluationModalOpen,
+    setIsEvaluationModalOpen,
+    warningMsg
+}) => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorKey, setErrorKey] = useState<string | null>(null);
+    
+    const [selectedGenerationId, setSelectedGenerationId] = useState<number | null>(null);
+
+    const [showWarning, setShowWarning] = useState(false);
+
+    const [isPastWritingModalOpen, setIsPastWritingModalOpen] = useState(false);
+
+    const { t } = useLocalization();
+    
+
+    const handleClickPastWritingIcon = (
+        generation_id: number,
+    ) => {
+        setIsPastWritingModalOpen(true);
+        setSelectedGenerationId(generation_id);
+    };
+    
+    useEffect(() => {
+        setErrorKey(null);
+        setIsLoading(true);
+
+        try {
+            if (warningMsg !== "") {
+                setShowWarning(true);
+                setTimeout(() => {
+                    setShowWarning(false);
+                }, 2000);
+            }
+        } catch (e) {
+            setErrorKey(t("error.FetchingGenerationDetail"));
+            console.log(e);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [warningMsg]);
+
+    if (isLoading) {
+        return <LoadingSpinner />;
+    }
+
+    if (errorKey) {
+        return <ErrorDisplay messageKey={errorKey} />;
+    }
+
+    return (
+        <div>
+            { showWarning ? <Alert className="position absolute z-10 content-center left-1/3" severity="warning">{warningMsg}</Alert> : null }
+            <PastWritingsBar 
+                generation_ids={generation_ids} 
+                onClick={handleClickPastWritingIcon}
+                getBack={ () => setView('browsing') }
+                loadingGenerationIds={loadingGenerationIds}
+            />
+            <PastWritingModal
+                generation_id={selectedGenerationId}
+                isOpen={isPastWritingModalOpen}
+                onClose={() => setIsPastWritingModalOpen(false)}
+            />
+            <PastWritingModal
+                generation_id={writingGenerationId}
+                isOpen={isEvaluationModalOpen}
+                onClose={() => setIsEvaluationModalOpen(false)}
+            />
+        </div>
+    );
+};
+
+export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, imageUrl }) => {
+    const [isPlayable, setPlayable] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorKey, setErrorKey] = useState<string | null>(null);
+    
+    const [generation_ids, setGenerationIds] = useState<number[]>([]);
+    const [loadingGenerationIds, setLoadingGenerationIds] = useState<number[]>([]);
+    const [writingGenerationId, setWritingGenerationId] = useState<number | null>(null);
+    const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false);
+
+    const [warningMsg, setWarningMsg] = useState<string>("");
+
+    const { fetchLeaderboard } = useContext(LeaderboardPlayableContext);
+    const { t } = useLocalization();
+    
+    useEffect(() => {
+        setErrorKey(null);
+        setIsLoading(true);
+            try {
+                if (leaderboard) {
+                    const program = sessionStorage.getItem('program') || 'none';
+                    fetchLeaderboard(leaderboard.id, program).then((playableData) => {
+                        if (playableData) {
+                            setPlayable(playableData.is_playable);
+                        }
+                    }).catch(e => {
+                        console.error('Failed to fetch leaderboard playable:', e)
+                    });
+                }
+            } catch (e) {
+                setErrorKey("error.FetchingLeaderboardPlayable");
+                console.log(e);
+            } finally {
+                setIsLoading(false);
+            }
+    }, [leaderboard?.id]);
+
+    if (isLoading) {
+        return <LoadingSpinner />;
+    }
+    if (errorKey) {
+        return <ErrorDisplay messageKey={errorKey} />;
+    }
+
+    return (
+        <div>
             <div className="bg-neutral-900 flex-col md:flex-row items-center">
                 <div className="h-1/8 w-full">
-                    { showWarning ? <Alert className="position absolute z-10 content-center left-1/3" severity="warning">{warningMsg}</Alert> : null }
-                    <PastWritingsBar 
-                        generation_ids={generation_ids} 
-                        onClick={handleClickPastWritingIcon}
-                        getBack={ () => setView('browsing') }
+                    <BrowseWriting
+                        setView={setView}
+                        generation_ids={generation_ids}
                         loadingGenerationIds={loadingGenerationIds}
-                    />
-                    <PastWritingModal
-                        generation_id={selectedGenerationId}
-                        isOpen={isPastWritingModalOpen}
-                        onClose={() => setIsPastWritingModalOpen(false)}
+                        writingGenerationId={writingGenerationId}
+                        isEvaluationModalOpen={isEvaluationModalOpen}
+                        setIsEvaluationModalOpen={setIsEvaluationModalOpen}
+                        warningMsg={warningMsg}
                     />
                 </div>
                 <div className="h-7/8 w-full">
-                <WritingFrame
-                    title={leaderboard ? leaderboard.title : t('writerView.writingFrame.noLeaderboard')}
-                    imageUrl={leaderboardImage ? leaderboardImage : ''}
-                    writingText={writingText}
-                    setWritingText={setWritingText}
-                    submitWritingFn={handleSubmitWriting}
-                    isPlayable={isPlayable}
-                    isLoading={isLoading || generatingLoading}
-                />
+                    <Writing
+                        title={leaderboard ? leaderboard.title : t('writerView.writingFrame.noLeaderboard')}
+                        imageUrl={imageUrl ? imageUrl : ''}
+                        isPlayable={isPlayable}
+                        setPlayable={setPlayable}
+                        leaderboard_id={leaderboard ? leaderboard.id : 0}
+                        generationIds={generation_ids}
+                        setGenerationIds={setGenerationIds}
+                        loadingGenerationIds={loadingGenerationIds}
+                        setLoadingGenerationIds={setLoadingGenerationIds}
+                        writingGenerationId={writingGenerationId}
+                        setWritingGenerationId={setWritingGenerationId}
+                        setIsEvaluationModalOpen={setIsEvaluationModalOpen}
+                        setWarningMsg={setWarningMsg}
+                    />
                 </div>
             </div>
         </div>
     );
 };
-
