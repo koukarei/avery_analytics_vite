@@ -20,7 +20,8 @@ interface AddStoryModalProps {
     open: boolean;
     setOpen: (open: boolean) => void;
     scenes: Scene[];
-    setStories: (story: Story[]) => void;
+    // changed: accept a React state setter so updater functions (prev => [...prev]) are typed
+    setStories: React.Dispatch<React.SetStateAction<Story[]>>;
 }
 
 
@@ -119,7 +120,7 @@ export const AddStoryModal: React.FC<AddStoryModalProps> = ({ open, setOpen, sce
                     <Controller
                         name="story_content_file"
                         control={control}
-                        defaultValue={null}
+                        defaultValue={undefined}
                         render={({ field }) => (
                         <>
                             <input
