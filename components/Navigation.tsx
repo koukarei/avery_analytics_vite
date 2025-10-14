@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { css } from '@emotion/react';
 import {theme} from "../src/Theme";
 import type { ViewMode } from '../types/ui';
@@ -11,24 +11,19 @@ import ChartBarIcon from './icons/ChartBarIcon';
 import EyeIcon from './icons/EyeIcon';
 import EyeSlashIcon from './icons/EyeSlashIcon';
 import { AuthUserContext } from '../providers/AuthUserProvider';
-import { Link } from "react-router-dom";
+import { CustomSettingContext } from '../providers/CustomSettingProvider';
+import { Link, useLocation } from "react-router-dom";
 
-interface NavigationProps {
-  activeView: ViewMode;
-  setActiveView: (view: ViewMode) => void;
-  showStudentNames: boolean;
-  toggleShowStudentNames: () => void;
-}
 
-interface ShowToggleStudentNameProps {
-  showStudentNames: boolean;
-  toggleShowStudentNames: () => void;
-}
-
-const ShowToggleStudentName: React.FC<ShowToggleStudentNameProps> = ({
-  showStudentNames, toggleShowStudentNames}) => {
+const ShowToggleStudentName: React.FC = () => {
   const { currentUser, loading } = useContext(AuthUserContext);
+  const { showStudentNames, setShowStudentNames } = useContext(CustomSettingContext);
   const { t } = useLocalization();
+
+  const toggleShowStudentNames = () => {
+    setShowStudentNames(!showStudentNames);
+  };
+
   if (loading || currentUser?.user_type !== 'instructor') {
     return null;
   }
@@ -48,8 +43,20 @@ const ShowToggleStudentName: React.FC<ShowToggleStudentNameProps> = ({
 }
 
 
-const Navigation: React.FC<NavigationProps> = ({ activeView, setActiveView, showStudentNames, toggleShowStudentNames }) => {
+const Navigation: React.FC = () => {
   const { t } = useLocalization();
+  const [activeView, setActiveView] = React.useState<ViewMode>('writer');
+
+  const location = useLocation();
+  const path = location.pathname;
+
+  useEffect(() => {
+    setActiveView(path.includes('/gallery') ? 'gallery' 
+                    : path.includes('/word_cloud') ? 'word_cloud' 
+                    : path.includes('/analytics') ? 'analytics' 
+                    : 'writer');
+  }, [path]);
+
 
   const navItems = [
     { id: 'writer', labelKey: 'navigation.writer', icon: <BookOpenIcon className="w-5 h-5 mr-2" /> },
@@ -65,8 +72,8 @@ const Navigation: React.FC<NavigationProps> = ({ activeView, setActiveView, show
           {navItems.map((item) => (
             <li key={item.id}>
               <Link
-                onClick={()=>setActiveView(item.id)}
-                to={`/avery_analytics/${item.id}`}
+                to={`/${item.id}`}
+                onClick={() => setActiveView(item.id)}
                 className={`flex items-center py-3 px-3 font-medium border-b-4 transition-colors duration-150
                   ${activeView === item.id 
                     ? 'border-primary text-primary' 
@@ -80,7 +87,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeView, setActiveView, show
             </li>
           ))}
         </ul>
-          <ShowToggleStudentName showStudentNames={showStudentNames} toggleShowStudentNames={toggleShowStudentNames} />
+          <ShowToggleStudentName />
       </div>
     </nav>
   );

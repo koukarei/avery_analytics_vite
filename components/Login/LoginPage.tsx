@@ -141,7 +141,7 @@ function Signin() {
         sessionStorage.setItem(key, String(value));
       }
       sessionStorage.setItem("program", data.program)
-      navigate("/avery_analytics/writer");
+      navigate("/writer");
     } catch (e) {
       console.log(e);
       setError("root", {
@@ -235,7 +235,7 @@ function Signin() {
         </button>
       </form>
       <div css={navigateLinkStyle(theme)}>
-        <Link to="/avery_analytics/login?signup">新規登録</Link>
+        <Link to="/login?signup">新規登録</Link>
       </div>
     </>
   );
@@ -275,7 +275,7 @@ function Signup() {
   const onSubmit = async (data: SignupData) => {
     try {
       await UserAuthAPI.signup(data);
-      navigate("/avery_analytics/login?signin");
+      navigate("/login?signin");
     } catch (e) {
       console.log(e);
       
@@ -439,7 +439,7 @@ function Signup() {
         </button>
       </form>
       <div css={navigateLinkStyle (theme)}>
-        <Link to="/avery_analytics/login?signin">ログイン</Link>
+        <Link to="/login?signin">ログイン</Link>
       </div>
     </>
   );
@@ -449,10 +449,10 @@ function Signup() {
 function Select() {
   return (
     <div css={selectLinkStyle (theme)}>
-      <Link css={selectLoginLinkStyle (theme)} to="/avery_analytics/login?signin">
+      <Link css={selectLoginLinkStyle (theme)} to="/login?signin">
         ログイン
       </Link>
-      <Link to="/avery_analytics/login?signup">新規登録</Link>
+      <Link to="/login?signup">新規登録</Link>
     </div>
   );
 }

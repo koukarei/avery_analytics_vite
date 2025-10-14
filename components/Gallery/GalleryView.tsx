@@ -17,13 +17,16 @@ import { LoadingSpinner } from '../Common/LoadingSpinner';
 import { ErrorDisplay } from '../Common/ErrorDisplay';
 import { StoryProvider } from '../../providers/StoryProvider';
 import { SceneProvider } from '../../providers/SceneProvider';
+import { CustomSettingContext } from '../../providers/CustomSettingProvider';
 
-export default function GalleryView({showStudentNames}: {showStudentNames: boolean}) {
+export default function GalleryView() {
   const [view, setView] = useState<GalleryView>('browsing');
   const { t } = useLocalization();
   const { currentUser } = useContext(AuthUserContext);
   const { leaderboards, loading, fetchLeaderboards } = useContext(LeaderboardListContext);
   const { images, loading: imagesLoading, fetchImages } = useContext(LeaderboardImagesContext);
+  const { showStudentNames } = useContext(CustomSettingContext);
+
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [galleryCurrentIndex, setGalleryCurrentIndex] = useState<number>(1);
   const [startLeaderboardIndex, setStartLeaderboardIndex] = useState<number>(0);

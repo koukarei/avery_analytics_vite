@@ -505,7 +505,7 @@ const StudentWorkTable: React.FC<StudentWorkTableProps> = ({
 
     return (
       <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-        <TableContainer className='h-full'>
+        <TableContainer>
           <Table stickyHeader aria-label="student work table">
             <TableHead>
               <TableRow>
