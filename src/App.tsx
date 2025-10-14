@@ -92,7 +92,7 @@ const App: React.FC = () => {
     return <></>;
   }
   const [activeView, setActiveView] = useState<ViewMode>('writer');
-  setActiveView(window.location.href.includes("/gallery") ? 'gallery' : window.location.href.includes("/word_cloud") ? 'word_cloud' : window.location.href.includes("/analytics") ? 'analytics' : 'writer');
+
   return (
     <BrowserRouter>
       <Routes>
