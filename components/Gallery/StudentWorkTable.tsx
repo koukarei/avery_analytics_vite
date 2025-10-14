@@ -83,12 +83,13 @@ function createData(
   const id = roundData.id;
   const student_name = roundData.player?.display_name ? roundData.player.display_name : "Anonymous";
   const created_at = roundData.created_at ? new Date(roundData.created_at).toLocaleDateString() : "N/A";
-  const number_of_writings = roundData.generations.length;
 
   const number_of_messages_sent = chatStats ? chatStats.n_user_messages : 0;
   
   const first_writing = firstWritingDetail ? firstWritingDetail.sentence : "";
   const last_writing = lastWritingDetail ? lastWritingDetail.sentence : "";
+
+  const number_of_writings = first_writing ? roundData.generations.length : 0;
   const generation_ids = roundData.generations.map(gen => gen.id);
 
   return { id, student_name, created_at, number_of_writings, number_of_messages_sent, first_writing, last_writing, generation_ids };
