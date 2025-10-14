@@ -77,7 +77,6 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
             if (evaluationData && evaluationData.content) {
                 setAWEText(evaluationData.content);
             }
-            console.log("Fetched detail, image, evaluation data: ", detailData, imageData, evaluationData);
         } catch (e) {
             console.error("Failed to fetch generation detail: ", e);
             setErrorKey("error.FetchingGenerationDetail");
@@ -100,7 +99,7 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
             <CardHeader>
                 <Box>Past Writing Details</Box>
             </CardHeader>
-            <CardContent>
+            <CardContent sx={modalCardContentStyle}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     {detailData ? (
                         compareWriting(detailData.sentence, detailData.correct_sentence)
@@ -152,16 +151,19 @@ const PastWritingModal: React.FC<PastWritingModalProps> = ({
         };
         
     return (
-        <div>
-        <Modal
-            open={isOpen}
-            onClose={handleClose}
-            aria-labelledby="past-writing-modal"
-            aria-describedby={`modal-modal-${generation_id}`}
-        >
-            <PastWritingContent generation_id={generation_id} />
-        </Modal>
-        </div>
+        <React.Fragment>
+            <Modal
+                css={backgroundStyle(theme)}
+                open={isOpen}
+                onClose={handleClose}
+                aria-labelledby="past-writing-modal"
+                aria-describedby={`modal-modal-${generation_id}`}
+            >
+                <Box sx={modalContainerStyle}>
+                    <PastWritingContent generation_id={generation_id} />
+                </Box>
+            </Modal>
+        </React.Fragment>
     );
 };
 
@@ -216,15 +218,9 @@ const PastWritingsBar: React.FC<PastWritingsProps> = ({ generation_ids, onClick,
  }
 
 const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '90%',
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
 };
 
 const buttonStyle = (theme: Theme) => css`
@@ -268,3 +264,38 @@ const pastWritingIconStyle = (isSpinning: boolean) =>css`
 `;
 
 export { PastWritingsBar, PastWritingModal };
+
+
+const backgroundStyle = (theme: Theme) => css`
+  position: fixed;
+  inset: 0;
+  color: ${theme.palette.text.primary};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  transition: opacity 0.3s ease-in-out;
+`;
+
+const modalContainerStyle = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '90%',
+  maxWidth: '800px',
+  maxHeight: 'calc(100vh - 80px)', // leave some space for top/bottom
+  bgcolor: 'background.paper',
+  borderRadius: 2,
+  boxShadow: 24,
+  p: 0,
+  outline: 'none',
+};
+
+const modalCardContentStyle = {
+  px: 2,
+  pb: 2,
+  pt: 1,
+  overflowY: 'auto',
+  maxHeight: 'calc(100vh - 200px)', // safe scroll area inside the card
+};
