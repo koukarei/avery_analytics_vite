@@ -344,12 +344,21 @@ const LeaderboardRoundProvider = ({
 }) => {
     const [rounds, setRounds] = useState<Round[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-    const fetchRounds = useCallback(async (leaderboard_id: number, params: { program: string }) => {
+    const fetchRounds = useCallback(async (leaderboard_id: number, params: { program: string }, is_admin: boolean=false) => {
         setLoading(true);
         let roundData: Round[] = [];
         try {
             roundData = await LeaderboardAPI.fetchLeaderboardRounds(leaderboard_id, params);
             setRounds(roundData);
+
+            if (is_admin) {
+              roundData = await LeaderboardAPI.fetchLeaderboardRounds(leaderboard_id, { program: "overview"});
+              setRounds(roundData);
+            } else {
+              roundData = await LeaderboardAPI.fetchLeaderboardRounds(leaderboard_id, params);
+              setRounds(roundData);
+            }
+
         } catch (e) {
             console.log(e);
         }

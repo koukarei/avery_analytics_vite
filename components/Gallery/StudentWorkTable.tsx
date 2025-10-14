@@ -19,6 +19,7 @@ import type { ChatMessage, ChatStats, GenerationDetail, Round } from '../../type
 import { LeaderboardRoundContext } from '../../providers/LeaderboardProvider';
 import { GenerationDetailContext, GenerationImageContext, GenerationEvaluationContext } from '../../providers/GenerationProvider';
 import { ChatStatsContext } from '../../providers/ChatProvider';
+import { AuthUserContext } from '../../providers/AuthUserProvider';
 import { useLocalization } from '../../contexts/localizationUtils';
 
 import { parseGrammarMistakes, parseSpellingMistakes } from '../../util/WritingMistake';
@@ -415,6 +416,7 @@ const StudentWorkTable: React.FC<StudentWorkTableProps> = ({
 }) => {
   const [ page, setPage ] = useState(0);
   const [ rowsPerPage, setRowsPerPage ] = useState(10);
+  const { currentUser } = useContext(AuthUserContext);
   const [ isLoading, setIsLoading ] = useState<boolean>(false);
   const { loading, fetchRounds } = useContext(LeaderboardRoundContext);
   const { fetchDetail } = useContext(GenerationDetailContext);
@@ -434,7 +436,7 @@ const StudentWorkTable: React.FC<StudentWorkTableProps> = ({
 
   useEffect(() => {
     setErrorKey(null);
-    fetchRounds(leaderboard_id, { program: program_name } )
+    fetchRounds(leaderboard_id, { program: program_name }, currentUser?.is_admin || false )
       .then(async (rounds) => {
         if (!rounds || rounds.length === 0) {
           setErrorKey('error.no_rounds');
