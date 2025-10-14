@@ -17,6 +17,7 @@ import {theme} from "../../src/Theme";
 import { Controller, useForm } from "react-hook-form";
 import { TextField } from "@mui/material";
 import { AddStoryModal } from "./AddStoryModal";
+import { useLocalization } from '../../contexts/localizationUtils';
 import type { LeaderboardCreate, Scene, Story } from "../../types/leaderboard";
 
 import { FileUploader } from "react-drag-drop-files";
@@ -298,10 +299,15 @@ const AddImageContext: React.FC<AddImageContextProps> = ({ isOpen, onClose, setP
 
   const [activeStep, setActiveStep] = useState(0);
 
-  const steps = ['画像のアップロード', '情報の入力', '相関単語の追加'];
-
   const { scenes } = useContext(SceneContext);
   const { stories } = useContext(StoryContext);
+  const { t } = useLocalization();
+
+  const steps = [
+    t('galleryView.AddImageModal.uploadImage'),
+    t('galleryView.AddImageModal.typeDetail'),
+    t('galleryView.AddImageModal.addRelatedVocabulary'),
+  ];
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [formValues, setFormValues] = useState<LeaderboardCreate>({
@@ -389,7 +395,7 @@ const AddImageContext: React.FC<AddImageContextProps> = ({ isOpen, onClose, setP
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
         style={isOpen ? { transform: 'scale(1)' } : {}}
       >
-        <h2 id="add-image-modal-title" css={formTitleStyle(theme)}>Add a New Writing Task</h2>
+        <h2 id="add-image-modal-title" css={formTitleStyle(theme)}>{t('galleryView.addWritingTask')}</h2>
         <Stepper activeStep={activeStep}>
           {steps.map((label) => {
             const stepProps: { completed?: boolean } = {};
@@ -424,6 +430,7 @@ const AddImageContext: React.FC<AddImageContextProps> = ({ isOpen, onClose, setP
 
 export const AddImageModal: React.FC<AddImageModalProps> = ({ setPublishedAt_start, setPublishedAt_end }) => {
   const [open, setOpen] = useState(false);
+  const { t } = useLocalization();
   
   const handleOpen = () => {
     setOpen(true);
@@ -439,8 +446,8 @@ export const AddImageModal: React.FC<AddImageModalProps> = ({ setPublishedAt_sta
           onClick={handleOpen}
           css={openModalButtonStyle(theme)}
           className="absolute top-4 right-4 md:top-6 md:right-6 rounded-full p-3 shadow-lg transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-opacity-75 z-30"
-          aria-label="Add a new writing task"
-          title="Add a new writing task"
+          aria-label={t('galleryView.addWritingTask')}
+          title={t('galleryView.addWritingTask')}
         >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -484,7 +491,7 @@ const formContainerStyle = (theme: Theme) => css`
   justify-content: center;
   position: relative;
   width: calc(9/10 * 100%);
-  max-width: 500px;
+  max-width: 600px;
   transition: all 0.3s ease-in-out scale(0.95);
 `;
 

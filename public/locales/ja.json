@@ -19,6 +19,11 @@
   "galleryView.noImageToDisplay": "表示する画像がありません。",
   "galleryView.publishedAtStartDate": "公開日",
   "galleryView.publishedAtEndDate": "～",
+  "galleryView.addWritingTask": "新しい作文タスクを追加",
+  "galleryView.AddImageModal.uploadImage": "画像をアップロード",
+  "galleryView.AddImageModal.typeDetail": "情報を入力",
+  "galleryView.AddImageModal.addRelatedVocabulary": "相関単語を追加（任意）",
+  
   "galleryView.Tab.detail": "詳細",
   "galleryView.Tab.leaderboard": "リーダーボード",
   "galleryView.Tab.settings": "設定",
