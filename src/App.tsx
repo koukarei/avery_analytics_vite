@@ -102,7 +102,7 @@ const App: React.FC = () => {
           <AuthUserProvider>
             <RequireAuth>
               <LocalizationProvider>
-                <AppContent activeView={activeView} setActiveView={setActiveView} />
+                <AppContent activeView={'writer'} setActiveView={setActiveView} />
               </LocalizationProvider>
             </RequireAuth>
           </AuthUserProvider>
@@ -112,7 +112,7 @@ const App: React.FC = () => {
           <AuthUserProvider>
             <RequireAuth>
               <LocalizationProvider>
-                <AppContent activeView={activeView} setActiveView={setActiveView} />
+                <AppContent activeView={'gallery'} setActiveView={setActiveView} />
               </LocalizationProvider>
             </RequireAuth>
           </AuthUserProvider>
@@ -122,7 +122,7 @@ const App: React.FC = () => {
           <AuthUserProvider>
             <RequireAuth>
               <LocalizationProvider>
-                <AppContent activeView={activeView} setActiveView={setActiveView} />
+                <AppContent activeView={'word_cloud'} setActiveView={setActiveView} />
               </LocalizationProvider>
             </RequireAuth>
           </AuthUserProvider>
@@ -132,7 +132,7 @@ const App: React.FC = () => {
           <AuthUserProvider>
             <RequireAuth>
               <LocalizationProvider>
-                <AppContent activeView={activeView} setActiveView={setActiveView} />
+                <AppContent activeView={'analytics'} setActiveView={setActiveView} />
               </LocalizationProvider>
             </RequireAuth>
           </AuthUserProvider>
