@@ -92,6 +92,7 @@ const App: React.FC = () => {
     return <></>;
   }
   const [activeView, setActiveView] = useState<ViewMode>('writer');
+  setActiveView(window.location.href.includes("/gallery") ? 'gallery' : window.location.href.includes("/word_cloud") ? 'word_cloud' : window.location.href.includes("/analytics") ? 'analytics' : 'writer');
   return (
     <BrowserRouter>
       <Routes>
@@ -102,7 +103,7 @@ const App: React.FC = () => {
           <AuthUserProvider>
             <RequireAuth>
               <LocalizationProvider>
-                <AppContent activeView={'writer'} setActiveView={setActiveView} />
+                <AppContent activeView={activeView} setActiveView={setActiveView} />
               </LocalizationProvider>
             </RequireAuth>
           </AuthUserProvider>
@@ -112,7 +113,7 @@ const App: React.FC = () => {
           <AuthUserProvider>
             <RequireAuth>
               <LocalizationProvider>
-                <AppContent activeView={'gallery'} setActiveView={setActiveView} />
+                <AppContent activeView={activeView} setActiveView={setActiveView} />
               </LocalizationProvider>
             </RequireAuth>
           </AuthUserProvider>
@@ -122,7 +123,7 @@ const App: React.FC = () => {
           <AuthUserProvider>
             <RequireAuth>
               <LocalizationProvider>
-                <AppContent activeView={'word_cloud'} setActiveView={setActiveView} />
+                <AppContent activeView={activeView} setActiveView={setActiveView} />
               </LocalizationProvider>
             </RequireAuth>
           </AuthUserProvider>
@@ -132,7 +133,7 @@ const App: React.FC = () => {
           <AuthUserProvider>
             <RequireAuth>
               <LocalizationProvider>
-                <AppContent activeView={'analytics'} setActiveView={setActiveView} />
+                <AppContent activeView={activeView} setActiveView={setActiveView} />
               </LocalizationProvider>
             </RequireAuth>
           </AuthUserProvider>
