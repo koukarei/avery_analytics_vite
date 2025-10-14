@@ -90,8 +90,6 @@ export default function GalleryView() {
                 images={images}
                 currentIndex={galleryCurrentIndex}
                 onScroll={handleGalleryScroll}
-                setPublishedAt_start={setPublishedAtStart}
-                setPublishedAt_end={setPublishedAtEnd}
               />
             ) : (
               <p className="text-xl text-gray-400">{t('galleryView.noImageToDisplay')}</p>
