@@ -6,7 +6,6 @@ import type { Leaderboard } from '../../types/leaderboard';
 import type { GalleryView } from '../../types/ui';
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
-import dayjs from 'dayjs';
 
 interface ImageGalleryProps {
   view: GalleryView;
