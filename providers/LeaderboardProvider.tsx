@@ -332,7 +332,7 @@ const LeaderboardSchoolProvider = ({
 type LeaderboardRoundContextType = {
     rounds: Round[];
     loading: boolean;
-    fetchRounds: (leaderboard_id: number, params: { program: string }) => Promise<Round[]>;
+    fetchRounds: (leaderboard_id: number, params: { program: string }, is_admin: boolean) => Promise<Round[]>;
 }
 
 const LeaderboardRoundContext = createContext({} as LeaderboardRoundContextType);
