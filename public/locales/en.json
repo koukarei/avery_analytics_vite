@@ -23,6 +23,8 @@
   "galleryView.Tab.leaderboard": "Leaderboard",
   "galleryView.Tab.settings": "Settings",
   "galleryView.Tab.leaderboard.history": "History",
+  "galleryView.Tab.back": "Back to Selecting Page",
+  "writerView.writingPage.start": "Start Writing",
   "writerView.writingFrame.placeholder": "Type your descriptive writing here",
   "studentCard.writingsTab": "Writings",
   "studentCard.chatLogsTab": "Chat Logs",

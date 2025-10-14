@@ -23,6 +23,8 @@
   "galleryView.Tab.leaderboard": "リーダーボード",
   "galleryView.Tab.settings": "設定",
   "galleryView.Tab.leaderboard.history": "履歴",
+  "galleryView.Tab.back": "選択画面に戻る",
+  "writerView.writingPage.start": "作文を始める",
   "writerView.writingFrame.placeholder": "ここに説明的な文章を入力してください",
   "studentCard.writingsTab": "作文",
   "studentCard.chatLogsTab": "チャット履歴",

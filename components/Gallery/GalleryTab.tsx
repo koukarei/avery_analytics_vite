@@ -99,6 +99,7 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
           {leaderboard ? (
             <ImagePanel
             leaderboard_title={leaderboard.title}
+            hoverText={t('galleryView.Tab.back')}
             imageUrl={images[leaderboard?.id]}
             isHovered={hoveredImageId === leaderboard?.id}
             onMouseEnter={() => leaderboard && setHoveredImageId(leaderboard.id)}
@@ -178,6 +179,7 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
 
 interface ImagePanelProps {
   leaderboard_title: string;
+  hoverText: string;
   imageUrl: string | null;
   isHovered: boolean;
   onMouseEnter: () => void;
@@ -187,6 +189,7 @@ interface ImagePanelProps {
 
 const ImagePanel: React.FC<ImagePanelProps> = ({ 
   leaderboard_title, 
+  hoverText,
   imageUrl,
   isHovered, 
   onMouseEnter, 
@@ -218,7 +221,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
       {imageUrl ? <img src={imageUrl} alt={leaderboard_title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-focus:scale-105" /> : null}
       {(isHovered) && (
         <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out">
-          <p className="text-white text-lg sm:text-xl md:text-2xl font-semibold text-center select-none">{leaderboard_title}</p>
+          <p className="text-white text-lg sm:text-xl md:text-2xl font-semibold text-center select-none">{hoverText}</p>
         </div>
       )}
     </div>
