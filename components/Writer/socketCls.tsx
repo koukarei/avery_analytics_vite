@@ -55,6 +55,19 @@ export class socketCls {
                 this.flushQueue();
                 
                 window.addEventListener('beforeunload', this.handleBeforeUnload);
+                const backTogalleryButton = document.getElementById('back-gallery-button-icon');
+                if (backTogalleryButton) {
+                    backTogalleryButton.addEventListener('click', this.close);
+                }
+                const navigationBar = document.getElementById('navigation-bar-list');
+                if (navigationBar) {
+                    navigationBar.addEventListener('click', this.close);
+                }
+
+                const logoutButton = document.getElementById('logout-button');
+                if (logoutButton) {
+                    logoutButton.addEventListener('click', this.close);
+                }
                 
             }
         }).catch( err => {
@@ -106,6 +119,8 @@ export class socketCls {
 
     private handleBeforeUnload = () => {
         if (this.client && this.wsLink) {
+            this.currentAction = 'end';
+            this.send_user_action();
             this.client.close();
         }
     }
@@ -242,11 +257,11 @@ export class socketCls {
 
     close = () => {
         if (this.client && this.wsLink && this.messageHandler) {
-            this.currentAction = 'end';
-            this.send_user_action();
             this.client.unsubscribe(this.wsLink, this.messageHandler);
             window.removeEventListener('beforeunload', this.handleBeforeUnload);
-            this.client.close()
+        }
+        if (this.client) {
+            this.client.close();
         }
     }
     

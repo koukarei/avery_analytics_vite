@@ -199,7 +199,7 @@ const PastWritingsBar: React.FC<PastWritingsProps> = ({ generation_ids, onClick,
          <Box className='flex flex-nowrap justify-start flex-row'>
              <Stack direction="row" spacing={1}>
                  <Button css={backButtonStyle(theme)} onClick={getBack}>
-                     <ArrowBackIosIcon fontSize="small" />
+                     <ArrowBackIosIcon id="back-gallery-button-icon" fontSize="small" />
                  </Button>
                 {generation_ids.map((generation_id, index) => (
                   <PastWritingIcon

@@ -16,6 +16,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import {theme} from "../../src/Theme";
 import { Controller, useForm } from "react-hook-form";
 import { TextField } from "@mui/material";
+import { AddStoryModal } from "./AddStoryModal";
 import type { LeaderboardCreate, Scene, Story } from "../../types/leaderboard";
 
 import { FileUploader } from "react-drag-drop-files";
@@ -41,6 +42,8 @@ interface InfoInputFormProps {
 }
 
 const InfoInputForm: React.FC<InfoInputFormProps> = ({ handleNext, handleBack, formValues, scenes, stories }) => {
+  const [openAddStoryModal, setOpenAddStoryModal] = React.useState<boolean>(false);
+  const [storiesForm, setStoriesForm] = React.useState<Story[]>(stories ? [...stories] : []);
   const {
     control,
     handleSubmit,
@@ -141,8 +144,15 @@ const InfoInputForm: React.FC<InfoInputFormProps> = ({ handleNext, handleBack, f
             value={field.value || ''}
             error={errors[field.name] ? true : false}
             helperText={(errors[field.name]?.message as string) || " "}
+            slotProps={{
+              input: { 
+                endAdornment: (
+                  <AddStoryModal scenes={scenes ? scenes : []} open={openAddStoryModal} setOpen={setOpenAddStoryModal} setStories={setStoriesForm} />
+                )
+              }
+            }}
           >
-            {Array.isArray(stories) && stories.map((story) => (
+            {Array.isArray(storiesForm) && storiesForm.map((story) => (
               <MenuItem key={story.id} value={story.id}>
                 {story.title}
               </MenuItem>

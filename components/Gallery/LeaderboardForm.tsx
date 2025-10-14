@@ -13,6 +13,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import {theme} from "../../src/Theme";
 import { Controller, useForm } from "react-hook-form";
 import { TextField } from "@mui/material";
+import { AddStoryModal } from "./AddStoryModal";
 import type { LeaderboardItem, LeaderboardDetail, LeaderboardUpdate, Scene, Story } from "../../types/leaderboard";
 import { LeaderboardAPI } from "../../api/Leaderboard";
 
@@ -159,6 +160,8 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
   const { fetchLeaderboards } = useContext(LeaderboardListContext);
   const { fetchImages } = useContext(LeaderboardImagesContext);
   const { currentUser } = useContext(AuthUserContext);
+  const [openAddStoryModal, setOpenAddStoryModal] = React.useState<boolean>(false);
+  const [storiesForm, setStoriesForm] = React.useState<Story[]>([...stories]);
 
   const {
     control,
@@ -308,8 +311,15 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
                 placeholder="ストーリー"
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
+                slotProps={{
+                  input: { 
+                    endAdornment: (
+                      <AddStoryModal scenes={scenes} open={openAddStoryModal} setOpen={setOpenAddStoryModal} setStories={setStoriesForm} />
+                    )
+                  }
+                }}
               >
-                {Array.isArray(stories) && stories.map((story) => (
+                {Array.isArray(storiesForm) && storiesForm.map((story) => (
                   <MenuItem key={story.id} value={story.id}>
                     {story.title}
                   </MenuItem>
