@@ -35,6 +35,11 @@
   "writerView.writingFrame.error.minLength": "作文は最小10文字までです。",
   "writerView.writingFrame.error.pattern": "作文には無効な文字が含まれています。標準的な英語の文字と句読点のみを使用してください。",
   "writerView.writingFrame.placeholder": "ここに説明的な文章を入力してください",
+  "writerView.pastWritingFrame.showImage": "画像を表示",
+  "writerView.pastWritingFrame.hideImage": "画像を非表示",
+  "writerView.pastWritingFrame.showAWE": "自動評価を表示",
+  "writerView.pastWritingFrame.hideAWE": "自動評価を非表示",
+
   "studentCard.writingsTab": "作文",
   "studentCard.chatLogsTab": "チャット履歴",
   "studentCard.noWritings": "まだ作文はありません。",

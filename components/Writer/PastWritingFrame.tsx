@@ -15,6 +15,8 @@ import { css, keyframes } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
 import { Button } from '@mui/material';
+
+import { useLocalization } from '../../contexts/localizationUtils';
 import { MarkdownEvalViewer } from '../../util/showMD';
 import { compareWriting } from '../../util/CompareWriting';
 
@@ -50,6 +52,7 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [aWEText, setAWEText] = useState<string | null>(null);
     const [detailData, setDetailData] = useState<GenerationDetail | null>(null);
+    const { t } = useLocalization();
 
     const {fetchDetail} = useContext(GenerationDetailContext);
     const {fetchImage} = useContext(GenerationImageContext);
@@ -113,14 +116,14 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
                     disabled={!detailData || detailData.interpreted_image === undefined || detailData.interpreted_image?.id === undefined}
                     onClick={handleClickShowImage}
                 >
-                    {showImage ? "Hide Image" : "Show Image"}
+                    {showImage ? t("writerView.pastWritingFrame.hideImage") : t("writerView.pastWritingFrame.showImage")}
                 </Button>
                 <Button
                     css={buttonStyle(theme)}
                     disabled={!detailData || detailData.evaluation_id === null}
                     onClick={handleClickShowAWE}
                 >
-                    {showAWE ? "Hide AWE" : "Show AWE"}
+                    {showAWE ? t("writerView.pastWritingFrame.hideAWE") : t("writerView.pastWritingFrame.showAWE")}
                 </Button>
                 <Box>
                     {showAWE ? (
