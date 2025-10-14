@@ -2,6 +2,7 @@
 import { useState, useCallback, useEffect, useContext } from 'react';
 import { ImageGallery } from './ImageGallery';
 import { GalleryTabs } from './GalleryTab';
+import { AddImageModal } from './AddImageModal';
 import type { GalleryView } from '../../types/ui';
 import { css } from "@emotion/react";
 import {theme} from "../../src/Theme";
@@ -14,6 +15,8 @@ import { AuthUserContext } from '../../providers/AuthUserProvider';
 import { useLocalization } from '../../contexts/localizationUtils';
 import { LoadingSpinner } from '../Common/LoadingSpinner';
 import { ErrorDisplay } from '../Common/ErrorDisplay';
+import { StoryProvider } from '../../providers/StoryProvider';
+import { SceneProvider } from '../../providers/SceneProvider';
 
 export default function GalleryView({showStudentNames}: {showStudentNames: boolean}) {
   const [view, setView] = useState<GalleryView>('browsing');
@@ -70,6 +73,12 @@ export default function GalleryView({showStudentNames}: {showStudentNames: boole
         return (
         <div className='h-full w-full bg-neutral-900 items-center justify-center'>
           <div className="h-2/3 relative flex flex-col overflow-hidden pt-4 md:pt-8">
+            <StoryProvider>
+              <SceneProvider>
+                <AddImageModal setPublishedAt_start={setPublishedAtStart} setPublishedAt_end={setPublishedAtEnd} />
+              </SceneProvider>
+            </StoryProvider>
+            
             {leaderboards ? (
               <ImageGallery
                 view={view}

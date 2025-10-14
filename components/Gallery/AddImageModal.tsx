@@ -25,10 +25,15 @@ import { SceneContext } from "../../providers/SceneProvider";
 import { StoryContext } from "../../providers/StoryProvider";
 import { LeaderboardAPI } from '../../api/Leaderboard';
 
-interface AddImageModalProps {
+interface AddImageContextProps {
   isOpen: boolean;
   activeStep?: number;
   onClose: () => void;
+  setPublishedAt_start: (date: dayjs.Dayjs) => void;
+  setPublishedAt_end: (date: dayjs.Dayjs) => void;
+}
+
+interface AddImageModalProps {
   setPublishedAt_start: (date: dayjs.Dayjs) => void;
   setPublishedAt_end: (date: dayjs.Dayjs) => void;
 }
@@ -289,7 +294,7 @@ const AddRelatedVocab: React.FC<AddRelatedVocabProps> = ({ handleNext }) => {
   );
 };
 
-export const AddImageModal: React.FC<AddImageModalProps> = ({ isOpen, onClose, setPublishedAt_start, setPublishedAt_end }) => {
+const AddImageContext: React.FC<AddImageContextProps> = ({ isOpen, onClose, setPublishedAt_start, setPublishedAt_end }) => {
 
   const [activeStep, setActiveStep] = useState(0);
 
@@ -417,6 +422,36 @@ export const AddImageModal: React.FC<AddImageModalProps> = ({ isOpen, onClose, s
   );
 };
 
+export const AddImageModal: React.FC<AddImageModalProps> = ({ setPublishedAt_start, setPublishedAt_end }) => {
+  const [open, setOpen] = useState(false);
+  
+  const handleOpen = () => {
+    setOpen(true);
+  }
+  const handleClose = () => {
+    setOpen(false);
+  }
+
+  return (
+    <React.Fragment>
+      <Box sx={{ position: 'absolute', top: 0, right: 0 }}>
+        <Button
+          onClick={handleOpen}
+          css={openModalButtonStyle(theme)}
+          className="absolute top-4 right-4 md:top-6 md:right-6 rounded-full p-3 shadow-lg transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-opacity-75 z-30"
+          aria-label="Add a new writing task"
+          title="Add a new writing task"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+        </Button>
+        <AddImageContext isOpen={open} onClose={handleClose} setPublishedAt_start={setPublishedAt_start} setPublishedAt_end={setPublishedAt_end} />
+      </Box>
+    </React.Fragment>
+  )
+}
+
 const formTitleStyle = (theme: Theme) => css`
   text-align: center;
   user-select: none;
@@ -514,5 +549,13 @@ const addButtonStyle = (theme: Theme) => css`
   background-color: ${theme.palette.primary.light};
   &:hover {
     background-color: ${theme.palette.primary.main};
+  }
+`;
+
+const openModalButtonStyle = (theme: Theme) => css`
+  background-color: ${theme.palette.secondary.main};
+  color: ${theme.palette.secondary.contrastText};
+  &:hover {
+    background-color: ${theme.palette.secondary.dark};
   }
 `;
