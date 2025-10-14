@@ -15,8 +15,6 @@ interface ImageGalleryProps {
   images: Record<number, string>; // Mapping of leaderboard ID to image URL
   currentIndex: number; // Index of the first image in the triplet to display
   onScroll: (direction: 'up' | 'down') => void;
-  setPublishedAt_start: (date: dayjs.Dayjs ) => void;
-  setPublishedAt_end: (date: dayjs.Dayjs ) => void;
 }
 
 interface ImagePanelProps {
@@ -130,7 +128,7 @@ function useDebouncedCallback<A extends unknown[],>(
 }
 
 
-export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboards, images, currentIndex, onScroll, setPublishedAt_start, setPublishedAt_end }) => {
+export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboards, images, currentIndex, onScroll }) => {
   const galleryRef = useRef<HTMLDivElement>(null);
   const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
 
@@ -138,7 +136,6 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
   const isSwiping = useRef<boolean>(false); // To distinguish tap from swipe
-  const [isAddImageModalOpen, setIsAddImageModalOpen] = useState(false);
 
   useEffect(() => {
     const currentGalleryRef = galleryRef.current;

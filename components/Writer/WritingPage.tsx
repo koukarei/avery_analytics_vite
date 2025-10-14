@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState, useRef, use } from "react";
+import React, {useContext, useEffect, useState, useRef } from "react";
 import { WritingFrame } from "./WritingFrame";
 import { PastWritingsBar, PastWritingModal } from "./PastWritingFrame";
 import type { GalleryView } from "../../types/ui";
