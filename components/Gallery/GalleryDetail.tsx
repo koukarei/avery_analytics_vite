@@ -40,16 +40,23 @@ export const LeaderboardDetail: React.FC<LeaderboardDetailProps> = ({ leaderboar
 
   if (authUserData?.currentUser?.user_type === "student") {
     return (
-        <Container>
-        <ViewLeaderboard leaderboard={leaderboard} scenes={scenes} stories={stories} />
+        <Container sx={formContentStyle}>
+          <ViewLeaderboard leaderboard={leaderboard} scenes={scenes} stories={stories} />
         </Container>
     );
   } else {
     return (
-      <Container>
+      <Container sx={formContentStyle}>
         <EditLeaderboard leaderboard={leaderboard} scenes={scenes} stories={stories} />
       </Container>
     );
   }
 
 }
+const formContentStyle = {
+  px: 2,
+  pb: 2,
+  pt: 1,
+  overflowY: 'auto',
+  maxHeight: 'calc(100vh - 200px)', // safe scroll area inside the card
+};

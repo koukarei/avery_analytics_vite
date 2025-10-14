@@ -112,7 +112,7 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
         </Grid>
         <Grid 
           size={{ xs: 12, md: "grow" }} 
-          className="h-full shrink overflow-y-scroll"
+          className="h-full shrink"
         >
           <Box css={tabContainerStyle(theme)}>
             <AppBar position="static">
