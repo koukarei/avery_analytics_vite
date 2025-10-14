@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState, useRef } from "react";
+import React, {useContext, useEffect, useState, useRef, use } from "react";
 import { WritingFrame } from "./WritingFrame";
 import { PastWritingsBar, PastWritingModal } from "./PastWritingFrame";
 import type { GalleryView } from "../../types/ui";
@@ -33,6 +33,7 @@ interface WritingProps {
     setWritingGenerationId: (id: number | null) => void;
     setIsEvaluationModalOpen: (isOpen: boolean) => void;
     setWarningMsg: (msg: string) => void;
+    setReceivedResponse: (response: string) => void;
 }
 
 interface BrowseWritingProps {
@@ -43,6 +44,7 @@ interface BrowseWritingProps {
     isEvaluationModalOpen: boolean;
     setIsEvaluationModalOpen: (isOpen: boolean) => void;
     warningMsg: string;
+    receivedResponse: string;
 }
 
 export const Writing: React.FC<WritingProps> = ({ 
@@ -59,6 +61,7 @@ export const Writing: React.FC<WritingProps> = ({
     setWritingGenerationId,
     setIsEvaluationModalOpen,
     setWarningMsg,
+    setReceivedResponse
 }) => {
     const [writingText, setWritingText] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -84,6 +87,7 @@ export const Writing: React.FC<WritingProps> = ({
             return;
         }
         setUserAction('submit');
+        setReceivedResponse(t('writing.response.generating'));
         return;
     };
     
@@ -258,7 +262,8 @@ export const BrowseWriting: React.FC<BrowseWritingProps> = ({
     writingGenerationId,
     isEvaluationModalOpen,
     setIsEvaluationModalOpen,
-    warningMsg
+    warningMsg,
+    receivedResponse
 }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [errorKey, setErrorKey] = useState<string | null>(null);
@@ -266,6 +271,7 @@ export const BrowseWriting: React.FC<BrowseWritingProps> = ({
     const [selectedGenerationId, setSelectedGenerationId] = useState<number | null>(null);
 
     const [showWarning, setShowWarning] = useState(false);
+    const [showNotification, setShowNotification] = useState(false);
 
     const [isPastWritingModalOpen, setIsPastWritingModalOpen] = useState(false);
 
@@ -298,6 +304,15 @@ export const BrowseWriting: React.FC<BrowseWritingProps> = ({
         }
     }, [warningMsg]);
 
+    useEffect(() => {
+        if (receivedResponse !== "") {
+            setShowNotification(true);
+            setTimeout(() => {
+                setShowNotification(false);
+            }, 2000);
+        }
+    }, [receivedResponse]);
+
     if (isLoading) {
         return <LoadingSpinner />;
     }
@@ -309,6 +324,7 @@ export const BrowseWriting: React.FC<BrowseWritingProps> = ({
     return (
         <div>
             { showWarning ? <Alert className="position absolute z-10 content-center left-1/3" severity="warning">{warningMsg}</Alert> : null }
+            { showNotification ? <Alert className="position absolute z-10 content-center left-1/3" severity="success">{receivedResponse}</Alert> : null }
             <PastWritingsBar 
                 generation_ids={generation_ids} 
                 onClick={handleClickPastWritingIcon}
@@ -340,6 +356,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
     const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false);
 
     const [warningMsg, setWarningMsg] = useState<string>("");
+    const [receivedResponse, setReceivedResponse] = useState<string>("");
 
     const { fetchLeaderboard } = useContext(LeaderboardPlayableContext);
     const { t } = useLocalization();
@@ -385,6 +402,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                         isEvaluationModalOpen={isEvaluationModalOpen}
                         setIsEvaluationModalOpen={setIsEvaluationModalOpen}
                         warningMsg={warningMsg}
+                        receivedResponse={receivedResponse}
                     />
                 </div>
                 <div className="h-7/8 w-full">
@@ -402,6 +420,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                         setWritingGenerationId={setWritingGenerationId}
                         setIsEvaluationModalOpen={setIsEvaluationModalOpen}
                         setWarningMsg={setWarningMsg}
+                        setReceivedResponse={setReceivedResponse}
                     />
                 </div>
             </div>
