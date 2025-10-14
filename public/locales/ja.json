@@ -24,7 +24,11 @@
   "galleryView.Tab.settings": "設定",
   "galleryView.Tab.leaderboard.history": "履歴",
   "galleryView.Tab.back": "選択画面に戻る",
-  "writerView.writingPage.start": "作文を始める",
+  "writerView.writingPage.start": "クリックして作文を始める",
+  "writerView.writingFrame.error.required": "作文は必須です。",
+  "writerView.writingFrame.error.maxLength": "作文は最大16777215文字までです。",
+  "writerView.writingFrame.error.minLength": "作文は最小10文字までです。",
+  "writerView.writingFrame.error.pattern": "作文には無効な文字が含まれています。標準的な英語の文字と句読点のみを使用してください。",
   "writerView.writingFrame.placeholder": "ここに説明的な文章を入力してください",
   "studentCard.writingsTab": "作文",
   "studentCard.chatLogsTab": "チャット履歴",
@@ -45,5 +49,6 @@
   "mistakeCategories.vocabulary": "語彙",
   "languages.english": "English",
   "languages.japanese": "日本語",
-  "error.not_authorized": "このページを表示する権限がありません。"
+  "error.not_authorized": "このページを表示する権限がありません。",
+  "error.fetch_generation": "作文の提出が見つかりませんでした。"
 }

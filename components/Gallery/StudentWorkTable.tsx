@@ -309,6 +309,8 @@ const RoundRow: React.FC<{ showStudentNames: boolean; row: Data }> = ({ showStud
   const [ writingRows, setWritingRows] = useState<WritingData[]>([]);
   const [errorKey, setErrorKey] = useState<string | null>(null);
 
+  const { t } = useLocalization();
+
   const renderTableCell = (column: RoundColumn, row: Data, value: string | number ) => {
     switch (column.id) {
       case 'student_name': {
@@ -351,7 +353,7 @@ const RoundRow: React.FC<{ showStudentNames: boolean; row: Data }> = ({ showStud
           const validRows = results.filter((row): row is WritingData => row !== null);
           setWritingRows(validRows);
         } catch (e) {
-          setErrorKey('error.fetch_generation');
+          setErrorKey(t('error.fetch_generation'));
           console.error("Unexpected error:", e);
         } finally {
           setIsLoading(false);

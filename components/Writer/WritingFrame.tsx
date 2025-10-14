@@ -48,7 +48,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                 message: t("writerView.writingFrame.error.minLength")
             },
             pattern: {
-                value: /^[A-Za-z0-9 .,?!'"\n]+$/,
+                value: /^[\x20-\x7E\r\n]+$/,
                 message: t("writerView.writingFrame.error.pattern")
             }
         },

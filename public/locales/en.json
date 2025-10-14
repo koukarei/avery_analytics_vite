@@ -24,8 +24,12 @@
   "galleryView.Tab.settings": "Settings",
   "galleryView.Tab.leaderboard.history": "History",
   "galleryView.Tab.back": "Back to Selecting Page",
-  "writerView.writingPage.start": "Start Writing",
+  "writerView.writingPage.start": "Click to Start Writing",
   "writerView.writingFrame.placeholder": "Type your descriptive writing here",
+  "writerView.writingFrame.error.required": "Writing is required.",
+  "writerView.writingFrame.error.maxLength": "Writing must be at most 16777215 characters.",
+  "writerView.writingFrame.error.minLength": "Writing must be at least 10 characters.",
+  "writerView.writingFrame.error.pattern": "Writing contains invalid characters. Please use only standard English characters and punctuation.",
   "studentCard.writingsTab": "Writings",
   "studentCard.chatLogsTab": "Chat Logs",
   "studentCard.noWritings": "No writings yet.",
@@ -45,5 +49,6 @@
   "mistakeCategories.vocabulary": "Vocabulary",
   "languages.english": "English",
   "languages.japanese": "日本語",
-  "error.not_authorized": "You are not authorized to view this page."
+  "error.not_authorized": "You are not authorized to view this page.",
+  "error.fetch_generation": "No writing submissions found."
 }
