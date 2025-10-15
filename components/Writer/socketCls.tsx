@@ -131,10 +131,12 @@ export class socketCls {
         let message: websocketRequest | null = null
         switch (this.currentAction) {
             case 'start':
+                if (!object) {
+                    throw new Error('RoundStart object is required to start a round.');
+                }
                 this.writingData.leaderboard_id = object && 'leaderboard_id' in object ? object.leaderboard_id : 0;
                 if (this.writingData.leaderboard_id === 0) {
-                    console.error('leaderboard_id is required to start a round.');
-                    return;
+                    throw new Error('leaderboard_id is required to start a round.');
                 }
                 message = {
                     action: 'start',
@@ -144,10 +146,12 @@ export class socketCls {
                 break
 
             case 'resume':
+                if (!object) {
+                    throw new Error('RoundStart object is required to resume a round.');
+                }
                 this.writingData.leaderboard_id = object && 'leaderboard_id' in object ? object.leaderboard_id : 0;
                 if (this.writingData.leaderboard_id === 0) {
-                    console.error('leaderboard_id is required to start a round.');
-                    return;
+                    throw new Error('leaderboard_id is required to start a round.');
                 }
                 message = {
                     action: 'resume',
@@ -157,6 +161,9 @@ export class socketCls {
                 break
                 
             case 'hint':
+                if (!object) {
+                    throw new Error('MessageSend object is required to provide a hint.');
+                }
                 message = {
                     action: 'hint',
                     program: sessionStorage.getItem('program') || 'none',
@@ -164,6 +171,9 @@ export class socketCls {
                 }
                 break
             case 'submit':
+                if (!object) {
+                    throw new Error('GenerationStart object is required to submit a writing.');
+                }
                 message = {
                     action: 'submit',
                     program: sessionStorage.getItem('program') || 'none',
