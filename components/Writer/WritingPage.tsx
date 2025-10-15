@@ -81,13 +81,13 @@ export const Writing: React.FC<WritingProps> = ({
         setIsLoading(true);
         setGeneratingLoading(true);
         if ( generationTime > 5 || isPlayable === false ) {
-            setWarningMsg(t('writing.warning.time_exceeded'));
+            setWarningMsg(t('writerView.writing.warning.time_exceeded'));
             setIsLoading(false);
             setGeneratingLoading(false);
             return;
         }
         setUserAction('submit');
-        setReceivedResponse(t('writing.response.generating'));
+        setReceivedResponse(t('writerView.writing.response.generating'));
         return;
     };
     
