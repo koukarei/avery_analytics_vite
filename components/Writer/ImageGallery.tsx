@@ -39,18 +39,18 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   const { t } = useLocalization();
   let transformClasses = 'transition-all duration-700 ease-in-out transform-gpu'; 
   let opacityClass = 'opacity-100';
-  
+
   // Adjusted 3D transforms to match the example image more closely
   switch (position) {
     case 'left':
-      transformClasses += ' rotate-y-[50deg] scale-[0.8] -translate-z-[100px]';
+      transformClasses += ' rotate-y-[50deg] scale-[0.8]';
       opacityClass = 'opacity-75 group-hover:opacity-90 group-focus:opacity-90';
       break;
     case 'center':
       transformClasses += ' scale-100 translate-z-[20px]'; // Center panel pops slightly forward
       break;
     case 'right':
-      transformClasses += ' -rotate-y-[50deg] scale-[0.8] -translate-z-[100px]';
+      transformClasses += ' -rotate-y-[50deg] scale-[0.8]';
       opacityClass = 'opacity-75 group-hover:opacity-90 group-focus:opacity-90';
       break;
   }
@@ -58,7 +58,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   if (!leaderboard) {
     return (
       <div 
-        className={`w-2/3 sm:w-1/2 md:w-1/3 aspect-[4/3] bg-neutral-700 rounded-lg shadow-2xl flex items-center justify-center ${transformClasses} ${opacityClass} border-2 border-neutral-600`}
+        className={`w-2/3 sm:w-1/2 md:w-1/3 aspect-[4/3] bg-neutral-700 rounded-lg shadow-2xl flex items-center justify-center ${transformClasses} border-2 border-neutral-600`}
         style={{ transformStyle: 'preserve-3d' }}
         aria-hidden="true"
       >
@@ -69,8 +69,14 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   
   return (
     <div
-      className={`w-2/3 sm:w-1/2 md:w-1/3 aspect-[4/3] bg-neutral-800 rounded-lg shadow-2xl overflow-hidden relative ${transformClasses} ${opacityClass} border-2 border-neutral-600 cursor-pointer group`}
-      style={{ transformStyle: 'preserve-3d'}}
+      className={`w-2/3 sm:w-1/2 md:w-1/3 aspect-[4/3] cursor-pointer group`}
+      style={{
+        transformStyle: 'preserve-3d',
+        // visual stacking and pointer behavior:
+        zIndex: position === 'center' ? 60 : 40,
+        // if center should not intercept clicks except when hovered/focused:
+        pointerEvents: 'auto'
+      }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onFocus={onMouseEnter} 
@@ -86,6 +92,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
         }
       }}
     >
+      <div className={`w-full h-full border-2 border-neutral-600 bg-neutral-800 rounded-lg shadow-2xl overflow-hidden relative ${transformClasses} ${opacityClass}`}>
       <img src={imageUrl ? imageUrl : ""} alt={leaderboard?.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-focus:scale-105" />
       <div className="absolute top-0 right-0 m-2">
           <span css={sceneStyles(theme)} className="inline-block bg-cyan-500 text-white text-xs font-semibold px-2 py-1 rounded-full uppercase tracking-wider">
@@ -95,9 +102,10 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
 
       {(isHovered) && (
         <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out">
-          <p className="text-white text-lg sm:text-xl md:text-2xl font-semibold text-center select-none">{t('writerView.writingPage.start')}</p>
+          <p className="text-white text-lg sm:text-xl md:text-2xl font-semibold text-center select-none">{position === "center" ? t('writerView.writingPage.start') : leaderboard.title}</p>
         </div>
       )}
+      </div>
     </div>
   );
 };
@@ -213,7 +221,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
     <div>
       <div 
         ref={galleryRef} 
-        className="w-full h-full flex items-start justify-center space-x-[-5%] sm:space-x-[-2%] md:space-x-[-1%] relative" 
+        className="w-full h-full flex items-start justify-center gap-4 relative" 
         style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
         role="region"
         aria-label="Leaderboard"
