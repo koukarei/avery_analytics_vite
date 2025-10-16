@@ -16,6 +16,8 @@
   "viewTitles.gallery": "学生ギャラリーショーケース",
   "viewTitles.word_cloud": "ワードクラウド",
   "viewTitles.analytics": "作文の間違い分析",
+
+  "galleryView.galleryPage.start": "クリックして作文を表示",
   "galleryView.noImageToDisplay": "表示する画像がありません。",
   "galleryView.publishedAtStartDate": "公開日",
   "galleryView.publishedAtEndDate": "～",
@@ -29,6 +31,7 @@
   "galleryView.Tab.settings": "設定",
   "galleryView.Tab.leaderboard.history": "履歴",
   "galleryView.Tab.back": "選択画面に戻る",
+  
   "writerView.writingPage.start": "クリックして作文を始める",
   "writerView.writingFrame.error.required": "作文は必須です。",
   "writerView.writingFrame.error.maxLength": "作文は最大16777215文字までです。",

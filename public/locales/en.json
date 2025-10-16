@@ -16,18 +16,22 @@
   "viewTitles.gallery": "Student Gallery Showcase",
   "viewTitles.word_cloud": "Word Cloud",
   "viewTitles.analytics": "Writing Mistakes Analytics",
+
   "galleryView.noImageToDisplay": "No images to display.",
+  "galleryView.galleryPage.start": "Click to View Writings",
   "galleryView.publishedAtStartDate": "Writing tasks published from",
   "galleryView.publishedAtEndDate": "to",
   "galleryView.addWritingTask": "Add a New Writing Task",
   "galleryView.AddImageModal.uploadImage": "Upload Image",
   "galleryView.AddImageModal.typeDetail": "Enter details for the writing task",
   "galleryView.AddImageModal.addRelatedVocabulary": "Add related vocabulary (optional)",
+
   "galleryView.Tab.detail": "Detail",
   "galleryView.Tab.leaderboard": "Leaderboard",
   "galleryView.Tab.settings": "Settings",
   "galleryView.Tab.leaderboard.history": "History",
   "galleryView.Tab.back": "Back to Selection Page",
+  
   "writerView.writingPage.start": "Click to Start Writing",
   "writerView.writingFrame.placeholder": "Type your descriptive writing here",
   "writerView.writingFrame.error.required": "Writing is required.",

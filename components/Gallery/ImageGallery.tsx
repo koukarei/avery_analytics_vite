@@ -6,6 +6,7 @@ import type { Leaderboard } from '../../types/leaderboard';
 import type { GalleryView } from '../../types/ui';
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
+import { useLocalization } from '../../contexts/localizationUtils';
 
 interface ImageGalleryProps {
   view: GalleryView;
@@ -35,6 +36,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   onMouseLeave,
   onClick 
 }) => {
+  const { t } = useLocalization();
   let transformClasses = 'transition-all duration-700 ease-in-out transform-gpu'; 
   let opacityClass = 'opacity-100';
   
@@ -94,7 +96,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
 
         {(isHovered) && (
           <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out">
-            <p className="text-white text-lg sm:text-xl md:text-2xl font-semibold text-center select-none">{leaderboard?.title}</p>
+            <p className="text-white text-lg sm:text-xl md:text-2xl font-semibold text-center select-none">{position === "center" ? t('galleryView.galleryPage.start') : leaderboard.title}</p>
           </div>
         )}
       </div>
