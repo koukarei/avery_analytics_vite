@@ -37,8 +37,10 @@ function MainPage() {
 }
 
 const App: React.FC = () => {
+  // Vite exposes the build base at import.meta.env.BASE_URL (e.g. '/avery_analytics/')
+  const base = (import.meta as any).env?.BASE_URL || '/';
   return (
-    <BrowserRouter basename='/avery_analytics/'>
+    <BrowserRouter basename={base}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/*" element={<MainPage />} />
