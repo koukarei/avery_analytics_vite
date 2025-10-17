@@ -38,7 +38,7 @@ function MainPage() {
 
 const App: React.FC = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename='/avery_analytics/'>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/*" element={<MainPage />} />
