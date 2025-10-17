@@ -22,7 +22,7 @@ export const LocalizationProvider: React.FC<{ children: ReactNode }> = ({ childr
     const loadTranslations = async (lang: Language) => {
       setIsInitialized(false); // Set to false while loading new language
       try {
-        const response = await fetch(`/locales/${lang}.json`);
+        const response = await fetch(`/avery_analytics/locales/${lang}.json`);
         if (!response.ok) {
           throw new Error(`Failed to load ${lang}.json: ${response.statusText}`);
         }
@@ -37,7 +37,7 @@ export const LocalizationProvider: React.FC<{ children: ReactNode }> = ({ childr
         if (lang !== DEFAULT_LANGUAGE) {
           // Attempt to load default language if the selected one failed
           // This prevents getting stuck with no translations
-          const defaultResponse = await fetch(`/locales/${DEFAULT_LANGUAGE}.json`);
+          const defaultResponse = await fetch(`/avery_analytics/locales/${DEFAULT_LANGUAGE}.json`);
           if (defaultResponse.ok) {
             const defaultData = await defaultResponse.json();
             setTranslations(defaultData);
