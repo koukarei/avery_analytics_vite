@@ -13,6 +13,8 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
-      }
+      },
+      base: '/avery_analytics/',     // use a leading and trailing slash
+      publicDir: 'public'       // default, can be e.g. 'static' or false
     };
 });
