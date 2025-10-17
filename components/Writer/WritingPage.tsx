@@ -95,133 +95,133 @@ export const Writing: React.FC<WritingProps> = ({
         setErrorKey(null);
         setIsLoading(true);
         try{
-            if (isPlayable) {
-                if (wsClientRef.current === null) {
-                    wsClientRef.current = new socketCls(leaderboard_id);
+           
+            if (wsClientRef.current === null) {
+                wsClientRef.current = new socketCls(leaderboard_id);
+            }
+            let obj= null;
+            wsClientRef.current.currentAction = userAction;
+            switch (userAction) {
+                case 'start':
+                    obj = {
+                        leaderboard_id: leaderboard_id,
+                        model: 'gpt-4o-mini',
+                        program: sessionStorage.getItem('program') || 'none',
+                        created_at: new Date(),
+                    }
+                    break
+                case 'resume':
+                    obj = {
+                        leaderboard_id: leaderboard_id,
+                        model: 'gpt-4o-mini',
+                        program: sessionStorage.getItem('program') || 'none',
+                        created_at: new Date(),
+                    }
+                    break
+                case 'hint':
+                    obj = {
+                        content: 'ヒントをちょうだい',
+                        created_at: new Date(),
+                        is_hint: true,
+                    }
+                    break;
+                case 'submit':
+                    obj = {
+                        leaderboard_id: leaderboard_id,
+                        round_id: roundId,
+                        created_at: new Date(),
+                        generated_time: generationTime,
+                        sentence: writingText
+                    }
+                    break
+                case 'evaluate':
+                    setLoadingGenerationIds(writingGenerationId ? [...loadingGenerationIds, writingGenerationId]:loadingGenerationIds)
+                    setGenerationIds(writingGenerationId ? [...generationIds, writingGenerationId] : generationIds);
+                    break
+                case 'end':
+                    break
+                default:
+                    obj = null
+                    break
                 }
-                let obj= null;
-                wsClientRef.current.currentAction = userAction;
-                switch (userAction) {
-                    case 'start':
-                        obj = {
-                            leaderboard_id: leaderboard_id,
-                            model: 'gpt-4o-mini',
-                            program: sessionStorage.getItem('program') || 'none',
-                            created_at: new Date(),
-                        }
-                        break
-                    case 'resume':
-                        obj = {
-                            leaderboard_id: leaderboard_id,
-                            model: 'gpt-4o-mini',
-                            program: sessionStorage.getItem('program') || 'none',
-                            created_at: new Date(),
-                        }
-                        break
-                    case 'hint':
-                        obj = {
-                            content: 'ヒントをちょうだい',
-                            created_at: new Date(),
-                            is_hint: true,
-                        }
-                        break;
-                    case 'submit':
-                        obj = {
-                            leaderboard_id: leaderboard_id,
-                            round_id: roundId,
-                            created_at: new Date(),
-                            generated_time: generationTime,
-                            sentence: writingText
-                        }
-                        break
-                    case 'evaluate':
-                        setLoadingGenerationIds(writingGenerationId ? [...loadingGenerationIds, writingGenerationId]:loadingGenerationIds)
-                        setGenerationIds(writingGenerationId ? [...generationIds, writingGenerationId] : generationIds);
-                        break
-                    case 'end':
-                        break
-                    default:
-                        obj = null
-                        break
-                    }
 
-                wsClientRef.current.send_user_action(obj ? obj : undefined);
+            wsClientRef.current.send_user_action(obj ? obj : undefined);
 
-                wsClientRef.current.receive_response().then((data)=>{
-                switch (userAction) {
-                    case 'start':{
-                        if (data) {
-                            const pastGenerationIds = data.past_generation_ids && data.writing_generation_id ? data.past_generation_ids.filter(gid => gid !== writingGenerationId) : [];
-                            setGenerationIds([...pastGenerationIds])
-                            _setRoundId(data.round_id ? data.round_id : 0);
-                            setWritingGenerationId(data.writing_generation_id ? data.writing_generation_id : null)
-                            _setGenerationTime(data.generation_time ? data.generation_time : 0)
-                            const blob = base64ToBlob(data.leaderboard_image);
-                            const blobUrl = URL.createObjectURL(blob);
-                            setLeaderboardImage(blobUrl);
+            wsClientRef.current.receive_response().then((data)=>{
+            switch (userAction) {
+                case 'start':{
+                    if (data) {
+                        const pastGenerationIds = data.past_generation_ids && data.writing_generation_id ? data.past_generation_ids.filter(gid => gid !== writingGenerationId) : [];
+                        setGenerationIds([...pastGenerationIds])
+                        _setRoundId(data.round_id ? data.round_id : 0);
+                        setWritingGenerationId(data.writing_generation_id ? data.writing_generation_id : null)
+                        _setGenerationTime(data.generation_time ? data.generation_time : 0)
+                        const blob = base64ToBlob(data.leaderboard_image);
+                        const blobUrl = URL.createObjectURL(blob);
+                        setLeaderboardImage(blobUrl);
 
-                        }
-                        setUserAction('none');
-                        break;
                     }
-                    case 'resume':{
-                        if (data) {
-                            const pastGenerationIds = data.past_generation_ids && data.writing_generation_id ? data.past_generation_ids.filter(gid => gid !== writingGenerationId) : [];
-                            setGenerationIds([...pastGenerationIds])
-                            _setRoundId(data.round_id ? data.round_id : 0);
-                            setWritingGenerationId(data.writing_generation_id ? data.writing_generation_id : null)
-                            _setGenerationTime(data.generation_time ? data.generation_time : 0)
-                            
-                            const blob = base64ToBlob(data.leaderboard_image);
-                            const blobUrl = URL.createObjectURL(blob);
-                            setLeaderboardImage(blobUrl);
-
-                        }
-                        setUserAction('none');
-                        break;
-                    }
-                    case 'submit': {
-                        if (data) {
-                            const messages = data.chat_messages;
-                            setWritingGenerationId(data.writing_generation_id ? data.writing_generation_id : null);
-                            if (messages.length > 0 ? messages[messages.length - 1].content.startsWith("ブー！") : false){
-                                // remind user to type in English or language of choice
-                                setWarningMsg(messages.length > 0 ? messages[messages.length - 1].content : "");
-                                setUserAction('none');
-                                setGeneratingLoading(false);
-                                break;
-                            } else {
-                                setUserAction('evaluate');
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                    case 'evaluate': {
-                        if (generationTime > 4) {
-                            setUserAction('end');
-                        }
-                        setGeneratingLoading(false);
-                        setLoadingGenerationIds(writingGenerationId ? loadingGenerationIds.filter(gid => gid !== writingGenerationId):loadingGenerationIds)
-                        _setGenerationTime(data.generation_time ? data.generation_time : 0);
-                        setIsEvaluationModalOpen(true);
-                        break;
-                    }
-                    case 'end': {
-                        setUserAction('none');
-                        setPlayable(false);
-                        break;
-                    }
-                    default:
-                        break;
+                    setUserAction('none');
+                    break;
                 }
-            })
-                .catch(e => {
-                    console.error('Error receiving response:', e);
-                    setErrorKey("error.ReceivingGenerationDetail");
-                });
+                case 'resume':{
+                    if (data) {
+                        const pastGenerationIds = data.past_generation_ids && data.writing_generation_id ? data.past_generation_ids.filter(gid => gid !== writingGenerationId) : [];
+                        setGenerationIds([...pastGenerationIds])
+                        _setRoundId(data.round_id ? data.round_id : 0);
+                        setWritingGenerationId(data.writing_generation_id ? data.writing_generation_id : null)
+                        _setGenerationTime(data.generation_time ? data.generation_time : 0)
+                        
+                        const blob = base64ToBlob(data.leaderboard_image);
+                        const blobUrl = URL.createObjectURL(blob);
+                        setLeaderboardImage(blobUrl);
 
+                    }
+                    setUserAction('none');
+                    break;
                 }
+                case 'submit': {
+                    if (data) {
+                        const messages = data.chat_messages;
+                        setWritingGenerationId(data.writing_generation_id ? data.writing_generation_id : null);
+                        if (messages.length > 0 ? messages[messages.length - 1].content.startsWith("ブー！") : false){
+                            // remind user to type in English or language of choice
+                            setWarningMsg(messages.length > 0 ? messages[messages.length - 1].content : "");
+                            setUserAction('none');
+                            setGeneratingLoading(false);
+                            break;
+                        } else {
+                            setUserAction('evaluate');
+                            break;
+                        }
+                    }
+                    break;
+                }
+                case 'evaluate': {
+                    if (generationTime > 4) {
+                        setUserAction('end');
+                    }
+                    setGeneratingLoading(false);
+                    setLoadingGenerationIds(writingGenerationId ? loadingGenerationIds.filter(gid => gid !== writingGenerationId):loadingGenerationIds)
+                    _setGenerationTime(data.generation_time ? data.generation_time : 0);
+                    setIsEvaluationModalOpen(true);
+                    break;
+                }
+                case 'end': {
+                    setUserAction('none');
+                    setPlayable(false);
+                    break;
+                }
+                default:
+                    break;
+            }
+        })
+            .catch(e => {
+                console.error('Error receiving response:', e);
+                setErrorKey("error.ReceivingGenerationDetail");
+            });
+
+                
             
         } catch (e) {
             setErrorKey("error.FetchingGenerationDetail");
@@ -229,7 +229,7 @@ export const Writing: React.FC<WritingProps> = ({
         } finally {
             setIsLoading(false);
         }
-    }, [isPlayable, userAction]);
+    }, [userAction]);
 
     if (isLoading) {
         return <LoadingSpinner />;
