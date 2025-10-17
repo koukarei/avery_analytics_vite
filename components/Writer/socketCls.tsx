@@ -119,8 +119,6 @@ export class socketCls {
 
     private handleBeforeUnload = () => {
         if (this.client && this.wsLink) {
-            this.currentAction = 'end';
-            this.send_user_action();
             this.client.close();
         }
     }
