@@ -72,6 +72,7 @@ const Navigation: React.FC = () => {
           {navItems.map((item) => (
             <li key={item.id}>
               <Link
+                reloadDocument
                 to={`/${item.id}`}
                 onClick={() => setActiveView(item.id)}
                 className={`flex items-center py-3 px-3 font-medium border-b-4 transition-colors duration-150
