@@ -99,17 +99,20 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
         
     return (
         <Card sx={style}>
-            <CardHeader>
-                <Box>Past Writing Details</Box>
-            </CardHeader>
+            <CardHeader 
+                title={t("writerView.pastWritingFrame.pastWritingDetails")}
+            />
             <CardContent sx={modalCardContentStyle}>
-                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Box mb={2}>
                     {detailData ? (
                         compareWriting(detailData.sentence, detailData.correct_sentence)
                     ) : "No writing detail available."}
                 </Box>
                 <Box>
                     {isLoading && <LoadingSpinner />}
+                </Box>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                    {t("writerView.pastWritingFrame.clickButtonsBelow")}
                 </Box>
                 <Button
                     css={buttonStyle(theme)}
@@ -229,7 +232,8 @@ const style = {
 const buttonStyle = (theme: Theme) => css`
     background-color: ${theme.palette.primary.main};
     color: ${theme.palette.primary.contrastText};
-    margin: 4px;
+    margin: 8px;
+    border-radius: 4px;
     &:hover {
         background-color: ${theme.palette.primary.dark};
     }

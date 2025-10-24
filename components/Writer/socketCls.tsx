@@ -4,6 +4,7 @@ import type { MessageReceived } from "../../types/websocketAPI";
 import { wsAPI } from "../../api/WritingWS";
 
 type writingClsData = {
+    feedback: string;
     leaderboard_id: number;
     leaderboard_image: string;
     round_id: number | null;
@@ -25,6 +26,7 @@ export class socketCls {
     currentAction: 'none' | 'start' | 'resume' | 'hint' | 'submit' | 'evaluate' | 'end' = 'none';
 
     writingData: writingClsData = {
+        feedback: '',
         leaderboard_id: 0,
         leaderboard_image: '',
         round_id: null,
@@ -206,6 +208,7 @@ export class socketCls {
                     switch (this.currentAction) {
                         case 'start':
                             if (data.round && data.leaderboard && data.generation && data.chat) {
+                                this.writingData.feedback = data.feedback ? data.feedback : '';
                                 this.writingData.round_id = data.round.id;
                                 this.writingData.leaderboard_id = data.leaderboard.id;
                                 this.writingData.leaderboard_image = data.leaderboard.image;
@@ -217,6 +220,7 @@ export class socketCls {
                             break;
                         case 'resume':
                             if (data.round && data.leaderboard && data.generation && data.chat) {
+                                this.writingData.feedback = data.feedback ? data.feedback : '';
                                 this.writingData.round_id = data.round.id;
                                 this.writingData.leaderboard_id = data.leaderboard.id;
                                 this.writingData.leaderboard_image = data.leaderboard.image;
