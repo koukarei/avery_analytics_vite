@@ -136,20 +136,6 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
               </Tabs>
             </AppBar>
             <GalleryTabPanel value={value} index={0} dir={theme.direction}>
-              
-              {leaderboard ? (
-                <SceneProvider>
-                  <StoryProvider>
-                    <LeaderboardItemProvider>
-                      <LeaderboardDetail leaderboard_id={leaderboard.id} />
-                    </LeaderboardItemProvider>
-                  </StoryProvider>
-                </SceneProvider>
-              ) : (
-                <p className="text-xl text-gray-400">{t('galleryView.noLeaderboardToDisplay')}</p>
-              )}
-            </GalleryTabPanel>
-            <GalleryTabPanel value={value} index={1} dir={theme.direction}>
               { leaderboard ? (
                 <LeaderboardRoundProvider>
                   <ChatStatsProvider>
@@ -164,6 +150,20 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
                 </LeaderboardRoundProvider>
               ) : (
                 <p className="text-xl text-gray-400">{t('galleryView.noRoundToDisplay')}</p>
+              )}
+            </GalleryTabPanel>
+            <GalleryTabPanel value={value} index={1} dir={theme.direction}>
+              
+              {leaderboard ? (
+                <SceneProvider>
+                  <StoryProvider>
+                    <LeaderboardItemProvider>
+                      <LeaderboardDetail leaderboard_id={leaderboard.id} />
+                    </LeaderboardItemProvider>
+                  </StoryProvider>
+                </SceneProvider>
+              ) : (
+                <p className="text-xl text-gray-400">{t('galleryView.noLeaderboardToDisplay')}</p>
               )}
             </GalleryTabPanel>
             <GalleryTabPanel value={value} index={2} dir={theme.direction}>
