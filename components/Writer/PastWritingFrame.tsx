@@ -34,16 +34,19 @@ interface PastWritingsProps {
 
 interface PastWritingModalProps {
   generation_id: number | null;
+  feedback: string | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
 interface PastWritingContentProps {
   generation_id: number | null;
+  feedback: string | null;
 }
 
 const PastWritingContent: React.FC<PastWritingContentProps> = ({ 
   generation_id, 
+  feedback
 }) => {
     const [showImage, setShowImage] = useState(false);
     const [showAWE, setShowAWE] = useState(false);
@@ -52,6 +55,7 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [aWEText, setAWEText] = useState<string | null>(null);
     const [detailData, setDetailData] = useState<GenerationDetail | null>(null);
+    const [feedbackLoading, setFeedbackLoading] = useState(false);
     const { t } = useLocalization();
 
     const {fetchDetail} = useContext(GenerationDetailContext);
@@ -79,6 +83,18 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
             }
             if (evaluationData && evaluationData.content) {
                 setAWEText(evaluationData.content);
+            }
+            if (feedback) {
+                if (feedback.includes("IMG")) {
+                    if (detailData && detailData.interpreted_image !== undefined && detailData.interpreted_image?.id !== undefined) {
+                        setFeedbackLoading(true);
+                    }
+                }
+                if (feedback.includes("AWE")) {
+                    if (detailData && detailData.evaluation_id !== null) {
+                        setFeedbackLoading(true);
+                    }
+                }
             }
         } catch (e) {
             console.error("Failed to fetch generation detail: ", e);
@@ -109,20 +125,20 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
                     ) : "No writing detail available."}
                 </Box>
                 <Box>
-                    {isLoading && <LoadingSpinner />}
+                    {(isLoading || feedbackLoading) && <LoadingSpinner />}
                 </Box>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     {t("writerView.pastWritingFrame.clickButtonsBelow")}
                 </Box>
                 <Button
-                    css={buttonStyle(theme)}
+                    css={showImage && imageUrl ? hideButtonStyle(theme) : showButtonStyle(theme)}
                     disabled={!detailData || detailData.interpreted_image === undefined || detailData.interpreted_image?.id === undefined}
                     onClick={handleClickShowImage}
                 >
                     {showImage ? t("writerView.pastWritingFrame.hideImage") : t("writerView.pastWritingFrame.showImage")}
                 </Button>
                 <Button
-                    css={buttonStyle(theme)}
+                    css={showAWE ? hideButtonStyle(theme) : showButtonStyle(theme)}
                     disabled={!detailData || detailData.evaluation_id === null}
                     onClick={handleClickShowAWE}
                 >
@@ -148,6 +164,7 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
 
 const PastWritingModal: React.FC<PastWritingModalProps> = ({ 
   generation_id, 
+  feedback,
   isOpen,
   onClose
 }) => {
@@ -166,7 +183,7 @@ const PastWritingModal: React.FC<PastWritingModalProps> = ({
                 aria-describedby={`modal-modal-${generation_id}`}
             >
                 <Box sx={modalContainerStyle}>
-                    <PastWritingContent generation_id={generation_id} />
+                    <PastWritingContent generation_id={generation_id} feedback={feedback} />
                 </Box>
             </Modal>
         </React.Fragment>
@@ -185,21 +202,44 @@ const PastWritingIcon: React.FC<PastWritingIconProps> = ({
 }) => {
     const paletteKeys = [50, 100, 300, 500, 700, 900];
     const color = blueGrey[paletteKeys[index % paletteKeys.length] as keyof typeof blueGrey];
+    const hoverBorderColor = blueGrey[paletteKeys[(index + 3) % paletteKeys.length] as keyof typeof blueGrey];
+    const [isHovered, setIsHovered] = useState(false);
     // derive states directly from props to avoid stale closure
     const isSpinning = loadingGenerationIds.includes(idx);
     const isDisabled = isSpinning;
-    const handleClick = () => onClick(idx);
+    const handleClick = () => {
+        if (!isDisabled) {
+            onClick(idx);
+        }
+    };
+    const handleHover = (isHovered: boolean) => {
+        if (isHovered) {
+            return { bgcolor: color, border: `2px solid ${hoverBorderColor}` };
+        }
+        return { bgcolor: color };
+    };
  
-     return (
-         <Avatar css={pastWritingIconStyle(isSpinning)} sx={{ bgcolor: color }}>
-             <Button
-                 disabled={isDisabled}
-                 onClick={handleClick}
-             >
-                 {index + 1}
-             </Button>
-         </Avatar>
-     )
+    return (
+        <Box
+            mx={0.5}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            onClick={handleClick}
+        >
+            <Avatar
+                css={pastWritingIconStyle(isSpinning)}
+                sx={handleHover(isHovered)}
+            >
+                <Button
+                    disabled={isDisabled}
+                    sx={{ color: isDisabled ? theme.palette.text.secondary : hoverBorderColor }}
+                >
+                        {index + 1}
+                </Button>
+            </Avatar>
+        </Box>
+
+    )
 }
 const PastWritingsBar: React.FC<PastWritingsProps> = ({ generation_ids, onClick, getBack, loadingGenerationIds }) => {
  
@@ -229,31 +269,48 @@ const style = {
     p: 4,
 };
 
-const buttonStyle = (theme: Theme) => css`
+const showButtonStyle = (theme: Theme) => css`
     background-color: ${theme.palette.primary.dark};
     color: ${theme.palette.primary.contrastText};
     margin: 8px;
     border-radius: 4px;
     &:hover {
-        background-color: ${theme.palette.primary.light};
+        background-color: ${theme.palette.background.paper};
+        color: ${theme.palette.text.primary};
+        border: 2px solid ${theme.palette.primary.dark};
+    }
+`;
+
+const hideButtonStyle = (theme: Theme) => css`
+    background-color: ${theme.palette.background.paper};
+    color: ${theme.palette.text.primary};
+    margin: 8px;
+    border-radius: 4px;
+    border: 2px solid ${theme.palette.primary.dark};
+    &:hover {
+        background-color: ${theme.palette.primary.dark};
+        color: ${theme.palette.primary.contrastText};
     }
 `;
 
 const backButtonStyle = (theme: Theme) => css`
-  color: white;
-  font-weight: 700;
+  color: ${theme.palette.primary.main};
+  font-weight: 100;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-  padding-left: 0.8rem;
-  padding-right: 0.5rem;
+  padding-left: 0rem;
+  padding-right: 0rem;
+  align-items: center;
+  justify-content: center;
   border-radius: calc(infinity * 1px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
-  background-color: ${theme.palette.primary.main};
+  background-color: ${theme.palette.background.paper};
   &:hover {
     background-color: ${theme.palette.primary.light};
+    color: ${theme.palette.background.paper};
   }
 `;
 

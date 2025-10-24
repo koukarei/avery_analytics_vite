@@ -45,8 +45,8 @@
   "writerView.pastWritingFrame.clickButtonsBelow": "Click the buttons below to view writing feedback.",
   "writerView.pastWritingFrame.showImage": "Show Image",
   "writerView.pastWritingFrame.hideImage": "Hide Image",
-  "writerView.pastWritingFrame.showAWE": "Show AWE",
-  "writerView.pastWritingFrame.hideAWE": "Hide AWE",
+  "writerView.pastWritingFrame.showAWE": "Show Evaluation",
+  "writerView.pastWritingFrame.hideAWE": "Hide Evaluation",
 
   "studentCard.writingsTab": "Writings",
   "studentCard.chatLogsTab": "Chat Logs",

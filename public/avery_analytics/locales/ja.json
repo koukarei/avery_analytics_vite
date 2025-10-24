@@ -43,8 +43,8 @@
 
   "writerView.pastWritingFrame.pastWritingDetails": "あなたの作文の詳細",
   "writerView.pastWritingFrame.clickButtonsBelow": "以下のボタンをクリックして作文のフィードバックを表示します。",
-  "writerView.pastWritingFrame.showImage": "画像を表示",
-  "writerView.pastWritingFrame.hideImage": "画像を非表示",
+  "writerView.pastWritingFrame.showImage": "生成画像を表示",
+  "writerView.pastWritingFrame.hideImage": "生成画像を非表示",
   "writerView.pastWritingFrame.showAWE": "自動評価を表示",
   "writerView.pastWritingFrame.hideAWE": "自動評価を非表示",
 
