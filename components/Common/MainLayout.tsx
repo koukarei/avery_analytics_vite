@@ -8,8 +8,34 @@ import Navigation from '../Navigation';
 import { AuthUserProvider } from '../../providers/AuthUserProvider';
 import { CustomSettingProvider } from '../../providers/CustomSettingProvider';
 import { css } from '@emotion/react';
+import { UserActionAPI } from '../../api/UserAction';
 
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const handleUserAction = async (action_name: string) => {
+    const response = await UserActionAPI.createUserAction(
+      {
+        action: action_name,
+        related_id: 0,
+        sent_at: new Date(),
+      }
+    )
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      handleUserAction("tab_hidden");
+    } else {
+      handleUserAction("tab_visible");
+    }
+  });
+
+  window.addEventListener("focus", () => {
+    handleUserAction("window_focused");
+  });
+
+  window.addEventListener("blur", () => {
+    handleUserAction("window_blurred");
+  });
 
   return (
     <div>
