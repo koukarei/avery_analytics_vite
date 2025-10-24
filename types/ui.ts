@@ -19,6 +19,6 @@ export const GALLERY_DETAIL_VIEWS: GalleryDetailView[] = [
     { viewName: 'settings', displayToStudents: false },
 ];
 
-export type SCHOOL = "saikyo"| "lms" | "tom" | "tomsec" | "newleaf";
+export type SCHOOL = "saikyo"| "lms" | "tom" | "tomsec" | "newleaf" | "public";
 
-export const SCHOOLS: SCHOOL[] = ["saikyo", "lms", "tom", "tomsec", "newleaf"];
+export const SCHOOLS: SCHOOL[] = ["saikyo", "lms", "tom", "tomsec", "newleaf", "public"];
