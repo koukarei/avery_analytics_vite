@@ -93,18 +93,18 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
       }}
     >
       <div className={`w-full h-full border-2 border-neutral-600 bg-neutral-800 rounded-lg shadow-2xl overflow-hidden relative ${transformClasses} ${opacityClass}`}>
-      <img src={imageUrl ? imageUrl : ""} alt={leaderboard?.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-focus:scale-105" />
-      <div className="absolute top-0 right-0 m-2">
-          <span css={sceneStyles(theme)} className="inline-block bg-cyan-500 text-white text-xs font-semibold px-2 py-1 rounded-full uppercase tracking-wider">
-          {leaderboard.scene.name}
-        </span>
-      </div>
-
-      {(isHovered) && (
-        <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out">
-          <p className="text-white text-lg sm:text-xl md:text-2xl font-semibold text-center select-none">{position === "center" ? t('writerView.writingPage.start') : leaderboard.title}</p>
+        <img src={imageUrl ? imageUrl : ""} alt={leaderboard?.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-focus:scale-105" />
+        <div className="absolute top-0 right-0 m-2">
+            <span css={sceneStyles(theme)} className="inline-block bg-cyan-500 text-white text-xs font-semibold px-2 py-1 rounded-full uppercase tracking-wider">
+            {leaderboard.scene.name}
+          </span>
         </div>
-      )}
+
+        {(isHovered) && (
+          <div className="absolute inset-0 bg-black opacity-60 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out">
+            <p className="text-white text-lg sm:text-xl md:text-2xl font-semibold text-center select-none">{position === "center" ? t('writerView.writingPage.start') : leaderboard.title}</p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ import { UserActionAPI } from '../../api/UserAction';
 
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const handleUserAction = async (action_name: string) => {
-    const response = await UserActionAPI.createUserAction(
+    await UserActionAPI.createUserAction(
       {
         action: action_name,
         related_id: 0,

@@ -285,7 +285,7 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
                 <Box>
                     {(isLoading) && <LoadingSpinner />}
                 </Box>
-                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Box sx={{ borderTop: 1, borderColor: 'divider' }}>
                     {t("writerView.pastWritingFrame.clickButtonsBelow")}
                 </Box>
                 <GenerationFeedback

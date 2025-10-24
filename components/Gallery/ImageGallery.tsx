@@ -95,7 +95,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
         </div>
 
         {(isHovered) && (
-          <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out">
+          <div className="absolute inset-0 bg-black opacity-60 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out">
             <p className="text-white text-lg sm:text-xl md:text-2xl font-semibold text-center select-none">{position === "center" ? t('galleryView.galleryPage.start') : leaderboard.title}</p>
           </div>
         )}
