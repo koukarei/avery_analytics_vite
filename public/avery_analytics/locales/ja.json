@@ -41,7 +41,7 @@
   "writerView.writing.response.generating": "生成中...",
   "writerView.writingFrame.placeholder": "ここに説明的な文章を入力してください",
 
-  "writerView.pastWritingFrame.pastWritingDetails": "提出した作文",
+  "writerView.pastWritingFrame.pastWritingDetails": "あなたの作文の詳細",
   "writerView.pastWritingFrame.clickButtonsBelow": "以下のボタンをクリックして作文のフィードバックを表示します。",
   "writerView.pastWritingFrame.showImage": "画像を表示",
   "writerView.pastWritingFrame.hideImage": "画像を非表示",

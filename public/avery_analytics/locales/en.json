@@ -41,7 +41,7 @@
   "writerView.writing.warning.time_exceeded": "You have exceeded the limit for this writing task. Please try other tasks.",
   "writerView.writing.response.generating": "Generating response...",
 
-  "writerView.pastWritingFrame.pastWritingDetails": "Writing submitted",
+  "writerView.pastWritingFrame.pastWritingDetails": "Your Writing Details",
   "writerView.pastWritingFrame.clickButtonsBelow": "Click the buttons below to view writing feedback.",
   "writerView.pastWritingFrame.showImage": "Show Image",
   "writerView.pastWritingFrame.hideImage": "Hide Image",

@@ -128,12 +128,12 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
                 >
                     {showAWE ? t("writerView.pastWritingFrame.hideAWE") : t("writerView.pastWritingFrame.showAWE")}
                 </Button>
-                <Box>
+                <Box mt={2}>
                     {showAWE ? (
                         <MarkdownEvalViewer content={aWEText ? aWEText : ""} />
                     ) : null }
                 </Box>
-                <Box>
+                <Box mt={2}>
                     {showImage && imageUrl ? (
                         <img src={imageUrl ? imageUrl : ""} alt="Generated" style={{ maxWidth: '100%' }} />
                     ) : null}
@@ -230,12 +230,12 @@ const style = {
 };
 
 const buttonStyle = (theme: Theme) => css`
-    background-color: ${theme.palette.primary.main};
+    background-color: ${theme.palette.primary.dark};
     color: ${theme.palette.primary.contrastText};
     margin: 8px;
     border-radius: 4px;
     &:hover {
-        background-color: ${theme.palette.primary.dark};
+        background-color: ${theme.palette.primary.light};
     }
 `;
 

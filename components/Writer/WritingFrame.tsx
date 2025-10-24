@@ -150,6 +150,6 @@ const SubmitWritingButton = (theme: Theme) => css`
     background-color: ${theme.palette.secondary.dark};
     margin: 16px;
     &:hover {
-        background-color: ${theme.palette.secondary.light};
+        background-color: ${theme.palette.primary.light};
     }
 `;
