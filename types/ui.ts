@@ -14,8 +14,8 @@ export type WordCloudType = 'mistake' | 'writing' | 'user_chat' | 'assistant_cha
 export const GALLERY_VIEWS: GalleryView[] = ['browsing', 'detail'];
 
 export const GALLERY_DETAIL_VIEWS: GalleryDetailView[] = [
-    { viewName: 'detail', displayToStudents: true },
     { viewName: 'leaderboard', displayToStudents: true },
+    { viewName: 'detail', displayToStudents: true },
     { viewName: 'settings', displayToStudents: false },
 ];
 
