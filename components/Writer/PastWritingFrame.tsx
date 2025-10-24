@@ -126,6 +126,12 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
     
     const {fetchEvaluation} = useContext(GenerationEvaluationContext);
 
+    // retry / polling refs to limit attempts
+    const imgAttemptsRef = React.useRef(0);
+    const aweAttemptsRef = React.useRef(0);
+    const imgCancelRef = React.useRef(false);
+    const aweCancelRef = React.useRef(false);
+
     useEffect(() => {
         setErrorKey(null);
         setIsLoading(true);
@@ -157,24 +163,105 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
         fetch();
     }, [generation_id, showImage, showAWE]);
 
+    // Poll for interpreted image up to 5 times when feedback requests IMG
     useEffect(() => {
-        if (feedback) {
-            if (feedback.includes("IMG") && detailData && (detailData.interpreted_image !== undefined || detailData.interpreted_image?.id !== undefined)) {
+        imgAttemptsRef.current = 0;
+        imgCancelRef.current = false;
+        setImgFeedbackLoaded(false);
+
+        if (!feedback || !feedback.includes("IMG") || !generation_id) return;
+
+        const pollImg = async () => {
+            // already satisfied from existing detailData
+            if (detailData && (detailData.interpreted_image !== undefined && detailData.interpreted_image?.id !== undefined)) {
                 setImgFeedbackLoaded(true);
-            } 
-            if (feedback.includes("AWE") && (detailData && detailData.evaluation_id !== null)) {
-                setAweFeedbackLoaded(true);
+                return;
             }
 
-            if (imgFeedbackLoaded && aweFeedbackLoaded) {
-                setFeedbackLoading(false);
-            } else if ((!feedback.includes("IMG") && aweFeedbackLoaded) || (!feedback.includes("AWE") && imgFeedbackLoaded)) {
-                setFeedbackLoading(false);
-            } else {
-                setFeedbackLoading(true);
+            if (imgAttemptsRef.current >= 5) {
+                // give up after 5 tries
+                return;
             }
+            imgAttemptsRef.current++;
+
+            try {
+                const d = await fetchDetail(generation_id);
+                if (imgCancelRef.current) return;
+                if (d) setDetailData(d);
+                if (d && (d.interpreted_image !== undefined && d.interpreted_image?.id !== undefined)) {
+                    setImgFeedbackLoaded(true);
+                    return;
+                }
+            } catch (e) {
+                // ignore and retry until limit
+                console.error('pollImg fetchDetail error', e);
+            }
+
+            if (!imgCancelRef.current) {
+                window.setTimeout(pollImg, 1000);
+            }
+        };
+
+        pollImg();
+
+        return () => { imgCancelRef.current = true; };
+    }, [feedback, generation_id, fetchDetail, detailData]);
+
+    // Poll for evaluation up to 5 times when feedback requests AWE
+    useEffect(() => {
+        aweAttemptsRef.current = 0;
+        aweCancelRef.current = false;
+        setAweFeedbackLoaded(false);
+
+        if (!feedback || !feedback.includes("AWE") || !generation_id) return;
+
+        const pollAwe = async () => {
+            if (detailData && detailData.evaluation_id !== null) {
+                setAweFeedbackLoaded(true);
+                return;
+            }
+
+            if (aweAttemptsRef.current >= 5) {
+                return;
+            }
+            aweAttemptsRef.current++;
+
+            try {
+                const d = await fetchDetail(generation_id);
+                if (aweCancelRef.current) return;
+                if (d) setDetailData(d);
+                if (d && d.evaluation_id !== null) {
+                    setAweFeedbackLoaded(true);
+                    return;
+                }
+            } catch (e) {
+                console.error('pollAwe fetchDetail error', e);
+            }
+
+            if (!aweCancelRef.current) {
+                window.setTimeout(pollAwe, 1000);
+            }
+        };
+
+        pollAwe();
+
+        return () => { aweCancelRef.current = true; };
+    }, [feedback, generation_id, fetchDetail, detailData]);
+
+    // derive feedbackLoading from requested feedback + loaded flags
+    useEffect(() => {
+        if (!feedback) {
+            setFeedbackLoading(false);
+            return;
         }
-    }, [feedback, detailData]);
+        const needsImg = feedback.includes("IMG");
+        const needsAwe = feedback.includes("AWE");
+
+        const imgReady = !needsImg || imgFeedbackLoaded;
+        const aweReady = !needsAwe || aweFeedbackLoaded;
+
+        setFeedbackLoading(!(imgReady && aweReady));
+    }, [feedback, imgFeedbackLoaded, aweFeedbackLoaded]);
 
 
     const handleClickShowImage = () => {
