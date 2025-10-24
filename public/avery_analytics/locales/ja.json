@@ -37,6 +37,7 @@
   "writerView.writingFrame.error.maxLength": "作文は最大16777215文字までです。",
   "writerView.writingFrame.error.minLength": "作文は最小10文字までです。",
   "writerView.writingFrame.error.pattern": "作文には無効な文字が含まれています。標準的な英語の文字と句読点のみを使用してください。",
+  "writerView.writingFrame.submit": "作文を提出",
   "writerView.writing.warning.time_exceeded": "この作文タスクの制限回数を超えました。他のタスクを試してください。",
   "writerView.writing.response.generating": "生成中...",
   "writerView.writingFrame.placeholder": "ここに説明的な文章を入力してください",

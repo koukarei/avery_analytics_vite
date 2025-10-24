@@ -105,7 +105,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                                     type="submit"
                                     variant="contained"
                                 >
-                                    Submit Writing
+                                    {t("writerView.writingFrame.submit")}
                                 </Button>
                             )}
                         />

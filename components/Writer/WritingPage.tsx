@@ -27,6 +27,7 @@ interface WritingProps {
     leaderboard_id: number;
     generationIds: number[];
     setGenerationIds: (ids: number[]) => void;
+    setFeedback: (feedback: string) => void;
     loadingGenerationIds: number[];
     setLoadingGenerationIds: (ids: number[]) => void;
     writingGenerationId: number | null;
@@ -38,6 +39,7 @@ interface WritingProps {
 
 interface BrowseWritingProps {
     setView: (view: GalleryView) => void;
+    feedback: string;
     generation_ids: number[];
     loadingGenerationIds: number[];
     writingGenerationId: number | null;
@@ -55,6 +57,7 @@ export const Writing: React.FC<WritingProps> = ({
     leaderboard_id,
     generationIds,
     setGenerationIds,
+    setFeedback,
     loadingGenerationIds,
     setLoadingGenerationIds,
     writingGenerationId,
@@ -159,6 +162,7 @@ export const Writing: React.FC<WritingProps> = ({
                         const blob = base64ToBlob(data.leaderboard_image);
                         const blobUrl = URL.createObjectURL(blob);
                         setLeaderboardImage(blobUrl);
+                        setFeedback(data.feedback ? data.feedback : "");
 
                     }
                     setUserAction('none');
@@ -175,7 +179,7 @@ export const Writing: React.FC<WritingProps> = ({
                         const blob = base64ToBlob(data.leaderboard_image);
                         const blobUrl = URL.createObjectURL(blob);
                         setLeaderboardImage(blobUrl);
-
+                        setFeedback(data.feedback ? data.feedback : "");
                     }
                     setUserAction('none');
                     break;
@@ -257,6 +261,7 @@ export const Writing: React.FC<WritingProps> = ({
 
 export const BrowseWriting: React.FC<BrowseWritingProps> = ({
     setView,
+    feedback,
     generation_ids,
     loadingGenerationIds,
     writingGenerationId,
@@ -333,11 +338,13 @@ export const BrowseWriting: React.FC<BrowseWritingProps> = ({
             />
             <PastWritingModal
                 generation_id={selectedGenerationId}
+                feedback={feedback}
                 isOpen={isPastWritingModalOpen}
                 onClose={() => setIsPastWritingModalOpen(false)}
             />
             <PastWritingModal
                 generation_id={writingGenerationId}
+                feedback={feedback}
                 isOpen={isEvaluationModalOpen}
                 onClose={() => setIsEvaluationModalOpen(false)}
             />
@@ -351,6 +358,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
     const [errorKey, setErrorKey] = useState<string | null>(null);
     
     const [generation_ids, setGenerationIds] = useState<number[]>([]);
+    const [feedback, setFeedback] = useState<string>("");
     const [loadingGenerationIds, setLoadingGenerationIds] = useState<number[]>([]);
     const [writingGenerationId, setWritingGenerationId] = useState<number | null>(null);
     const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false);
@@ -396,6 +404,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                 <div className="h-1/8 w-full">
                     <BrowseWriting
                         setView={setView}
+                        feedback={feedback}
                         generation_ids={generation_ids}
                         loadingGenerationIds={loadingGenerationIds}
                         writingGenerationId={writingGenerationId}
@@ -414,6 +423,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                         leaderboard_id={leaderboard ? leaderboard.id : 0}
                         generationIds={generation_ids}
                         setGenerationIds={setGenerationIds}
+                        setFeedback={setFeedback}
                         loadingGenerationIds={loadingGenerationIds}
                         setLoadingGenerationIds={setLoadingGenerationIds}
                         writingGenerationId={writingGenerationId}

@@ -38,6 +38,7 @@
   "writerView.writingFrame.error.maxLength": "Writing must be at most 16777215 characters.",
   "writerView.writingFrame.error.minLength": "Writing must be at least 10 characters.",
   "writerView.writingFrame.error.pattern": "Writing contains invalid characters. Please use only standard English characters and punctuation.",
+  "writerView.writingFrame.submit": "Submit Writing",
   "writerView.writing.warning.time_exceeded": "You have exceeded the limit for this writing task. Please try other tasks.",
   "writerView.writing.response.generating": "Generating response...",
 

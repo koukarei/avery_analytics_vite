@@ -44,6 +44,66 @@ interface PastWritingContentProps {
   feedback: string | null;
 }
 
+interface GenerationFeedbackProps {
+    feedbackLoading: boolean;
+    showImage: boolean;
+    imageUrl: string | null;
+    showAWE: boolean;
+    aWEText: string | null;
+    imgFeedbackLoaded: boolean;
+    aweFeedbackLoaded: boolean;
+    handleClickShowImage: () => void;
+    handleClickShowAWE: () => void;
+}
+
+const GenerationFeedback: React.FC<GenerationFeedbackProps> = ({ 
+    feedbackLoading,
+    showImage,
+    imageUrl,
+    showAWE,
+    aWEText,
+    imgFeedbackLoaded,
+    aweFeedbackLoaded,
+    handleClickShowImage,
+    handleClickShowAWE
+ }) => {
+    const { t } = useLocalization();
+
+    if (feedbackLoading) {
+        return <LoadingSpinner />;
+    }
+
+
+    return (
+        <>
+            <Button
+                css={showImage && imageUrl ? hideButtonStyle(theme) : showButtonStyle(theme)}
+                disabled={!imgFeedbackLoaded}
+                onClick={handleClickShowImage}
+            >
+                {showImage ? t("writerView.pastWritingFrame.hideImage") : t("writerView.pastWritingFrame.showImage")}
+            </Button>
+            <Button
+                css={showAWE ? hideButtonStyle(theme) : showButtonStyle(theme)}
+                disabled={!aweFeedbackLoaded}
+                onClick={handleClickShowAWE}
+            >
+                {showAWE ? t("writerView.pastWritingFrame.hideAWE") : t("writerView.pastWritingFrame.showAWE")}
+            </Button>
+            <Box mt={2}>
+                {showAWE ? (
+                    <MarkdownEvalViewer content={aWEText ? aWEText : ""} />
+                ) : null }
+            </Box>
+            <Box mt={2}>
+                {showImage && imageUrl ? (
+                    <img src={imageUrl ? imageUrl : ""} alt="Generated" style={{ maxWidth: '100%' }} />
+                ) : null}
+            </Box>
+        </>
+    )
+};
+
 const PastWritingContent: React.FC<PastWritingContentProps> = ({ 
   generation_id, 
   feedback
@@ -56,6 +116,9 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
     const [aWEText, setAWEText] = useState<string | null>(null);
     const [detailData, setDetailData] = useState<GenerationDetail | null>(null);
     const [feedbackLoading, setFeedbackLoading] = useState(false);
+    const [imgFeedbackLoaded, setImgFeedbackLoaded] = useState(false);
+    const [aweFeedbackLoaded, setAweFeedbackLoaded] = useState(false);
+
     const { t } = useLocalization();
 
     const {fetchDetail} = useContext(GenerationDetailContext);
@@ -84,18 +147,6 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
             if (evaluationData && evaluationData.content) {
                 setAWEText(evaluationData.content);
             }
-            if (feedback) {
-                if (feedback.includes("IMG")) {
-                    if (detailData && detailData.interpreted_image !== undefined && detailData.interpreted_image?.id !== undefined) {
-                        setFeedbackLoading(true);
-                    }
-                }
-                if (feedback.includes("AWE")) {
-                    if (detailData && detailData.evaluation_id !== null) {
-                        setFeedbackLoading(true);
-                    }
-                }
-            }
         } catch (e) {
             console.error("Failed to fetch generation detail: ", e);
             setErrorKey("error.FetchingGenerationDetail");
@@ -105,6 +156,26 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
         };
         fetch();
     }, [generation_id, showImage, showAWE]);
+
+    useEffect(() => {
+        if (feedback) {
+            if (feedback.includes("IMG") && detailData && (detailData.interpreted_image !== undefined || detailData.interpreted_image?.id !== undefined)) {
+                setImgFeedbackLoaded(true);
+            } 
+            if (feedback.includes("AWE") && (detailData && detailData.evaluation_id !== null)) {
+                setAweFeedbackLoaded(true);
+            }
+
+            if (imgFeedbackLoaded && aweFeedbackLoaded) {
+                setFeedbackLoading(false);
+            } else if ((!feedback.includes("IMG") && aweFeedbackLoaded) || (!feedback.includes("AWE") && imgFeedbackLoaded)) {
+                setFeedbackLoading(false);
+            } else {
+                setFeedbackLoading(true);
+            }
+        }
+    }, [feedback, detailData]);
+
 
     const handleClickShowImage = () => {
         setShowImage(!showImage);
@@ -125,35 +196,22 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
                     ) : "No writing detail available."}
                 </Box>
                 <Box>
-                    {(isLoading || feedbackLoading) && <LoadingSpinner />}
+                    {(isLoading) && <LoadingSpinner />}
                 </Box>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     {t("writerView.pastWritingFrame.clickButtonsBelow")}
                 </Box>
-                <Button
-                    css={showImage && imageUrl ? hideButtonStyle(theme) : showButtonStyle(theme)}
-                    disabled={!detailData || detailData.interpreted_image === undefined || detailData.interpreted_image?.id === undefined}
-                    onClick={handleClickShowImage}
-                >
-                    {showImage ? t("writerView.pastWritingFrame.hideImage") : t("writerView.pastWritingFrame.showImage")}
-                </Button>
-                <Button
-                    css={showAWE ? hideButtonStyle(theme) : showButtonStyle(theme)}
-                    disabled={!detailData || detailData.evaluation_id === null}
-                    onClick={handleClickShowAWE}
-                >
-                    {showAWE ? t("writerView.pastWritingFrame.hideAWE") : t("writerView.pastWritingFrame.showAWE")}
-                </Button>
-                <Box mt={2}>
-                    {showAWE ? (
-                        <MarkdownEvalViewer content={aWEText ? aWEText : ""} />
-                    ) : null }
-                </Box>
-                <Box mt={2}>
-                    {showImage && imageUrl ? (
-                        <img src={imageUrl ? imageUrl : ""} alt="Generated" style={{ maxWidth: '100%' }} />
-                    ) : null}
-                </Box>
+                <GenerationFeedback
+                    feedbackLoading={feedbackLoading}
+                    showImage={showImage}
+                    imageUrl={imageUrl}
+                    showAWE={showAWE}
+                    aWEText={aWEText}
+                    imgFeedbackLoaded={imgFeedbackLoaded}
+                    aweFeedbackLoaded={aweFeedbackLoaded}
+                    handleClickShowImage={handleClickShowImage}
+                    handleClickShowAWE={handleClickShowAWE}
+                />
                 <Box>
                     {errorKey && <p style={{ color: 'red' }}>{errorKey}</p>}
                 </Box>
