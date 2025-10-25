@@ -28,6 +28,15 @@
   
   "galleryView.Tab.detail": "詳細",
   "galleryView.Tab.leaderboard": "リーダーボード",
+  "galleryView.Tab.leaderboard.tableHeader.rank": "ランク",
+  "galleryView.Tab.leaderboard.tableHeader.student_name": "名前",
+  "galleryView.Tab.leaderboard.tableHeader.created_at": "作成日",
+  "galleryView.Tab.leaderboard.tableHeader.number_of_writings": "作文数",
+  "galleryView.Tab.leaderboard.tableHeader.number_of_messages_sent": "送信メッセージ数",
+  "galleryView.Tab.leaderboard.tableHeader.duration": "総時間",
+  "galleryView.Tab.leaderboard.tableHeader.first_writing": "最初の作文",
+  "galleryView.Tab.leaderboard.tableHeader.last_writing": "最後の作文",
+
   "galleryView.Tab.settings": "設定",
   "galleryView.Tab.leaderboard.history": "履歴",
   "galleryView.Tab.back": "選択画面に戻る",

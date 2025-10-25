@@ -83,6 +83,12 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                                 css={typingFieldStyle(theme)}
                                 multiline
                                 fullWidth
+                                onFocus={(event) => {
+                                    if (!disabledSubmit) {
+                                        event.target.select();
+                                    }
+                                    
+                                }}
                                 disabled={disabledSubmit}
                                 minRows={10}
                                 variant="outlined"

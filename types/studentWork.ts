@@ -106,6 +106,7 @@ export interface GenerationDetail {
 
 export interface GenerationBrief {
   id: number;
+  duration: number;
   is_completed: boolean;
 }
 

@@ -27,7 +27,7 @@ import { compareWriting } from '../../util/CompareWriting';
 import { MarkdownViewer } from '../../util/showMD';
 
 interface RoundColumn {
-  id: 'student_name' | 'created_at' | 'number_of_writings' | 'number_of_messages_sent' | 'first_writing' | 'last_writing';
+  id: 'student_name' | 'created_at' | 'number_of_writings' | 'number_of_messages_sent' | 'duration' | 'first_writing' | 'last_writing';
   label: string;
   minWidth?: number;
   align?: 'right';
@@ -35,32 +35,46 @@ interface RoundColumn {
 }
 
 const columns: RoundColumn[] = [
-  { id: 'student_name', label: 'Name', minWidth: 170 },
-  { id: 'created_at', label: 'Created\u00a0At', minWidth: 100 },
+  { id: 'student_name', label: 'galleryView.Tab.leaderboard.tableHeader.student_name', minWidth: 170 },
+  { id: 'created_at', label: 'galleryView.Tab.leaderboard.tableHeader.created_at', minWidth: 100 },
   {
     id: 'number_of_writings',
-    label: 'Number\u00a0of\u00a0Writings',
+    label: 'galleryView.Tab.leaderboard.tableHeader.number_of_writings',
     minWidth: 100,
     format: (value: number) => value.toFixed(0),
   },
   {
     id: 'number_of_messages_sent',
-    label: 'Number\u00a0of\u00a0Messages\u00a0Sent',
+    label: 'galleryView.Tab.leaderboard.tableHeader.number_of_messages_sent',
     minWidth: 100,
     format: (value: number) => value.toFixed(0),
   },
   {
+    id: 'duration',
+    label: 'galleryView.Tab.leaderboard.tableHeader.duration',
+    minWidth: 100,
+    format: (value: number) => {
+      if (typeof value === 'number') {
+          const hours = Math.floor(value / 3600);
+          const minutes = Math.floor((value % 3600) / 60);
+          const seconds = value % 60;
+          return `${hours > 0 ? hours + 'h ' : ''}${minutes > 0 ? minutes + 'm ' : ''}${seconds}s`;
+      }
+      return "No Duration";
+    }
+  },
+  {
     id: 'first_writing',
-    label: 'First\u00a0Writing',
+    label: 'galleryView.Tab.leaderboard.tableHeader.first_writing',
     minWidth: 170,
     align: 'right',
   },
   {
     id: 'last_writing',
-    label: 'Last\u00a0Writing',
+    label: 'galleryView.Tab.leaderboard.tableHeader.last_writing',
     minWidth: 170,
     align: 'right',
-  },
+  }
 ];
 
 interface Data {
@@ -71,6 +85,8 @@ interface Data {
   number_of_messages_sent: number;
   first_writing: string;
   last_writing: string;
+  duration: number;
+  engagement_score: number;
   generation_ids: number[];
 };
 
@@ -92,7 +108,11 @@ function createData(
   const generation_ids = roundData.generations.filter(gen => gen.is_completed).map(gen => gen.id);
   const number_of_writings = generation_ids.length;
 
-  return { id, student_name, created_at, number_of_writings, number_of_messages_sent, first_writing, last_writing, generation_ids };
+  const duration = roundData.generations.map(gen => gen.is_completed ? gen.duration : 0).reduce((a, b) => a + b, 0);
+
+  const engagement_score = (number_of_writings + number_of_messages_sent * 0.8) / (number_of_writings > 0 ? duration /60 : 1);
+
+  return { id, student_name, created_at, number_of_writings, number_of_messages_sent, first_writing, last_writing, duration, engagement_score, generation_ids };
 };
 
 interface WritingColumn {
@@ -113,7 +133,7 @@ const writingColumns: readonly WritingColumn[] = [
     minWidth: 170,
   },
   { id: 'awe_feedback', label: 'AWE\u00a0Feedback', minWidth: 170 },
-  { id: 'duration', label: 'Duration\u00a0(s)', minWidth: 100, align: 'right' },
+  { id: 'duration', label: 'Duration', minWidth: 100, align: 'right' },
   { id: 'grammar_errors', label: 'Grammar\u00a0Errors', minWidth: 170 },
   { id: 'spelling_errors', label: 'Spelling\u00a0Errors', minWidth: 170 },
 ];
@@ -211,6 +231,7 @@ const RenderTableRow: React.FC<RenderTableRowProps> = ({
           return "No Spelling Errors";
         }
       }
+
       default:
         return column.format && typeof value === 'number'
           ? column.format(value)
@@ -299,7 +320,7 @@ const RenderTableRow: React.FC<RenderTableRowProps> = ({
   );
 }
 
-const RoundRow: React.FC<{ showStudentNames: boolean; row: Data }> = ({ showStudentNames, row }) => {
+const RoundRow: React.FC<{ rank: number; showStudentNames: boolean; row: Data }> = ({ rank, showStudentNames, row }) => {
   const [open, setOpen] = useState(false);
   const [clicked, setClicked] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -381,15 +402,15 @@ const RoundRow: React.FC<{ showStudentNames: boolean; row: Data }> = ({ showStud
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        
-          {columns.map((column) => {
-            const value = row[column.id];
-            return (
-              <TableCell key={column.id} align={column.align}>
-                {renderTableCell(column, row, value)}
-              </TableCell>
-            );
-          })}
+        <TableCell>{rank}</TableCell>
+        {columns.map((column) => {
+          const value = row[column.id];
+          return (
+            <TableCell key={column.id} align={column.align}>
+              {renderTableCell(column, row, value)}
+            </TableCell>
+          );
+        })}
       </TableRow>
       {
         open ? (
@@ -511,22 +532,24 @@ const StudentWorkTable: React.FC<StudentWorkTableProps> = ({
             <TableHead>
               <TableRow>
                 <TableCell />
+                <TableCell>{t('galleryView.Tab.leaderboard.tableHeader.rank')}</TableCell>
                 {columns.map((column) => (
                   <TableCell
                     key={column.id}
                     align={column.align}
                     style={{ minWidth: column.minWidth }}
                   >
-                    {column.label}
+                    {t(column.label)}
                   </TableCell>
                 ))}
               </TableRow>
             </TableHead>
             <TableBody>
               {rows
+                .sort((a, b) => b.engagement_score - a.engagement_score)
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row) => (
-                  <RoundRow showStudentNames={showStudentNames} key={row.id} row={row} />
+                .map((row, index) => (
+                  <RoundRow rank={index + 1} showStudentNames={showStudentNames} key={row.id} row={row} />
                 ))}
             </TableBody>
           </Table>

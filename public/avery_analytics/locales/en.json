@@ -27,7 +27,17 @@
   "galleryView.AddImageModal.addRelatedVocabulary": "Add related vocabulary (optional)",
 
   "galleryView.Tab.detail": "Detail",
+  
   "galleryView.Tab.leaderboard": "Leaderboard",
+  "galleryView.Tab.leaderboard.tableHeader.rank": "Rank",
+  "galleryView.Tab.leaderboard.tableHeader.student_name": "Name",
+  "galleryView.Tab.leaderboard.tableHeader.created_at": "Created\u00a0At",
+  "galleryView.Tab.leaderboard.tableHeader.number_of_writings": "Number\u00a0of\u00a0Writings",
+  "galleryView.Tab.leaderboard.tableHeader.number_of_messages_sent": "Number\u00a0of\u00a0Messages\u00a0Sent",
+  "galleryView.Tab.leaderboard.tableHeader.duration": "Total\u00a0Duration",
+  "galleryView.Tab.leaderboard.tableHeader.first_writing": "First\u00a0Writing",
+  "galleryView.Tab.leaderboard.tableHeader.last_writing": "Last\u00a0Writing",
+
   "galleryView.Tab.settings": "Settings",
   "galleryView.Tab.leaderboard.history": "History",
   "galleryView.Tab.back": "Back to Selection Page",
