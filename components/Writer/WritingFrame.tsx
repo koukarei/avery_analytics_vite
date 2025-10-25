@@ -109,7 +109,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                                     type="submit"
                                     variant="contained"
                                 >
-                                    {t("writerView.writingFrame.submit")}
+                                    { disabledSubmit ? t("writerView.writingFrame.submit.time_exceeded") : isLoading ? t("writerView.writingFrame.submit.loading") : t("writerView.writingFrame.submit.ok_to_proceed")}
                                 </Button>
                             )}
                         />
