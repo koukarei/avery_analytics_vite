@@ -104,11 +104,17 @@ export interface GenerationDetail {
   score: Score;
 }
 
+export interface GenerationBrief {
+  id: number;
+  is_completed: boolean;
+}
+
+
 export interface Round {
   id: number;
   player?: Profile;
   created_at: Date;
   last_generation_id: number;
   chat_history: number;
-  generations: IdOnly[];
+  generations: GenerationBrief[];
 }

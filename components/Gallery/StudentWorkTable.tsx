@@ -89,8 +89,8 @@ function createData(
   const first_writing = firstWritingDetail ? firstWritingDetail.sentence : "";
   const last_writing = lastWritingDetail ? lastWritingDetail.sentence : "";
 
-  const number_of_writings = first_writing ? roundData.generations.length : 0;
-  const generation_ids = roundData.generations.map(gen => gen.id);
+  const generation_ids = roundData.generations.filter(gen => gen.is_completed).map(gen => gen.id);
+  const number_of_writings = generation_ids.length;
 
   return { id, student_name, created_at, number_of_writings, number_of_messages_sent, first_writing, last_writing, generation_ids };
 };
@@ -454,13 +454,14 @@ const StudentWorkTable: React.FC<StudentWorkTableProps> = ({
             let rowChatStats: ChatStats | null = null;
             
             try {
-              if (round.generations.length > 1) {
+              const generations = round.generations.filter(gen => gen.is_completed);
+              if (generations.length > 1) {
                 [firstWritingDetail, lastWritingDetail] = await Promise.all([
-                  fetchDetail(round.generations[0].id),
-                  fetchDetail(round.generations[round.generations.length - 1].id)
+                  fetchDetail(generations[0].id),
+                  fetchDetail(generations[generations.length - 1].id)
                 ]);
-              } else if (round.generations.length === 1) {
-                firstWritingDetail = await fetchDetail(round.generations[0].id);
+              } else if (generations.length === 1) {
+                firstWritingDetail = await fetchDetail(generations[0].id);
                 lastWritingDetail = firstWritingDetail;
               }
             } catch (e) {
