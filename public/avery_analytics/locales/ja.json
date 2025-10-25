@@ -33,6 +33,8 @@
   "galleryView.Tab.back": "選択画面に戻る",
   
   "writerView.writingPage.start": "クリックして作文を始める",
+  "writerView.writingFrame.placeholder": "ここに説明的な文章を入力してください",
+  "writerView.writingFrame.placeholderDisabled": "この作文タスクは完了しました。他のタスクを試してみませんか？",
   "writerView.writingFrame.error.required": "作文は必須です。",
   "writerView.writingFrame.error.maxLength": "作文は最大16777215文字までです。",
   "writerView.writingFrame.error.minLength": "作文は最小10文字までです。",
@@ -42,10 +44,8 @@
   "writerView.writingFrame.submit.loading": "送信中...",
   "writerView.writing.warning.time_exceeded": "この作文タスクは完了しました。他のタスクを試してみませんか？",
   "writerView.writing.response.generating": "生成中...",
-  "writerView.writingFrame.placeholder": "ここに説明的な文章を入力してください",
-  "writerView.writingFrame.placeholderDisabled": "この作文タスクは無効です。他のタスクを選択してください。",
 
-  "writerView.pastWritingFrame.pastWritingDetails": "あなたの作文の詳細",
+  "writerView.pastWritingFrame.pastWritingDetails": "あなたの作文",
   "writerView.pastWritingFrame.clickButtonsBelow": "以下のボタンをクリックして作文のフィードバックを表示します。",
   "writerView.pastWritingFrame.showImage": "生成画像を表示",
   "writerView.pastWritingFrame.hideImage": "生成画像を非表示",
