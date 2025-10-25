@@ -45,7 +45,7 @@ const ShowToggleStudentName: React.FC<{iconOnly: boolean}> = ({iconOnly}) => {
 
 const Navigation: React.FC = () => {
   const { t } = useLocalization();
-  const [activeView, setActiveView] = React.useState<ViewMode>('writer');
+  const [activeView, setActiveView] = useState<ViewMode>('writer');
 
   const location = useLocation();
   const path = location.pathname;

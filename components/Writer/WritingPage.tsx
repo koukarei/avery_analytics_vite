@@ -12,7 +12,6 @@ import { socketCls } from "./socketCls";
 
 import { base64ToBlob } from "../../util/convertBase64";
 import { useLocalization } from '../../contexts/localizationUtils';
-import { set } from "react-hook-form";
 
 interface WritingPageProps {
     setView: (view: GalleryView) => void;

@@ -61,6 +61,7 @@ export type ResponseGeneration = {
     correct_sentence?: string;
     is_completed?: boolean;
     image_similarity?: number;
+    duration?: number;
 }
 
 export type websocketResponse = {

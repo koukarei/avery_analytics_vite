@@ -15,6 +15,7 @@ type writingClsData = {
     correct_sentence: string;
     evaluation_msg: string;
     interpreted_image: string;
+    duration: number;
 }
 
 export class socketCls {
@@ -37,6 +38,7 @@ export class socketCls {
         correct_sentence: '',
         evaluation_msg: '',
         interpreted_image: '',
+        duration: 0,
     }
 
     constructor(
@@ -228,6 +230,7 @@ export class socketCls {
                                 this.writingData.writing_generation_id = data.generation.id;
                                 this.writingData.generation_time = data.generation.generated_time ? data.generation.generated_time : 0;
                                 this.writingData.chat_messages = data.chat.messages ? data.chat.messages : [];
+                                this.writingData.duration = data.generation.duration ? data.generation.duration : 0;
                             }
                             break;
                         case 'hint':
@@ -240,6 +243,7 @@ export class socketCls {
                                 this.writingData.writing_generation_id = data.generation.id
                                 this.writingData.chat_messages = data.chat.messages;
                                 this.writingData.correct_sentence = data.generation.correct_sentence ? data.generation.correct_sentence : '';
+                                this.writingData.duration = data.generation.duration ? data.generation.duration : 0;
                             }
                             break;
                         case 'evaluate':
@@ -249,6 +253,7 @@ export class socketCls {
                                 this.writingData.generation_time = data.round.generated_time;
                                 this.writingData.evaluation_msg = data.generation.evaluation_msg ? data.generation.evaluation_msg : '';
                                 this.writingData.interpreted_image = data.generation.interpreted_image ? data.generation.interpreted_image : '';
+                                this.writingData.duration = 0;
                             }
                             break;
                         case 'end':
