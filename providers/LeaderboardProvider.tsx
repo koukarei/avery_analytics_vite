@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useState } from "react";
-import type { Leaderboard, School, LeaderboardPlayable, LeaderboardAnalysis, LeaderboardItem, LeaderboardListParams, LeaderboardAnalysisParams, WordCloudParams } from '../types/leaderboard';
+import type { Leaderboard, School, LeaderboardStartNew, LeaderboardAnalysis, LeaderboardItem, LeaderboardListParams, LeaderboardAnalysisParams, WordCloudParams } from '../types/leaderboard';
 import type { WritingMistake, ChatWordCloudItem, Round } from "../types/studentWork"
 import { LeaderboardAPI } from "../api/Leaderboard";
 
@@ -89,27 +89,27 @@ const LeaderboardListProvider = ({
 };
 
 
-type LeaderboardPlayableContextType = {
-  leaderboard: LeaderboardPlayable | null;
+type LeaderboardStartNewContextType = {
+  leaderboard: LeaderboardStartNew | null;
   loading: boolean;
-  fetchLeaderboard: (leaderboard_id: number, program: string) => Promise<LeaderboardPlayable | null>;
+  fetchLeaderboard: (leaderboard_id: number, program: string) => Promise<LeaderboardStartNew | null>;
 };
 
-const LeaderboardPlayableContext = createContext({} as LeaderboardPlayableContextType);
+const LeaderboardStartNewContext = createContext({} as LeaderboardStartNewContextType);
 
-const LeaderboardPlayableProvider = ({
+const LeaderboardStartNewProvider = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
-  const [leaderboard, setLeaderboard] = useState<LeaderboardPlayable | null>(null);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardStartNew | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const fetchLeaderboard = useCallback(async (leaderboard_id: number, program: string) => {
     setLoading(true);
-    let leaderboardData: LeaderboardPlayable | null = null;
+    let leaderboardData: LeaderboardStartNew | null = null;
     try {
-      leaderboardData = await LeaderboardAPI.fetchLeaderboardPlayable(leaderboard_id, program);
+      leaderboardData = await LeaderboardAPI.fetchLeaderboardStartNew(leaderboard_id, program);
       setLeaderboard(leaderboardData);
     } catch (e) {
       console.log(e);
@@ -121,9 +121,9 @@ const LeaderboardPlayableProvider = ({
   }, []);
 
   return (
-    <LeaderboardPlayableContext.Provider value={{ leaderboard, loading, fetchLeaderboard }}>
+    <LeaderboardStartNewContext.Provider value={{ leaderboard, loading, fetchLeaderboard }}>
       {children}
-    </LeaderboardPlayableContext.Provider>
+    </LeaderboardStartNewContext.Provider>
   );
 };
 
@@ -378,8 +378,8 @@ const LeaderboardRoundProvider = ({
 export { 
     LeaderboardListContext, 
     LeaderboardListProvider, 
-    LeaderboardPlayableContext,
-    LeaderboardPlayableProvider,
+    LeaderboardStartNewContext,
+    LeaderboardStartNewProvider,
     LeaderboardItemContext,
     LeaderboardItemProvider,
     LeaderboardAnalysisContext, 

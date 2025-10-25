@@ -6,12 +6,13 @@ import type { Leaderboard } from "../../types/leaderboard";
 import { LoadingSpinner } from "../Common/LoadingSpinner";
 import { ErrorDisplay } from "../Common/ErrorDisplay";
 import Alert from '@mui/material/Alert';
-import { LeaderboardPlayableContext } from "../../providers/LeaderboardProvider";
+import { LeaderboardStartNewContext } from "../../providers/LeaderboardProvider";
 
 import { socketCls } from "./socketCls";
 
 import { base64ToBlob } from "../../util/convertBase64";
 import { useLocalization } from '../../contexts/localizationUtils';
+import { set } from "react-hook-form";
 
 interface WritingPageProps {
     setView: (view: GalleryView) => void;
@@ -22,8 +23,8 @@ interface WritingPageProps {
 interface WritingProps {
     title: string;
     imageUrl: string;
-    isPlayable: boolean;
-    setPlayable: (playable: boolean) => void;
+    toStartNew: boolean;
+    setToStartNew: (toStartNew: boolean) => void;
     leaderboard_id: number;
     generationIds: number[];
     setGenerationIds: (ids: number[]) => void;
@@ -52,8 +53,8 @@ interface BrowseWritingProps {
 export const Writing: React.FC<WritingProps> = ({ 
     title,
     imageUrl,
-    isPlayable,
-    setPlayable,
+    toStartNew,
+    setToStartNew,
     leaderboard_id,
     generationIds,
     setGenerationIds,
@@ -75,7 +76,7 @@ export const Writing: React.FC<WritingProps> = ({
     const [generationTime, _setGenerationTime] = useState<number>(0);
     const [leaderboardImage, setLeaderboardImage] = useState<string | null>(imageUrl);
 
-    const [userAction, setUserAction] = useState<'none' | 'start' | 'resume' | 'hint' | 'submit' | 'evaluate' | 'end'>('resume');
+    const [userAction, setUserAction] = useState<'none' | 'start' | 'resume' | 'hint' | 'submit' | 'evaluate' | 'end'>('none');
 
     const wsClientRef = useRef<socketCls | null>(null);
     const { t } = useLocalization();
@@ -83,7 +84,7 @@ export const Writing: React.FC<WritingProps> = ({
     const handleSubmitWriting = () => {
         setIsLoading(true);
         setGeneratingLoading(true);
-        if ( generationTime > 5 || isPlayable === false ) {
+        if ( generationTime > 5 || toStartNew === false ) {
             setWarningMsg(t('writerView.writing.warning.time_exceeded'));
             setIsLoading(false);
             setGeneratingLoading(false);
@@ -100,6 +101,11 @@ export const Writing: React.FC<WritingProps> = ({
         try{
            
             if (wsClientRef.current === null) {
+                if (toStartNew) {
+                    setUserAction('start');
+                } else {
+                    setUserAction('resume');
+                }
                 wsClientRef.current = new socketCls(leaderboard_id);
             }
             let obj= null;
@@ -213,7 +219,7 @@ export const Writing: React.FC<WritingProps> = ({
                 }
                 case 'end': {
                     setUserAction('none');
-                    setPlayable(false);
+                    setToStartNew(false);
                     break;
                 }
                 default:
@@ -251,7 +257,7 @@ export const Writing: React.FC<WritingProps> = ({
                 writingText={writingText}
                 setWritingText={setWritingText}
                 submitWritingFn={handleSubmitWriting}
-                disabledSubmit={generationTime > 5 || isPlayable === false}
+                disabledSubmit={generationTime > 5 || toStartNew === false}
                 isLoading={isLoading || generatingLoading}
             />
         </div>
@@ -353,7 +359,7 @@ export const BrowseWriting: React.FC<BrowseWritingProps> = ({
 };
 
 export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, imageUrl }) => {
-    const [isPlayable, setPlayable] = useState(false);
+    const [toStartNew, setToStartNew] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [errorKey, setErrorKey] = useState<string | null>(null);
     
@@ -366,7 +372,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
     const [warningMsg, setWarningMsg] = useState<string>("");
     const [receivedResponse, setReceivedResponse] = useState<string>("");
 
-    const { fetchLeaderboard } = useContext(LeaderboardPlayableContext);
+    const { fetchLeaderboard } = useContext(LeaderboardStartNewContext);
     const { t } = useLocalization();
     
     useEffect(() => {
@@ -375,16 +381,16 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
             try {
                 if (leaderboard) {
                     const program = sessionStorage.getItem('program') || 'none';
-                    fetchLeaderboard(leaderboard.id, program).then((playableData) => {
-                        if (playableData) {
-                            setPlayable(playableData.is_playable);
+                    fetchLeaderboard(leaderboard.id, program).then((okToStartData) => {
+                        if (okToStartData) {
+                            setToStartNew(okToStartData.start_new);
                         }
                     }).catch(e => {
-                        console.error('Failed to fetch leaderboard playable:', e)
+                        console.error('Failed to fetch leaderboard start new:', e)
                     });
                 }
             } catch (e) {
-                setErrorKey("error.FetchingLeaderboardPlayable");
+                setErrorKey("error.FetchingLeaderboardStartNew");
                 console.log(e);
             } finally {
                 setIsLoading(false);
@@ -418,8 +424,8 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                     <Writing
                         title={leaderboard ? leaderboard.title : t('writerView.writingFrame.noLeaderboard')}
                         imageUrl={imageUrl ? imageUrl : ''}
-                        isPlayable={isPlayable}
-                        setPlayable={setPlayable}
+                        toStartNew={toStartNew}
+                        setToStartNew={setToStartNew}
                         leaderboard_id={leaderboard ? leaderboard.id : 0}
                         generationIds={generation_ids}
                         setGenerationIds={setGenerationIds}

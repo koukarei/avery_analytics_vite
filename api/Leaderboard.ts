@@ -9,7 +9,7 @@ import type {
   LeaderboardUpdate, 
   LeaderboardCreateAPI,
   LeaderboardSchoolUpdate,
-  LeaderboardPlayable
+  LeaderboardStartNew
 } from "../types/leaderboard";
 import type { WritingMistake, ChatWordCloudItem, Round } from "../types/studentWork"
 import { authAxios } from "./axios";
@@ -69,9 +69,9 @@ export class LeaderboardAPI {
     return URL.createObjectURL(blob);
   }
 
-  static async fetchLeaderboardPlayable(leaderboard_id: number, program: string): Promise<LeaderboardPlayable> {
+  static async fetchLeaderboardStartNew(leaderboard_id: number, program: string): Promise<LeaderboardStartNew> {
 
-    const response = await authAxios.get(`leaderboards/${leaderboard_id}/playable?program=${program}/`, {
+    const response = await authAxios.get(`leaderboards/${leaderboard_id}/check_ok_to_start_new?program=${program}/`, {
       headers: sessionStorage.getItem("access_token")
         ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
         : {},

@@ -347,7 +347,7 @@ const PastWritingIcon: React.FC<PastWritingIconProps> = ({
 }) => {
     const paletteKeys = [50, 100, 300, 500, 700, 900];
     const color = blueGrey[paletteKeys[index % paletteKeys.length] as keyof typeof blueGrey];
-    const hoverBorderColor = blueGrey[paletteKeys[(index + 3) % paletteKeys.length] as keyof typeof blueGrey];
+    const contrastColor = blueGrey[paletteKeys[(index + 3) % paletteKeys.length] as keyof typeof blueGrey];
     const [isHovered, setIsHovered] = useState(false);
     // derive states directly from props to avoid stale closure
     const isSpinning = loadingGenerationIds.includes(idx);
@@ -358,10 +358,10 @@ const PastWritingIcon: React.FC<PastWritingIconProps> = ({
         }
     };
     const handleHover = (isHovered: boolean) => {
-        if (isHovered) {
-            return { bgcolor: color, border: `2px solid ${hoverBorderColor}` };
+        if (isHovered && !isDisabled) {
+            return { bgcolor: contrastColor, color: color, border: `2px solid ${color}` };
         }
-        return { bgcolor: color };
+        return { bgcolor: color, color: contrastColor };
     };
  
     return (
@@ -377,7 +377,7 @@ const PastWritingIcon: React.FC<PastWritingIconProps> = ({
             >
                 <Button
                     disabled={isDisabled}
-                    sx={{ color: isDisabled ? theme.palette.text.secondary : hoverBorderColor }}
+                    sx={{ color: isDisabled ? theme.palette.text.secondary : isHovered ? color : contrastColor }}
                 >
                         {index + 1}
                 </Button>
