@@ -41,6 +41,7 @@
   "writerView.writing.warning.time_exceeded": "この作文タスクの制限回数を超えました。他のタスクを試してください。",
   "writerView.writing.response.generating": "生成中...",
   "writerView.writingFrame.placeholder": "ここに説明的な文章を入力してください",
+  "writerView.writingFrame.placeholderDisabled": "この作文タスクは無効です。他のタスクを選択してください。",
 
   "writerView.pastWritingFrame.pastWritingDetails": "あなたの作文の詳細",
   "writerView.pastWritingFrame.clickButtonsBelow": "以下のボタンをクリックして作文のフィードバックを表示します。",

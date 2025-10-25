@@ -251,7 +251,7 @@ export const Writing: React.FC<WritingProps> = ({
                 writingText={writingText}
                 setWritingText={setWritingText}
                 submitWritingFn={handleSubmitWriting}
-                isPlayable={isPlayable}
+                disabledSubmit={generationTime > 5 || isPlayable === false}
                 isLoading={isLoading || generatingLoading}
             />
         </div>

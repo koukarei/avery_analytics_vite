@@ -34,6 +34,7 @@
   
   "writerView.writingPage.start": "Click to Start Writing",
   "writerView.writingFrame.placeholder": "Type your descriptive writing here",
+  "writerView.writingFrame.placeholderDisabled": "This writing task is disabled. Please select another task.",
   "writerView.writingFrame.error.required": "Writing is required.",
   "writerView.writingFrame.error.maxLength": "Writing must be at most 16777215 characters.",
   "writerView.writingFrame.error.minLength": "Writing must be at least 10 characters.",

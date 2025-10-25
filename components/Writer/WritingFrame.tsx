@@ -17,11 +17,11 @@ interface WritingFrameProps {
     writingText: string;
     setWritingText: (text: string) => void;
     submitWritingFn: () => void;
-    isPlayable: boolean;
+    disabledSubmit: boolean;
     isLoading: boolean;
 }
 
-export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writingText, setWritingText, submitWritingFn, isPlayable, isLoading }) => {
+export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writingText, setWritingText, submitWritingFn, disabledSubmit, isLoading }) => {
     const { t } = useLocalization();
 
     const {
@@ -83,11 +83,15 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                                 css={typingFieldStyle(theme)}
                                 multiline
                                 fullWidth
+                                disabled={disabledSubmit}
                                 minRows={10}
                                 variant="outlined"
                                 error={errors[field.name] ? true : false}
                                 helperText={(errors[field.name]?.message as string) || " "}
-                                placeholder={t("writerView.writingFrame.placeholder")}
+                                placeholder={
+                                    disabledSubmit ? t("writerView.writing.warning.time_exceeded") :
+                                    t("writerView.writingFrame.placeholder")
+                                }
                                 onChange={(e) => {
                                     field.onChange(e);
                                     setWritingText(e.target.value);
@@ -101,7 +105,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                             render={() => (
                                 <Button
                                     css={SubmitWritingButton(theme)}
-                                    disabled={!isPlayable || !isValid || isLoading}
+                                    disabled={disabledSubmit || !isValid || isLoading}
                                     type="submit"
                                     variant="contained"
                                 >
