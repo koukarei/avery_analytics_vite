@@ -234,15 +234,11 @@ export const Writing: React.FC<WritingProps> = ({
             
         } catch (e) {
             setErrorKey("error.FetchingGenerationDetail");
-            console.log(e);
+            console.error(e);
         } finally {
             setIsLoading(false);
         }
     }, [userAction]);
-
-    useEffect(() => {
-        console.log(" Generation Time: ", generationTime);
-    }, [generationTime]);
 
     if (isLoading) {
         return <LoadingSpinner />;
@@ -312,7 +308,7 @@ export const BrowseWriting: React.FC<BrowseWritingProps> = ({
             }
         } catch (e) {
             setErrorKey(t("error.FetchingGenerationDetail"));
-            console.log(e);
+            console.error(e);
         } finally {
             setIsLoading(false);
         }
@@ -394,7 +390,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                 }
             } catch (e) {
                 setErrorKey("error.FetchingLeaderboardStartNew");
-                console.log(e);
+                console.error(e);
             } finally {
                 setIsLoading(false);
             }

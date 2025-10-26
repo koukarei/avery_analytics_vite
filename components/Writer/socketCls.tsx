@@ -262,7 +262,6 @@ export class socketCls {
                         default:
                             break;
                     }
-                    console.log("Received websocket response:", data, this.writingData);
                     // resolve with the updated writingData so callers can await it
                     resolve(this.writingData);
                 } catch (err) {
