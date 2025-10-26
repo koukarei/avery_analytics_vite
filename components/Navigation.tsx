@@ -2,6 +2,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { css } from '@emotion/react';
 import {theme} from "../src/Theme";
+import type { Theme } from "@mui/material/styles";
 import type { ViewMode } from '../types/ui';
 import { useLocalization } from '../contexts/localizationUtils';
 import AcademicCapIcon from './icons/AcademicCapIcon';
@@ -13,6 +14,7 @@ import EyeSlashIcon from './icons/EyeSlashIcon';
 import { AuthUserContext } from '../providers/AuthUserProvider';
 import { CustomSettingContext } from '../providers/CustomSettingProvider';
 import { Link, useLocation } from "react-router-dom";
+import { Button } from '@mui/material';
 
 
 const ShowToggleStudentName: React.FC<{iconOnly: boolean}> = ({iconOnly}) => {
@@ -29,15 +31,16 @@ const ShowToggleStudentName: React.FC<{iconOnly: boolean}> = ({iconOnly}) => {
   }
   return (
     <div>
-        <button
+        <Button
           onClick={toggleShowStudentNames}
           className="flex items-center py-2 px-3 text-sm font-medium transition-colors duration-150 rounded-md"
+          css={showToggleStudentNameButtonStyle(theme)}
           aria-pressed={!showStudentNames}
           title={showStudentNames ? t('navigation.toggleStudentNames.hide') : t('navigation.toggleStudentNames.show')}
         >
           {showStudentNames ? <EyeSlashIcon className="w-5 h-5 mr-1.5" /> : <EyeIcon className="w-5 h-5 mr-1.5" />}
           {iconOnly ? null : showStudentNames ? t('navigation.toggleStudentNames.hide') : t('navigation.toggleStudentNames.show')}
-        </button>
+        </Button>
     </div>
   );
 }
@@ -183,4 +186,12 @@ export default Navigation;
 const headerStyles = css`
   background-color: ${theme.palette.background.paper};
   color: ${theme.palette.text.primary};
+`;
+
+const showToggleStudentNameButtonStyle = (theme: Theme) => css`
+  color: ${theme.palette.text.primary};
+  &:hover {
+    background-color: ${theme.palette.action.hover};
+    color: ${theme.palette.text.secondary};
+  }
 `;
