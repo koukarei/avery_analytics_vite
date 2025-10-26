@@ -295,7 +295,7 @@ const AddImageContext: React.FC<AddImageContextProps> = ({ isOpen, onClose }) =>
 
   const { scenes } = useContext(SceneContext);
   const { stories } = useContext(StoryContext);
-  const { setParams } = useContext(LeaderboardListContext)
+  const { params, setParams } = useContext(LeaderboardListContext)
   const { t } = useLocalization();
 
   const steps = [
@@ -339,7 +339,7 @@ const AddImageContext: React.FC<AddImageContextProps> = ({ isOpen, onClose }) =>
         published_at_end: dayjs(formValues.published_at).add(1, 'day'),
         is_public: true
       };
-      setParams((prev) => ({ ...prev, ...updatedParams }));
+      setParams({ ...(params ?? {}), ...updatedParams });
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
   };

@@ -67,14 +67,14 @@ export default function Writer() {
     const published_at_start = dayjs().startOf('day').subtract(9, 'day');
     const published_at_end = dayjs().startOf('day');
 
-    setParams((prev) => ({
-      ...prev,
-      skip: prev?.skip ?? startLeaderboardIndex,
-      limit: prev?.limit ?? limitLeaderboardIndex,
-      published_at_start: prev?.published_at_start ?? published_at_start,
-      published_at_end: prev?.published_at_end ?? published_at_end,
+    setParams({
+      ...(params ?? {}),
+      skip: params?.skip ?? startLeaderboardIndex,
+      limit: params?.limit ?? limitLeaderboardIndex,
+      published_at_start: params?.published_at_start ?? published_at_start,
+      published_at_end: params?.published_at_end ?? published_at_end,
       is_public: true,
-    }));
+    });
   }, [currentUser]);
   
   useEffect(() => {
@@ -122,7 +122,7 @@ export default function Writer() {
                   value={params.published_at_start ?? null}
                   views={['year', 'month', 'day']}
                   onChange={(date) => {
-                   setParams((prev) => ({ ...prev, published_at_start: date ?? null }));
+                   setParams({ ...(params ?? {}), published_at_start: date ?? undefined });
                    setStartLeaderboardIndex(0);
                  }}
                 />
@@ -131,7 +131,7 @@ export default function Writer() {
                   value={params.published_at_end ?? null}
                   views={['year', 'month', 'day']}
                   onChange={(date) => {
-                    setParams((prev) => ({ ...prev, published_at_end: date ?? null }));
+                    setParams({ ...(params ?? {}), published_at_end: date ?? undefined });
                     setStartLeaderboardIndex(0);
                   }}
                 />

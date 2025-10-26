@@ -19,9 +19,7 @@ import type { LeaderboardItem, LeaderboardDetail, LeaderboardUpdate, Scene, Stor
 import { LeaderboardAPI } from "../../api/Leaderboard";
 import { useLocalization } from "../../contexts/localizationUtils";
 
-import { LeaderboardListContext,  LeaderboardImagesContext} from "../../providers/LeaderboardProvider";
-
-import { AuthUserContext } from "../../providers/AuthUserProvider";
+import { LeaderboardListContext } from "../../providers/LeaderboardProvider";
 
 const rules = {
   title: {
@@ -159,9 +157,7 @@ function ViewLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
 function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: LeaderboardItem, scenes: Scene[], stories: Story[] }) {
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
-  const { setParams, fetchLeaderboards } = useContext(LeaderboardListContext);
-  const { fetchImages } = useContext(LeaderboardImagesContext);
-  const { currentUser } = useContext(AuthUserContext);
+  const { params, setParams } = useContext(LeaderboardListContext);
   const [openAddStoryModal, setOpenAddStoryModal] = React.useState<boolean>(false);
   const [storiesForm, setStoriesForm] = React.useState<Story[]>([...stories]);
   const { t } = useLocalization();
@@ -201,7 +197,7 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
         published_at_end: dayjs(data_LeaderboardUpdate.published_at).add(1, 'day'),
         is_public: data_LeaderboardUpdate.is_public
       };
-      setParams((prev) => ({ ...prev, ...updatedParams }));
+      setParams({ ...(params ?? {}), ...updatedParams });
 
     } catch (e) {
       console.log(e);
