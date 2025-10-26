@@ -9,6 +9,10 @@ import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import { blueGrey } from '@mui/material/colors';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ImageIcon from '@mui/icons-material/Image';
+import HideImageIcon from '@mui/icons-material/HideImage';
+import SpeakerNotesIcon from '@mui/icons-material/SpeakerNotes';
+import SpeakerNotesOffIcon from '@mui/icons-material/SpeakerNotesOff';
 
 import React, { useState, useContext, useEffect } from 'react';
 import { css, keyframes } from "@emotion/react";
@@ -81,6 +85,7 @@ const GenerationFeedback: React.FC<GenerationFeedbackProps> = ({
                 disabled={!imgFeedbackLoaded}
                 onClick={handleClickShowImage}
             >
+                {showImage ? <HideImageIcon /> : <ImageIcon />}
                 {showImage ? t("writerView.pastWritingFrame.hideImage") : t("writerView.pastWritingFrame.showImage")}
             </Button>
             <Button
@@ -88,6 +93,7 @@ const GenerationFeedback: React.FC<GenerationFeedbackProps> = ({
                 disabled={!aweFeedbackLoaded}
                 onClick={handleClickShowAWE}
             >
+                {showAWE ? <SpeakerNotesOffIcon /> : <SpeakerNotesIcon />}
                 {showAWE ? t("writerView.pastWritingFrame.hideAWE") : t("writerView.pastWritingFrame.showAWE")}
             </Button>
             <Box mt={2}>
@@ -285,7 +291,7 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
                 <Box>
                     {(isLoading) && <LoadingSpinner />}
                 </Box>
-                <Box sx={{ borderTop: 1, borderColor: 'divider' }}>
+                <Box css={instructionStyle} sx={{ borderTop: 1, borderColor: 'divider' }}>
                     {t("writerView.pastWritingFrame.clickButtonsBelow")}
                 </Box>
                 <GenerationFeedback
@@ -508,3 +514,8 @@ const modalCardContentStyle = {
   overflowY: 'auto',
   maxHeight: 'calc(100vh - 200px)', // safe scroll area inside the card
 };
+
+const instructionStyle = css`
+    font-size: 0.875rem;
+    font-style: italic;
+`;
