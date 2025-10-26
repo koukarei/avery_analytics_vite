@@ -199,11 +199,7 @@ export const Writing: React.FC<WritingProps> = ({
                     break;
                 }
                 case 'change_display_name': {
-                    if ( generationTime > 4) {
-                        setUserAction('end');
-                    } else {
-                        setUserAction('none');
-                    }
+                    setUserAction('evaluate');
                     break;
                 }
                 case 'submit': {
@@ -218,6 +214,10 @@ export const Writing: React.FC<WritingProps> = ({
                             break;
                         } else {
                             _setGenerationTime(generationTime + 1);
+                            if (data.display_name !== roundDisplayName) {
+                                setUserAction('change_display_name');
+                                break;
+                            }
                             setUserAction('evaluate');
                             break;
                         }
@@ -225,9 +225,7 @@ export const Writing: React.FC<WritingProps> = ({
                     break;
                 }
                 case 'evaluate': {
-                    if (data.display_name !== roundDisplayName) {
-                        setUserAction('change_display_name');
-                    } else if (generationTime > 4) {
+                    if (generationTime > 4) {
                         setUserAction('end');
                     }
                     setGeneratingLoading(false);
@@ -277,6 +275,7 @@ export const Writing: React.FC<WritingProps> = ({
                 displayName={roundDisplayName}
                 setDisplayName={setRoundDisplayName}
                 showAsAnonymous={showAsAnonymous}
+                setShowAsAnonymous={setShowAsAnonymous}
                 submitWritingFn={handleSubmitWriting}
                 disabledSubmit={generationTime > 5 || toStartNew === false}
                 isLoading={isLoading || generatingLoading}

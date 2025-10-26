@@ -19,12 +19,13 @@ interface WritingFrameProps {
     displayName?: string;
     setDisplayName: (name: string | undefined) => void;
     showAsAnonymous: boolean;
+    setShowAsAnonymous: (show: boolean) => void;
     submitWritingFn: () => void;
     disabledSubmit: boolean;
     isLoading: boolean;
 }
 
-export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writingText, setWritingText, displayName, setDisplayName, showAsAnonymous, submitWritingFn, disabledSubmit, isLoading }) => {
+export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writingText, setWritingText, displayName, setDisplayName, showAsAnonymous, setShowAsAnonymous, submitWritingFn, disabledSubmit, isLoading }) => {
     const { t } = useLocalization();
 
     const {
@@ -72,8 +73,10 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
 
         if (!data.show_as_anonymous && data.display_name) {
             setDisplayName(data.display_name);
+            setShowAsAnonymous(false);
         } else {
             setDisplayName(undefined);
+            setShowAsAnonymous(true);
         }
 
         submitWritingFn();

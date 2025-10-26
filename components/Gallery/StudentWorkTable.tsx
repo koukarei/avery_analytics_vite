@@ -115,7 +115,8 @@ function createData(
 
   const duration = roundData.generations.map(gen => gen.is_completed ? gen.duration : 0).reduce((a, b) => a + b, 0);
 
-  const engagement_score = (number_of_writings + number_of_messages_sent * 0.8) / (number_of_writings > 0 ? duration /60 : 1);
+  const increaseWord = last_writing.split(" ").length - first_writing.split(" ").length;
+  const engagement_score = (number_of_writings + increaseWord * 0.5 + number_of_messages_sent * 0.8) / (number_of_writings > 0 ? duration /60 : 1);
 
   return { id, student_name, display_name, is_current_user, created_at, number_of_writings, number_of_messages_sent, first_writing, last_writing, duration, engagement_score, generation_ids };
 };
