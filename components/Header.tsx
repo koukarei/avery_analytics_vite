@@ -86,7 +86,7 @@ const ShowUserProfile: React.FC = () => {
       >
         <Card sx={{ minWidth: 300, maxWidth: 400 }}>
           <CardContent>
-            <Typography  gutterBottom variant="h5" component="div"> {loading? "loading" : (currentUser?.profile.display_name)} </Typography>
+            <Typography  gutterBottom variant="h5" component="div"> {loading? "loading" : (currentUser?.profiles.display_name)} </Typography>
             <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}> {currentUser?.email} </Typography>
           </CardContent>
           <CardActions>
