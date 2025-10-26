@@ -27,7 +27,9 @@
   "galleryView.AddImageModal.addRelatedVocabulary": "相関単語を追加（任意）",
   
   "galleryView.Tab.detail": "詳細",
+
   "galleryView.Tab.leaderboard": "リーダーボード",
+  "galleryView.Tab.leaderboard.no_writings": "表示する作文がありません。",
   "galleryView.Tab.leaderboard.tableHeader.rank": "ランク",
   "galleryView.Tab.leaderboard.tableHeader.student_name": "名前",
   "galleryView.Tab.leaderboard.tableHeader.created_at": "作成日",
@@ -50,6 +52,9 @@
   "writerView.writingFrame.error.maxLength": "作文は最大16777215文字までです。",
   "writerView.writingFrame.error.minLength": "作文は最小10文字までです。",
   "writerView.writingFrame.error.pattern": "作文には無効な文字が含まれています。標準的な英語の文字と句読点のみを使用してください。",
+  "writerView.writingFrame.showAsAnonymous": "匿名で表示",
+  "writerView.writingFrame.hideAsAnonymous": "名前を表示",
+  "writerView.writingFrame.displayName": "表示名",
   "writerView.writingFrame.submit.ok_to_proceed": "作文を提出",
   "writerView.writingFrame.submit.time_exceeded": "良い仕事！",
   "writerView.writingFrame.submit.loading": "送信中...",

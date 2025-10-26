@@ -47,11 +47,11 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
             },
             maxLength: {
                 value: 16777215,
-                message: t("writerView.writingFrame.error.maxLength")
+                message: t("writerView.writingFrame.error.maxLength", { maxLength: 16777215 })
             }, // MediumText limit in MySQL
             minLength: {
                 value: 10,
-                message: t("writerView.writingFrame.error.minLength")
+                message: t("writerView.writingFrame.error.minLength", { minLength: 10 })
             },
             pattern: {
                 value: /^[\x20-\x7E\r\n]+$/,
@@ -61,7 +61,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
         display_name: {
             maxLength: {
                 value: 50,
-                message: t("writerView.writingFrame.error.maxLength")
+                message: t("writerView.writingFrame.error.maxLength", { maxLength: 50 })
             },
         },
         submit: {}
@@ -136,7 +136,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                                                 checked={field.value}
                                             />
                                         }
-                                        label={t("writerView.writingFrame.showAsAnonymous")}
+                                        label={ field.value ? t("writerView.writingFrame.hideAsAnonymous") : t("writerView.writingFrame.showAsAnonymous")}
                                     />
                                 )}
                             />

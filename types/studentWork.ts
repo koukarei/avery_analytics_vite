@@ -120,3 +120,8 @@ export interface Round {
   chat_history: number;
   generations: GenerationBrief[];
 }
+
+export interface RoundUpdate {
+  id: number;
+  display_name?: string;
+}
