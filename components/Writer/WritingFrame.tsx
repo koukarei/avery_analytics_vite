@@ -139,7 +139,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                                                 checked={field.value}
                                             />
                                         }
-                                        label={ field.value ? t("writerView.writingFrame.hideAsAnonymous") : t("writerView.writingFrame.showAsAnonymous")}
+                                        label={ t("writerView.writingFrame.showAsAnonymous")}
                                     />
                                 )}
                             />
