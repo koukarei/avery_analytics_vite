@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { CardHeader, CardContent, TextField, Checkbox, FormControlLabel, FormGroup } from "@mui/material";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { css } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import Card from "@mui/material/Card";
@@ -28,13 +28,22 @@ interface WritingFrameProps {
 export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writingText, setWritingText, displayName, setDisplayName, showAsAnonymous, setShowAsAnonymous, submitWritingFn, disabledSubmit, isLoading }) => {
     const { t } = useLocalization();
 
+    // if you keep local state:
+    const [localName, setLocalName] = useState<string | undefined>(displayName);
+    const [localAnon, setLocalAnon] = useState<boolean>(showAsAnonymous);
+
     const {
         control,
         handleSubmit,
         watch,
+        reset,
         formState: { errors, isValid },
-    } = useForm<{ writing: string, show_as_anonymous: boolean, display_name: string | undefined }>({
-        defaultValues: { writing: writingText, show_as_anonymous: showAsAnonymous, display_name: displayName || localStorage.getItem("display_name") || undefined },
+    } = useForm<{ writing: string, show_as_anonymous: boolean, display_name: string | undefined }>( {
+        defaultValues: { 
+            writing: writingText, 
+            show_as_anonymous: localAnon, 
+            display_name: localName || localStorage.getItem("display_name") || undefined 
+        },
         mode: "onChange",
     });
 
@@ -81,6 +90,33 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
 
         submitWritingFn();
     };
+
+    // Sync when parent props change:
+    useEffect(() => {
+        setLocalName(displayName);
+    }, [displayName]);
+
+    useEffect(() => {
+        setLocalAnon(showAsAnonymous);
+    }, [showAsAnonymous]);
+
+    // Reset form values when parent props update so defaultValues take effect
+    useEffect(() => {
+        reset({
+            writing: writingText,
+            show_as_anonymous: showAsAnonymous,
+            display_name: displayName ?? localStorage.getItem("display_name") ?? undefined,
+        });
+    }, [writingText, displayName, showAsAnonymous, reset]);
+
+    // When the user edits the local inputs push updates up:
+    useEffect(() => {
+        if (localName !== displayName) setDisplayName(localName);
+    }, [localName]);
+
+    useEffect(() => {
+        if (localAnon !== showAsAnonymous) setShowAsAnonymous(localAnon);
+    }, [localAnon]);
 
     return (
         <div>
