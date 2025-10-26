@@ -21,6 +21,7 @@
   "galleryView.galleryPage.start": "Click to View Writings",
   "galleryView.publishedAtStartDate": "Writing tasks published from",
   "galleryView.publishedAtEndDate": "to",
+  "galleryView.is_public": "Public",
   "galleryView.addWritingTask": "Add a New Writing Task",
   "galleryView.AddImageModal.uploadImage": "Upload Image",
   "galleryView.AddImageModal.typeDetail": "Enter details for the writing task",

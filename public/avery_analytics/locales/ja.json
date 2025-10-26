@@ -21,6 +21,7 @@
   "galleryView.noImageToDisplay": "表示する画像がありません。",
   "galleryView.publishedAtStartDate": "公開日",
   "galleryView.publishedAtEndDate": "～",
+  "galleryView.is_public": "公開",
   "galleryView.addWritingTask": "新しい作文タスクを追加",
   "galleryView.AddImageModal.uploadImage": "画像をアップロード",
   "galleryView.AddImageModal.typeDetail": "情報を入力",

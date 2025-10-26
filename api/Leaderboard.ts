@@ -22,6 +22,7 @@ export class LeaderboardAPI {
         limit: params.limit ? params.limit : 10,
         published_at_start: params.published_at_start ? params.published_at_start.format('DDMMYYYY') : null,
         published_at_end: params.published_at_end ? params.published_at_end.format('DDMMYYYY') : null,
+        is_public: params.is_public !== undefined ? params.is_public : true,
       },
       paramsSerializer: { indexes: null },
       headers: sessionStorage.getItem("access_token")
@@ -38,6 +39,7 @@ export class LeaderboardAPI {
         limit: params.limit ? params.limit : 10,
         published_at_start: params.published_at_start ? params.published_at_start.format('DDMMYYYY') : null,
         published_at_end: params.published_at_end ? params.published_at_end.format('DDMMYYYY') : null,
+        is_public: params.is_public !== undefined ? params.is_public : true,
       },
       paramsSerializer: { indexes: null },
       headers: sessionStorage.getItem("access_token")

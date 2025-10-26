@@ -5,6 +5,7 @@ import type { Theme } from "@mui/material/styles";
 import MenuItem from "@mui/material/MenuItem";
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
+import { FormControlLabel, Checkbox } from "@mui/material";
 import dayjs from 'dayjs';
 import { DemoItem } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -16,6 +17,7 @@ import { TextField } from "@mui/material";
 import { AddStoryModal } from "./AddStoryModal";
 import type { LeaderboardItem, LeaderboardDetail, LeaderboardUpdate, Scene, Story } from "../../types/leaderboard";
 import { LeaderboardAPI } from "../../api/Leaderboard";
+import { useLocalization } from "../../contexts/localizationUtils";
 
 import { LeaderboardListContext,  LeaderboardImagesContext} from "../../providers/LeaderboardProvider";
 
@@ -157,11 +159,12 @@ function ViewLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
 function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: LeaderboardItem, scenes: Scene[], stories: Story[] }) {
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
-  const { fetchLeaderboards } = useContext(LeaderboardListContext);
+  const { setParams, fetchLeaderboards } = useContext(LeaderboardListContext);
   const { fetchImages } = useContext(LeaderboardImagesContext);
   const { currentUser } = useContext(AuthUserContext);
   const [openAddStoryModal, setOpenAddStoryModal] = React.useState<boolean>(false);
   const [storiesForm, setStoriesForm] = React.useState<Story[]>([...stories]);
+  const { t } = useLocalization();
 
   const {
     control,
@@ -170,6 +173,7 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
   } = useForm<LeaderboardDetail>({
     defaultValues:{
       title: leaderboard.title,
+      is_public: leaderboard.is_public ? leaderboard.is_public : false,
       created_by: leaderboard.created_by.display_name,
       published_at: leaderboard.published_at,
       scene_id: leaderboard.scene.id,
@@ -184,7 +188,7 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
         id: leaderboard.id,
         title: data.title,
         published_at: data.published_at,
-        is_public: leaderboard.is_public ? leaderboard.is_public : true,
+        is_public: data.is_public !== undefined ? data.is_public : true,
         scene_id: data.scene_id,
         story_id: data.story_id ? Number(data.story_id) : undefined,
         story_extract: data.story_extract,
@@ -192,13 +196,12 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
       await LeaderboardAPI.updateLeaderboard(leaderboard.id, data_LeaderboardUpdate);
       setAnchorEl(document.getElementById('save-button') as HTMLButtonElement);
 
-      fetchLeaderboards({ skip: 0, limit: 50}, currentUser?.is_admin || false).then(leaderboard => {
-        if (leaderboard.length > 0) {
-          fetchImages(leaderboard.map(lb => lb.id));
-        }
-      }).catch(err => {
-        console.error("Failed to fetch leaderboards: ", err);
-      });
+      const updatedParams = {
+        published_at_start: dayjs(data_LeaderboardUpdate.published_at),
+        published_at_end: dayjs(data_LeaderboardUpdate.published_at).add(1, 'day'),
+        is_public: data_LeaderboardUpdate.is_public
+      };
+      setParams((prev) => ({ ...prev, ...updatedParams }));
 
     } catch (e) {
       console.log(e);
@@ -230,6 +233,24 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
                 helperText={(errors[field.name]?.message as string) || " "}
               />
             )}
+          />
+        </div>
+        <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
+          <Controller
+              name="is_public"
+              control={control}
+              render={({ field }) => (
+                  <FormControlLabel
+                      control={
+                          <Checkbox
+                              {...field}
+                              checked={field.value}
+                              color="default"
+                          />
+                      }
+                      label={ t("galleryView.is_public")}
+                  />
+              )}
           />
         </div>
         <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">

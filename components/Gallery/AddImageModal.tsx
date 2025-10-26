@@ -25,18 +25,12 @@ import { FileUploader } from "react-drag-drop-files";
 import { SceneContext } from "../../providers/SceneProvider";
 import { StoryContext } from "../../providers/StoryProvider";
 import { LeaderboardAPI } from '../../api/Leaderboard';
+import { LeaderboardListContext } from '../../providers/LeaderboardProvider';
 
 interface AddImageContextProps {
   isOpen: boolean;
   activeStep?: number;
   onClose: () => void;
-  setPublishedAt_start: (date: dayjs.Dayjs) => void;
-  setPublishedAt_end: (date: dayjs.Dayjs) => void;
-}
-
-interface AddImageModalProps {
-  setPublishedAt_start: (date: dayjs.Dayjs) => void;
-  setPublishedAt_end: (date: dayjs.Dayjs) => void;
 }
 
 interface InfoInputFormProps {
@@ -295,12 +289,13 @@ const AddRelatedVocab: React.FC<AddRelatedVocabProps> = ({ handleNext }) => {
   );
 };
 
-const AddImageContext: React.FC<AddImageContextProps> = ({ isOpen, onClose, setPublishedAt_start, setPublishedAt_end }) => {
+const AddImageContext: React.FC<AddImageContextProps> = ({ isOpen, onClose }) => {
 
   const [activeStep, setActiveStep] = useState(0);
 
   const { scenes } = useContext(SceneContext);
   const { stories } = useContext(StoryContext);
+  const { setParams } = useContext(LeaderboardListContext)
   const { t } = useLocalization();
 
   const steps = [
@@ -339,8 +334,12 @@ const AddImageContext: React.FC<AddImageContextProps> = ({ isOpen, onClose, setP
 
   const handleNextToFinish = () => {
     if ( activeStep === 2 ) {
-      setPublishedAt_start(dayjs(formValues.published_at));
-      setPublishedAt_end(dayjs(formValues.published_at));
+      const updatedParams = {
+        published_at_start: dayjs(formValues.published_at),
+        published_at_end: dayjs(formValues.published_at).add(1, 'day'),
+        is_public: true
+      };
+      setParams((prev) => ({ ...prev, ...updatedParams }));
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
   };
@@ -428,7 +427,7 @@ const AddImageContext: React.FC<AddImageContextProps> = ({ isOpen, onClose, setP
   );
 };
 
-export const AddImageModal: React.FC<AddImageModalProps> = ({ setPublishedAt_start, setPublishedAt_end }) => {
+export const AddImageModal: React.FC = () => {
   const [open, setOpen] = useState(false);
   const { t } = useLocalization();
   
@@ -453,7 +452,7 @@ export const AddImageModal: React.FC<AddImageModalProps> = ({ setPublishedAt_sta
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
         </Button>
-        <AddImageContext isOpen={open} onClose={handleClose} setPublishedAt_start={setPublishedAt_start} setPublishedAt_end={setPublishedAt_end} />
+        <AddImageContext isOpen={open} onClose={handleClose} />
       </Box>
     </React.Fragment>
   )

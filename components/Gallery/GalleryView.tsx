@@ -18,20 +18,19 @@ import { ErrorDisplay } from '../Common/ErrorDisplay';
 import { StoryProvider } from '../../providers/StoryProvider';
 import { SceneProvider } from '../../providers/SceneProvider';
 import { CustomSettingContext } from '../../providers/CustomSettingProvider';
+import { Checkbox, FormControlLabel } from '@mui/material';
 
 export default function GalleryView() {
   const [view, setView] = useState<GalleryView>('browsing');
   const { t } = useLocalization();
   const { currentUser } = useContext(AuthUserContext);
-  const { leaderboards, loading, fetchLeaderboards } = useContext(LeaderboardListContext);
+  const { leaderboards, loading, params, setParams, fetchLeaderboards } = useContext(LeaderboardListContext);
   const { images, loading: imagesLoading, fetchImages } = useContext(LeaderboardImagesContext);
   const { showStudentNames } = useContext(CustomSettingContext);
 
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [galleryCurrentIndex, setGalleryCurrentIndex] = useState<number>(1);
   const [startLeaderboardIndex, setStartLeaderboardIndex] = useState<number>(0);
-  const [published_at_start, setPublishedAtStart] = useState<dayjs.Dayjs>(dayjs().startOf('day').subtract(9, 'day'));
-  const [published_at_end, setPublishedAtEnd] = useState<dayjs.Dayjs>(dayjs().startOf('day'));
   const limitLeaderboardIndex = 10;
 
   const handleGalleryScroll = useCallback((direction: 'up' | 'down') => {
@@ -57,9 +56,25 @@ export default function GalleryView() {
   };
   
   useEffect(() => {
+    if (typeof setParams !== "function") return; // guard if context not ready
+
+    const published_at_start = dayjs().startOf('day').subtract(9, 'day');
+    const published_at_end = dayjs().startOf('day');
+
+    setParams((prev) => ({
+      ...prev,
+      skip: prev?.skip ?? startLeaderboardIndex,
+      limit: prev?.limit ?? limitLeaderboardIndex,
+      published_at_start: prev?.published_at_start ?? published_at_start,
+      published_at_end: prev?.published_at_end ?? published_at_end,
+      is_public: prev?.is_public ?? true,
+    }));
+  }, [currentUser]);
+  
+  useEffect(() => {
     setErrorKey(null);
     if (currentUser) {
-      fetchLeaderboards({ skip: startLeaderboardIndex, limit: limitLeaderboardIndex, published_at_start: published_at_start, published_at_end: published_at_end }, currentUser?.is_admin || false ).then(leaderboard => {
+      fetchLeaderboards(currentUser?.is_admin || false).then(leaderboard => {
         if (leaderboard.length > 0) {
           fetchImages(leaderboard.map(lb => lb.id));
         }
@@ -68,7 +83,7 @@ export default function GalleryView() {
         console.error("Failed to fetch leaderboards: ", err);
       });
     }
-  }, [startLeaderboardIndex, limitLeaderboardIndex, published_at_start, published_at_end, currentUser]);
+  }, [params]);
 
   const renderGallery = () => {
     switch (view) {
@@ -78,7 +93,7 @@ export default function GalleryView() {
           <div className="h-2/3 relative flex flex-col overflow-hidden pt-4 md:pt-8">
             <StoryProvider>
               <SceneProvider>
-                <AddImageModal setPublishedAt_start={setPublishedAtStart} setPublishedAt_end={setPublishedAtEnd} />
+                <AddImageModal />
               </SceneProvider>
             </StoryProvider>
             
@@ -100,43 +115,38 @@ export default function GalleryView() {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
                   label={t('galleryView.publishedAtStartDate')}
-                  value={published_at_start}
+                  value={params.published_at_start ?? null}
                   views={['year', 'month', 'day']}
                   onChange={(date) => {
-                    if (date) {
-                      setPublishedAtStart(date);
-                      setStartLeaderboardIndex(0);
-                      fetchLeaderboards({ skip: startLeaderboardIndex, limit: limitLeaderboardIndex, published_at_start: date, published_at_end: published_at_end }, currentUser?.is_admin || false).then(leaderboard => {
-                        if (leaderboard.length > 0) {
-                          fetchImages(leaderboard.map(lb => lb.id));
-                        }
-                      }).catch(err => {
-                        console.error("Failed to fetch leaderboards: ", err);
-                        setErrorKey('error.fetch_leaderboards');
-                      });
-                    }
-                  }}
+                   setParams((prev) => ({ ...prev, published_at_start: date ?? null }));
+                   setStartLeaderboardIndex(0);
+                 }}
                 />
                 <DatePicker
                   label={t('galleryView.publishedAtEndDate')}
-                  value={published_at_end}
+                  value={params.published_at_end ?? null}
                   views={['year', 'month', 'day']}
                   onChange={(date) => {
-                    if (date) {
-                      setPublishedAtEnd(date);
-                      setStartLeaderboardIndex(0);
-                      fetchLeaderboards({ skip: startLeaderboardIndex, limit: limitLeaderboardIndex, published_at_start: published_at_start, published_at_end: date }, currentUser?.is_admin || false).then(leaderboard => {
-                        if (leaderboard.length > 0) {
-                          fetchImages(leaderboard.map(lb => lb.id));
-                        }
-                      }).catch(err => {
-                        console.error("Failed to fetch leaderboards: ", err);
-                        setErrorKey('error.fetch_leaderboards');
-                      });
-                    }
-                  }}
+                   setParams((prev) => ({ ...prev, published_at_end: date ?? null }));
+                   setStartLeaderboardIndex(0);
+                 }}
                 />
               </LocalizationProvider>
+              <div>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={params.is_public}
+                      color="default"
+                      onChange={(_e) => {
+                        setStartLeaderboardIndex(0);
+                        setParams((prev) => ({ ...prev, is_public: !prev.is_public }));
+                      }}
+                    />
+                  }
+                  label={t('galleryView.is_public')}
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -31,13 +31,11 @@ export default function Writer() {
   const [view, setView] = useState<GalleryView>('browsing');
   const { t } = useLocalization();
   const { currentUser } = useContext(AuthUserContext);
-  const { leaderboards, loading, fetchLeaderboards } = useContext(LeaderboardListContext);
+  const { leaderboards, loading, fetchLeaderboards, params, setParams } = useContext(LeaderboardListContext);
   const { images, loading: imagesLoading, fetchImages } = useContext(LeaderboardImagesContext);
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [galleryCurrentIndex, setGalleryCurrentIndex] = useState<number>(1);
   const [startLeaderboardIndex, setStartLeaderboardIndex] = useState<number>(0);
-  const [published_at_start, setPublishedAtStart] = useState<dayjs.Dayjs>(dayjs().startOf('day').subtract(9, 'day'));
-  const [published_at_end, setPublishedAtEnd] = useState<dayjs.Dayjs>(dayjs().startOf('day'));
   const [currentImageUrl, setCurrentImageUrl] = useState<string>("");
   const limitLeaderboardIndex = 10;
 
@@ -64,9 +62,25 @@ export default function Writer() {
   };
   
   useEffect(() => {
+    if (typeof setParams !== "function") return; // guard if context not ready
+
+    const published_at_start = dayjs().startOf('day').subtract(9, 'day');
+    const published_at_end = dayjs().startOf('day');
+
+    setParams((prev) => ({
+      ...prev,
+      skip: prev?.skip ?? startLeaderboardIndex,
+      limit: prev?.limit ?? limitLeaderboardIndex,
+      published_at_start: prev?.published_at_start ?? published_at_start,
+      published_at_end: prev?.published_at_end ?? published_at_end,
+      is_public: true,
+    }));
+  }, [currentUser]);
+  
+  useEffect(() => {
     setErrorKey(null);
     if (currentUser) {
-      fetchLeaderboards({ skip: startLeaderboardIndex, limit: limitLeaderboardIndex, published_at_start: published_at_start, published_at_end: published_at_end }, currentUser?.is_admin || false ).then(leaderboard => {
+      fetchLeaderboards(currentUser?.is_admin || false).then(leaderboard => {
         if (leaderboard.length > 0) {
           fetchImages(leaderboard.map(lb => lb.id));
         }
@@ -75,7 +89,7 @@ export default function Writer() {
         console.error("Failed to fetch leaderboards: ", err);
       });
     }
-  }, [startLeaderboardIndex, limitLeaderboardIndex, published_at_start, published_at_end, currentUser]);
+  }, [params]);
 
   useEffect(() => {
     setCurrentImageUrl(images[leaderboards[(galleryCurrentIndex + 1) % leaderboards.length]?.id] || "");
@@ -105,40 +119,20 @@ export default function Writer() {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
                   label={t('galleryView.publishedAtStartDate')}
-                  value={published_at_start}
+                  value={params.published_at_start ?? null}
                   views={['year', 'month', 'day']}
                   onChange={(date) => {
-                    if (date) {
-                      setPublishedAtStart(date);
-                      setStartLeaderboardIndex(0);
-                      fetchLeaderboards({ skip: startLeaderboardIndex, limit: limitLeaderboardIndex, published_at_start: date, published_at_end: published_at_end }, currentUser?.is_admin || false).then(leaderboard => {
-                        if (leaderboard.length > 0) {
-                          fetchImages(leaderboard.map(lb => lb.id));
-                        }
-                      }).catch(err => {
-                        console.error("Failed to fetch leaderboards: ", err);
-                        setErrorKey('error.fetch_leaderboards');
-                      });
-                    }
-                  }}
+                   setParams((prev) => ({ ...prev, published_at_start: date ?? null }));
+                   setStartLeaderboardIndex(0);
+                 }}
                 />
                 <DatePicker
                   label={t('galleryView.publishedAtEndDate')}
-                  value={published_at_end}
+                  value={params.published_at_end ?? null}
                   views={['year', 'month', 'day']}
                   onChange={(date) => {
-                    if (date) {
-                      setPublishedAtEnd(date);
-                      setStartLeaderboardIndex(0);
-                      fetchLeaderboards({ skip: startLeaderboardIndex, limit: limitLeaderboardIndex, published_at_start: published_at_start, published_at_end: date }, currentUser?.is_admin || false).then(leaderboard => {
-                        if (leaderboard.length > 0) {
-                          fetchImages(leaderboard.map(lb => lb.id));
-                        }
-                      }).catch(err => {
-                        console.error("Failed to fetch leaderboards: ", err);
-                        setErrorKey('error.fetch_leaderboards');
-                      });
-                    }
+                    setParams((prev) => ({ ...prev, published_at_end: date ?? null }));
+                    setStartLeaderboardIndex(0);
                   }}
                 />
               </LocalizationProvider>

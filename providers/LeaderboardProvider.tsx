@@ -44,7 +44,9 @@ const LeaderboardItemProvider = ({
 type LeaderboardListContextType = {
   leaderboards: Leaderboard[];
   loading: boolean;
-  fetchLeaderboards: (params: LeaderboardListParams, is_admin: boolean) => Promise<Leaderboard[]>;
+  params: LeaderboardListParams;
+  setParams: (params: LeaderboardListParams) => void;
+  fetchLeaderboards: (is_admin: boolean) => Promise<Leaderboard[]>;
 };
 
 const LeaderboardListContext = createContext({} as LeaderboardListContextType);
@@ -56,8 +58,9 @@ const LeaderboardListProvider = ({
 }) => {
   const [leaderboards, setLeaderboards] = useState<Leaderboard[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [params, setParams] = useState<LeaderboardListParams>({ skip: 0, limit: 10, is_public: true });
 
-  const fetchLeaderboards = useCallback(async (params: LeaderboardListParams, is_admin: boolean=false) => {
+  const fetchLeaderboards = useCallback(async (is_admin: boolean=false) => {
     setLoading(true);
     let leaderboardData: [Leaderboard, School][] = [];
     let leaderboard: Leaderboard[] = [];
@@ -72,6 +75,7 @@ const LeaderboardListProvider = ({
           leaderboard.push(leaderboardItem);
           school.push(schoolItem);
         });
+        
         setLeaderboards(leaderboard);
       }
     } catch (e) {
@@ -79,10 +83,10 @@ const LeaderboardListProvider = ({
     }
     setLoading(false);
     return leaderboard;
-  }, []);
+  }, [params]);
 
   return (
-    <LeaderboardListContext.Provider value={{ leaderboards, loading, fetchLeaderboards }}>
+    <LeaderboardListContext.Provider value={{ leaderboards, loading, params, setParams, fetchLeaderboards }}>
       {children}
     </LeaderboardListContext.Provider>
   );

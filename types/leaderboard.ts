@@ -135,6 +135,7 @@ export interface LeaderboardCreateAPI {
 }
 
 export interface LeaderboardDetail {
+  is_public?: boolean;
   title: string;
   scene_id: number;
   story_id?: number | string | null;
@@ -189,6 +190,7 @@ export type LeaderboardListParams = {
   limit?: number;
   published_at_start?: dayjs.Dayjs;
   published_at_end?: dayjs.Dayjs;
+  is_public?: boolean;
 };
 
 export type GenerationItemParams = {

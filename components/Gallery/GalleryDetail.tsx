@@ -38,7 +38,7 @@ export const LeaderboardDetail: React.FC<LeaderboardDetailProps> = ({ leaderboar
     return <ErrorDisplay messageKey={errorKey} />;
   }
 
-  if (authUserData?.currentUser?.user_type === "student") {
+  if (authUserData?.currentUser?.user_type === "student" && authUserData?.currentUser?.id !== leaderboard.created_by.id) {
     return (
         <Container sx={formContentStyle}>
           <ViewLeaderboard leaderboard={leaderboard} scenes={scenes} stories={stories} />

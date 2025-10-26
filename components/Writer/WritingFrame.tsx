@@ -137,6 +137,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                                             <Checkbox
                                                 {...field}
                                                 checked={field.value}
+                                                color="default"
                                             />
                                         }
                                         label={ t("writerView.writingFrame.showAsAnonymous")}
