@@ -98,7 +98,7 @@ const InfoInputForm: React.FC<InfoInputFormProps> = ({ handleNext, handleBack, f
               value={field.value ? dayjs(field.value) : null}
               views={['year', 'month', 'day']}
               onChange={(date) => {
-                  field.onChange(date ? date.startOf('day') : null);
+                  field.onChange(date ? date : null);
                 }}
                 slotProps={{
                 textField: {

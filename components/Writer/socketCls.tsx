@@ -216,7 +216,7 @@ export class socketCls {
                                 this.writingData.leaderboard_image = data.leaderboard.image;
                                 this.writingData.past_generation_ids = data.round.generations ? data.round.generations : [];
                                 this.writingData.writing_generation_id = data.generation.id;
-                                this.writingData.generation_time = data.generation.generated_time ? data.generation.generated_time : 0;
+                                this.writingData.generation_time = data.round.generated_time ? data.round.generated_time : 0;
                                 this.writingData.chat_messages = data.chat.messages ? data.chat.messages : [];
                             }
                             break;
@@ -228,7 +228,7 @@ export class socketCls {
                                 this.writingData.leaderboard_image = data.leaderboard.image;
                                 this.writingData.past_generation_ids = data.round.generations ? data.round.generations : [];
                                 this.writingData.writing_generation_id = data.generation.id;
-                                this.writingData.generation_time = data.generation.generated_time ? data.generation.generated_time : 0;
+                                this.writingData.generation_time = data.round.generated_time ? data.round.generated_time : 0;
                                 this.writingData.chat_messages = data.chat.messages ? data.chat.messages : [];
                                 this.writingData.duration = data.generation.duration ? data.generation.duration : 0;
                             }
@@ -262,7 +262,7 @@ export class socketCls {
                         default:
                             break;
                     }
-
+                    console.log("Received websocket response:", data, this.writingData);
                     // resolve with the updated writingData so callers can await it
                     resolve(this.writingData);
                 } catch (err) {

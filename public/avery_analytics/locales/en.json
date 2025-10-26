@@ -37,6 +37,8 @@
   "galleryView.Tab.leaderboard.tableHeader.duration": "Total\u00a0Duration",
   "galleryView.Tab.leaderboard.tableHeader.first_writing": "First\u00a0Writing",
   "galleryView.Tab.leaderboard.tableHeader.last_writing": "Last\u00a0Writing",
+  "galleryView.Tab.leaderboard.anonymous": "Anonymous",
+  "galleryView.Tab.leaderboard.you": "You",
 
   "galleryView.Tab.settings": "Settings",
   "galleryView.Tab.leaderboard.history": "History",

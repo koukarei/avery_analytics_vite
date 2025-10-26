@@ -36,6 +36,8 @@
   "galleryView.Tab.leaderboard.tableHeader.duration": "総時間",
   "galleryView.Tab.leaderboard.tableHeader.first_writing": "最初の作文",
   "galleryView.Tab.leaderboard.tableHeader.last_writing": "最後の作文",
+  "galleryView.Tab.leaderboard.anonymous": "匿名",
+  "galleryView.Tab.leaderboard.you": "あなた",
 
   "galleryView.Tab.settings": "設定",
   "galleryView.Tab.leaderboard.history": "履歴",

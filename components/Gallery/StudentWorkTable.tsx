@@ -80,6 +80,8 @@ const columns: RoundColumn[] = [
 interface Data {
   id: number;
   student_name: string;
+  display_name: string;
+  is_current_user: boolean;
   created_at: string;
   number_of_writings: number;
   number_of_messages_sent: number;
@@ -92,12 +94,15 @@ interface Data {
 
 function createData(
   roundData: Round,
+  currentUser_profile_id: number | null,
   chatStats: ChatStats | null,
   firstWritingDetail: GenerationDetail | null,
   lastWritingDetail: GenerationDetail | null
 ): Data {
   const id = roundData.id;
-  const student_name = roundData.player?.display_name ? roundData.player.display_name : "Anonymous";
+  const is_current_user = currentUser_profile_id ? roundData.player?.id === currentUser_profile_id : false;;
+  const student_name = roundData.player?.display_name ? roundData.player.display_name : '';
+  const display_name = roundData.display_name || '';
   const created_at = roundData.created_at ? new Date(roundData.created_at).toLocaleDateString() : "N/A";
 
   const number_of_messages_sent = chatStats ? chatStats.n_user_messages : 0;
@@ -112,7 +117,7 @@ function createData(
 
   const engagement_score = (number_of_writings + number_of_messages_sent * 0.8) / (number_of_writings > 0 ? duration /60 : 1);
 
-  return { id, student_name, created_at, number_of_writings, number_of_messages_sent, first_writing, last_writing, duration, engagement_score, generation_ids };
+  return { id, student_name, display_name, is_current_user, created_at, number_of_writings, number_of_messages_sent, first_writing, last_writing, duration, engagement_score, generation_ids };
 };
 
 interface WritingColumn {
@@ -335,7 +340,8 @@ const RoundRow: React.FC<{ rank: number; showStudentNames: boolean; row: Data }>
   const renderTableCell = (column: RoundColumn, row: Data, value: string | number ) => {
     switch (column.id) {
       case 'student_name': {
-        return showStudentNames ? value : "Anonymous";
+        const display_name = showStudentNames ? value : row.display_name ? row.display_name : t('galleryView.Tab.leaderboard.anonymous');
+        return `${display_name}${row.is_current_user ? ` (${t('galleryView.Tab.leaderboard.you')})` : ''}`;
       }
       case 'last_writing': {
         return (<span>{
@@ -496,9 +502,12 @@ const StudentWorkTable: React.FC<StudentWorkTableProps> = ({
               console.error("Failed to fetch chat stats: ", e);
               setErrorKey('error.fetch_chat_stats');
             }
-            
+
+            const currentUser_profile_id = currentUser?.id || null;
+
             const row = createData(
               round,
+              currentUser_profile_id,
               rowChatStats,
               firstWritingDetail,
               lastWritingDetail,

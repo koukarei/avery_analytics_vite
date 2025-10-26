@@ -200,6 +200,7 @@ export const Writing: React.FC<WritingProps> = ({
                             setGeneratingLoading(false);
                             break;
                         } else {
+                            _setGenerationTime(generationTime + 1);
                             setUserAction('evaluate');
                             break;
                         }
@@ -212,7 +213,6 @@ export const Writing: React.FC<WritingProps> = ({
                     }
                     setGeneratingLoading(false);
                     setLoadingGenerationIds(writingGenerationId ? loadingGenerationIds.filter(gid => gid !== writingGenerationId):loadingGenerationIds)
-                    _setGenerationTime(data.generation_time ? data.generation_time : 0);
                     setIsEvaluationModalOpen(true);
                     break;
                 }
@@ -239,6 +239,10 @@ export const Writing: React.FC<WritingProps> = ({
             setIsLoading(false);
         }
     }, [userAction]);
+
+    useEffect(() => {
+        console.log(" Generation Time: ", generationTime);
+    }, [generationTime]);
 
     if (isLoading) {
         return <LoadingSpinner />;

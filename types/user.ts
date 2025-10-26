@@ -12,5 +12,5 @@ export interface User {
   user_type?: string;
   is_active?: boolean;
   school?: string;
-  profiles: Profile;
+  profile: Profile;
 }

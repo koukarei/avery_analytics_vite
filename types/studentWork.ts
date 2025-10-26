@@ -113,6 +113,7 @@ export interface GenerationBrief {
 
 export interface Round {
   id: number;
+  display_name?: string;
   player?: Profile;
   created_at: Date;
   last_generation_id: number;
