@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { CardHeader, CardContent, TextField } from "@mui/material";
+import { CardHeader, CardContent, TextField, Checkbox, FormControlLabel, FormGroup } from "@mui/material";
 import React from "react";
 import { css } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
@@ -16,22 +16,28 @@ interface WritingFrameProps {
     imageUrl: string;
     writingText: string;
     setWritingText: (text: string) => void;
+    displayName?: string;
+    setDisplayName: (name: string | undefined) => void;
+    showAsAnonymous: boolean;
     submitWritingFn: () => void;
     disabledSubmit: boolean;
     isLoading: boolean;
 }
 
-export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writingText, setWritingText, submitWritingFn, disabledSubmit, isLoading }) => {
+export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writingText, setWritingText, displayName, setDisplayName, showAsAnonymous, submitWritingFn, disabledSubmit, isLoading }) => {
     const { t } = useLocalization();
 
     const {
         control,
         handleSubmit,
+        watch,
         formState: { errors, isValid },
-    } = useForm<{ writing: string }>({
-        defaultValues: { writing: writingText },
+    } = useForm<{ writing: string, show_as_anonymous: boolean, display_name: string | undefined }>({
+        defaultValues: { writing: writingText, show_as_anonymous: showAsAnonymous, display_name: displayName || localStorage.getItem("display_name") || undefined },
         mode: "onChange",
     });
+
+    const watchShowAsAnonymous = watch("show_as_anonymous");
 
     const rules = {
         writing: {
@@ -52,11 +58,24 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                 message: t("writerView.writingFrame.error.pattern")
             }
         },
+        display_name: {
+            maxLength: {
+                value: 50,
+                message: t("writerView.writingFrame.error.maxLength")
+            },
+        },
         submit: {}
     };
 
-    const onSubmit = (data: { writing: string }) => {
+    const onSubmit = (data: { writing: string, show_as_anonymous: boolean, display_name: string | undefined }) => {
         setWritingText(data.writing);
+
+        if (!data.show_as_anonymous && data.display_name) {
+            setDisplayName(data.display_name);
+        } else {
+            setDisplayName(undefined);
+        }
+
         submitWritingFn();
     };
 
@@ -73,38 +92,75 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                         ) : null}
                     </div>
                     <CardContent css={typingAreaStyle} className="w-2/3 md:w-1/2">
-                    <Controller
-                        name="writing"
-                        control={control}
-                        rules={rules.writing}
-                        render={({ field }) => (
-                            <TextField
-                                {...field}
-                                css={typingFieldStyle(theme)}
-                                multiline
-                                fullWidth
-                                onFocus={(event) => {
-                                    if (!disabledSubmit) {
-                                        event.target.select();
+                        <Controller
+                            name="writing"
+                            control={control}
+                            rules={rules.writing}
+                            render={({ field }) => (
+                                <TextField
+                                    {...field}
+                                    css={typingFieldStyle(theme)}
+                                    multiline
+                                    fullWidth
+                                    onFocus={(event) => {
+                                        if (!disabledSubmit) {
+                                            event.target.select();
+                                        }
+                                        
+                                    }}
+                                    disabled={disabledSubmit}
+                                    minRows={10}
+                                    variant="outlined"
+                                    error={errors[field.name] ? true : false}
+                                    helperText={(errors[field.name]?.message as string) || " "}
+                                    placeholder={
+                                        disabledSubmit ? t("writerView.writingFrame.placeholderDisabled") :
+                                        t("writerView.writingFrame.placeholder")
                                     }
-                                    
-                                }}
-                                disabled={disabledSubmit}
-                                minRows={10}
-                                variant="outlined"
-                                error={errors[field.name] ? true : false}
-                                helperText={(errors[field.name]?.message as string) || " "}
-                                placeholder={
-                                    disabledSubmit ? t("writerView.writingFrame.placeholderDisabled") :
-                                    t("writerView.writingFrame.placeholder")
-                                }
-                                onChange={(e) => {
-                                    field.onChange(e);
-                                    setWritingText(e.target.value);
-                                }}
-                            />
-                        )}
+                                    onChange={(e) => {
+                                        field.onChange(e);
+                                        setWritingText(e.target.value);
+                                    }}
+                                />
+                            )}
                         />
+                        <FormGroup>
+                            <Controller
+                                name="show_as_anonymous"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                {...field}
+                                                checked={field.value}
+                                            />
+                                        }
+                                        label={t("writerView.writingFrame.showAsAnonymous")}
+                                    />
+                                )}
+                            />
+                            <Controller
+                                name="display_name"
+                                control={control}
+                                rules={rules.display_name}
+                                render={({ field }) => (
+                                    <TextField
+                                        {...field}
+                                        css={displayNameFieldStyle}
+                                        label={t("writerView.writingFrame.displayName")}
+                                        variant="standard"
+                                        error={errors[field.name] ? true : false}
+                                        helperText={(errors[field.name]?.message as string) || " "}
+                                        disabled={watchShowAsAnonymous}
+                                        onChange={(e) => {
+                                            field.onChange(e);
+                                            localStorage.setItem("display_name", e.target.value);
+                                        }}
+                                    />
+                                )}
+                            />
+                        </FormGroup>
                         <Controller
                             name="writing"
                             control={control}
@@ -115,7 +171,10 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                                     type="submit"
                                     variant="contained"
                                 >
-                                    { disabledSubmit ? t("writerView.writingFrame.submit.time_exceeded") : isLoading ? t("writerView.writingFrame.submit.loading") : t("writerView.writingFrame.submit.ok_to_proceed")}
+                                    { disabledSubmit ? 
+                                    t("writerView.writingFrame.submit.time_exceeded") : 
+                                    isLoading ? t("writerView.writingFrame.submit.loading") : t("writerView.writingFrame.submit.ok_to_proceed")
+                                    }
                                 </Button>
                             )}
                         />
@@ -129,6 +188,12 @@ const typingFieldStyle = (theme: Theme) => css`
     background-color: ${theme.palette.background.paper};
     margin: 8px;
     width: 90%;
+`
+
+const displayNameFieldStyle = css`
+    margin: 8px;
+    width: 50%;
+    max-width: 200px;
 `
 
 const typingAreaStyle = css`

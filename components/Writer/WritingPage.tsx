@@ -67,6 +67,8 @@ export const Writing: React.FC<WritingProps> = ({
     setReceivedResponse
 }) => {
     const [writingText, setWritingText] = useState("");
+    const [roundDisplayName, setRoundDisplayName] = useState<string | undefined>(undefined);
+    const [showAsAnonymous, setShowAsAnonymous] = useState<boolean>(true);
     const [isLoading, setIsLoading] = useState(false);
     const [generatingLoading, setGeneratingLoading] = useState(false);
     const [errorKey, setErrorKey] = useState<string | null>(null);
@@ -75,7 +77,7 @@ export const Writing: React.FC<WritingProps> = ({
     const [generationTime, _setGenerationTime] = useState<number>(0);
     const [leaderboardImage, setLeaderboardImage] = useState<string | null>(imageUrl);
 
-    const [userAction, setUserAction] = useState<'none' | 'start' | 'resume' | 'hint' | 'submit' | 'evaluate' | 'end'>('none');
+    const [userAction, setUserAction] = useState<'none' | 'start' | 'resume' | 'hint' | 'change_display_name' | 'submit' | 'evaluate' | 'end'>('none');
 
     const wsClientRef = useRef<socketCls | null>(null);
     const { t } = useLocalization();
@@ -133,6 +135,12 @@ export const Writing: React.FC<WritingProps> = ({
                         is_hint: true,
                     }
                     break;
+                case 'change_display_name':
+                    obj = {
+                        id: roundId,
+                        display_name: showAsAnonymous ? undefined : roundDisplayName,
+                    }
+                    break;
                 case 'submit':
                     obj = {
                         leaderboard_id: leaderboard_id,
@@ -180,13 +188,22 @@ export const Writing: React.FC<WritingProps> = ({
                         _setRoundId(data.round_id ? data.round_id : 0);
                         setWritingGenerationId(data.writing_generation_id ? data.writing_generation_id : null)
                         _setGenerationTime(data.generation_time ? data.generation_time : 0)
-                        
+                        setShowAsAnonymous(data.display_name ? false : true);
+                        setRoundDisplayName(data.display_name ? data.display_name : undefined);
                         const blob = base64ToBlob(data.leaderboard_image);
                         const blobUrl = URL.createObjectURL(blob);
                         setLeaderboardImage(blobUrl);
                         setFeedback(data.feedback ? data.feedback : "");
                     }
                     setUserAction('none');
+                    break;
+                }
+                case 'change_display_name': {
+                    if ( generationTime > 4) {
+                        setUserAction('end');
+                    } else {
+                        setUserAction('none');
+                    }
                     break;
                 }
                 case 'submit': {
@@ -208,7 +225,9 @@ export const Writing: React.FC<WritingProps> = ({
                     break;
                 }
                 case 'evaluate': {
-                    if (generationTime > 4) {
+                    if (data.display_name !== roundDisplayName) {
+                        setUserAction('change_display_name');
+                    } else if (generationTime > 4) {
                         setUserAction('end');
                     }
                     setGeneratingLoading(false);
@@ -255,6 +274,9 @@ export const Writing: React.FC<WritingProps> = ({
                 imageUrl={leaderboardImage ? leaderboardImage : ''}
                 writingText={writingText}
                 setWritingText={setWritingText}
+                displayName={roundDisplayName}
+                setDisplayName={setRoundDisplayName}
+                showAsAnonymous={showAsAnonymous}
                 submitWritingFn={handleSubmitWriting}
                 disabledSubmit={generationTime > 5 || toStartNew === false}
                 isLoading={isLoading || generatingLoading}

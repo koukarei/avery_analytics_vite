@@ -1,5 +1,5 @@
 import { WebSocketClient } from "../../util/websocketClient";
-import type { RoundStart, MessageSend, GenerationStart, websocketRequest, websocketResponse } from "../../types/websocketAPI";
+import type { RoundStart, RoundUpdateName, MessageSend, GenerationStart, websocketRequest, websocketResponse } from "../../types/websocketAPI";
 import type { MessageReceived } from "../../types/websocketAPI";
 import { wsAPI } from "../../api/WritingWS";
 
@@ -8,6 +8,7 @@ type writingClsData = {
     leaderboard_id: number;
     leaderboard_image: string;
     round_id: number | null;
+    display_name?: string;
     past_generation_ids: number[];
     writing_generation_id: number | null;
     generation_time: number;
@@ -24,13 +25,14 @@ export class socketCls {
     private messageHandler?: (data: unknown) => void;
     private sendQueue: websocketRequest[] = [];
 
-    currentAction: 'none' | 'start' | 'resume' | 'hint' | 'submit' | 'evaluate' | 'end' = 'none';
+    currentAction: 'none' | 'start' | 'resume' | 'hint' | 'change_display_name' | 'submit' | 'evaluate' | 'end' = 'none';
 
     writingData: writingClsData = {
         feedback: '',
         leaderboard_id: 0,
         leaderboard_image: '',
         round_id: null,
+        display_name: undefined,
         past_generation_ids: [],
         writing_generation_id: null,
         generation_time: 0,
@@ -128,7 +130,7 @@ export class socketCls {
     }
 
     send_user_action = (
-        object?: RoundStart| MessageSend | GenerationStart
+        object?: RoundStart | RoundUpdateName | MessageSend | GenerationStart
     ) => {
         let message: websocketRequest | null = null
         switch (this.currentAction) {
@@ -170,6 +172,13 @@ export class socketCls {
                     action: 'hint',
                     program: sessionStorage.getItem('program') || 'none',
                     obj: object as MessageSend
+                }
+                break
+            case 'change_display_name':
+                message = {
+                    action: 'change_display_name',
+                    program: sessionStorage.getItem('program') || 'none',
+                    obj: object as RoundUpdateName
                 }
                 break
             case 'submit':
@@ -224,6 +233,7 @@ export class socketCls {
                             if (data.round && data.leaderboard && data.generation && data.chat) {
                                 this.writingData.feedback = data.feedback ? data.feedback : '';
                                 this.writingData.round_id = data.round.id;
+                                this.writingData.display_name = data.round.display_name ? data.round.display_name : '';
                                 this.writingData.leaderboard_id = data.leaderboard.id;
                                 this.writingData.leaderboard_image = data.leaderboard.image;
                                 this.writingData.past_generation_ids = data.round.generations ? data.round.generations : [];
@@ -236,6 +246,11 @@ export class socketCls {
                         case 'hint':
                             if (data.chat && data.chat.messages) {
                                 this.writingData.chat_messages = data.chat.messages;
+                            }
+                            break;
+                        case 'change_display_name':
+                            if (data.round) {
+                                this.writingData.display_name = data.round.display_name ? data.round.display_name : undefined;
                             }
                             break;
                         case 'submit':

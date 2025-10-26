@@ -10,6 +10,11 @@ export type RoundStart = {
     created_at: Date;
 }
 
+export type RoundUpdateName = {
+    id: number;
+    display_name?: string;
+}
+
 export type MessageSend = {
     content: string;
     created_at: Date;
@@ -24,9 +29,9 @@ export type GenerationStart = {
 }
 
 export type websocketRequest = {
-    action: 'start' | 'resume' | 'hint' | 'submit' | 'evaluate' | 'end';
+    action: 'start' | 'resume' | 'hint' | 'change_display_name' | 'submit' | 'evaluate' | 'end';
     program?: string;
-    obj?: RoundStart | MessageSend | GenerationStart;
+    obj?: RoundStart | RoundUpdateName | MessageSend | GenerationStart;
 }
 
 export type ResponseLeaderboard = {
@@ -36,6 +41,7 @@ export type ResponseLeaderboard = {
 
 export type ResponseRound = {
     id: number;
+    display_name?: string;
     generated_time: number;
     generations: number[];
 }
