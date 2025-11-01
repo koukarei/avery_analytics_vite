@@ -269,7 +269,7 @@ const RenderTableRow: React.FC<RenderTableRowProps> = ({
       return (
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-          <p className="text-xl text-gray-400">{t('student_work.no_writings')}</p>
+          <p className="text-xl text-gray-400">{t('galleryView.Tab.leaderboard.no_writings')}</p>
         </TableCell>
       </TableRow>
     )}
