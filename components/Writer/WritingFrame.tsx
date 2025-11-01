@@ -25,6 +25,25 @@ interface WritingFrameProps {
     isLoading: boolean;
 }
 
+function toHalfWidth(str: string): string {
+    const convertList = {
+        '“': '"',
+        '”': '"',
+        '‘': "'",
+        '’': "'"
+    }
+    
+    const removeFullWidthSpace = str.replace(/\u3000/g, String.fromCharCode(0x20));
+    const replaceFullWidthQuotation = removeFullWidthSpace.replace(/[“”‘’]/g, function(s) {
+        return convertList[s as keyof typeof convertList];
+    });
+
+    return replaceFullWidthQuotation.replace(/[！-～]/g, function(s) {
+        const output = String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+        return output;
+    });
+}
+
 export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writingText, setWritingText, displayName, setDisplayName, showAsAnonymous, setShowAsAnonymous, submitWritingFn, disabledSubmit, isLoading }) => {
     const { t } = useLocalization();
 
@@ -62,10 +81,6 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
             minLength: {
                 value: 10,
                 message: t("writerView.writingFrame.error.minLength", { minLength: 10 })
-            },
-            pattern: {
-                value: /^[\x20-\x7E\r\n]+$/,
-                message: t("writerView.writingFrame.error.pattern")
             }
         },
         display_name: {
@@ -78,7 +93,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
     };
 
     const onSubmit = (data: { writing: string, show_as_anonymous: boolean, display_name: string | undefined }) => {
-        setWritingText(data.writing);
+        setWritingText(toHalfWidth(data.writing));
 
         if (!data.show_as_anonymous && data.display_name) {
             setDisplayName(data.display_name);
@@ -86,7 +101,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
         } else {
             setDisplayName(undefined);
             setShowAsAnonymous(true);
-        }
+    }
 
         submitWritingFn();
     };

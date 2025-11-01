@@ -52,7 +52,7 @@
   "writerView.writingFrame.error.required": "作文は必須です。",
   "writerView.writingFrame.error.maxLength": "作文は最大16777215文字までです。",
   "writerView.writingFrame.error.minLength": "作文は最小10文字までです。",
-  "writerView.writingFrame.error.pattern": "作文には無効な文字が含まれています。標準的な英語の文字と句読点のみを使用してください。",
+  "writerView.writing.warning.pattern": "作文には無効な文字が含まれています。標準的な英語の文字と句読点のみを使用してください。",
   "writerView.writingFrame.showAsAnonymous": "匿名で表示",
   "writerView.writingFrame.hideAsAnonymous": "名前を表示",
   "writerView.writingFrame.displayName": "ニックネーム",

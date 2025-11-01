@@ -52,7 +52,7 @@
   "writerView.writingFrame.error.required": "Writing is required.",
   "writerView.writingFrame.error.maxLength": "Writing must be at most {maxLength} characters.",
   "writerView.writingFrame.error.minLength": "Writing must be at least {minLength} characters.",
-  "writerView.writingFrame.error.pattern": "Writing contains invalid characters. Please use only standard English characters and punctuation.",
+  "writerView.writing.warning.pattern": "Writing contains invalid characters. Please use only standard English characters and punctuation.",
   "writerView.writingFrame.showAsAnonymous": "Show as Anonymous",
   "writerView.writingFrame.hideAsAnonymous": "Show with Name",
   "writerView.writingFrame.displayName": "Nickname",

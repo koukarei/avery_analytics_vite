@@ -46,7 +46,9 @@ interface BrowseWritingProps {
     isEvaluationModalOpen: boolean;
     setIsEvaluationModalOpen: (isOpen: boolean) => void;
     warningMsg: string;
+    setWarningMsg: (msg: string) => void;
     receivedResponse: string;
+    setReceivedResponse: (response: string) => void;
 }
 
 export const Writing: React.FC<WritingProps> = ({ 
@@ -87,6 +89,13 @@ export const Writing: React.FC<WritingProps> = ({
         setGeneratingLoading(true);
         if ( generationTime > 5 || toStartNew === false ) {
             setWarningMsg(t('writerView.writing.warning.time_exceeded'));
+            setIsLoading(false);
+            setGeneratingLoading(false);
+            return;
+        }
+        const writingPattern = /^[\x20-\x7E\r\n]+$/;
+        if (!writingPattern.test(writingText)) {
+            setWarningMsg(t('writerView.writing.warning.pattern'));
             setIsLoading(false);
             setGeneratingLoading(false);
             return;
@@ -294,7 +303,9 @@ export const BrowseWriting: React.FC<BrowseWritingProps> = ({
     isEvaluationModalOpen,
     setIsEvaluationModalOpen,
     warningMsg,
-    receivedResponse
+    setWarningMsg,
+    receivedResponse,
+    setReceivedResponse
 }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [errorKey, setErrorKey] = useState<string | null>(null);
@@ -325,6 +336,7 @@ export const BrowseWriting: React.FC<BrowseWritingProps> = ({
                 setShowWarning(true);
                 setTimeout(() => {
                     setShowWarning(false);
+                    setWarningMsg("");
                 }, 2000);
             }
         } catch (e) {
@@ -340,6 +352,7 @@ export const BrowseWriting: React.FC<BrowseWritingProps> = ({
             setShowNotification(true);
             setTimeout(() => {
                 setShowNotification(false);
+                setReceivedResponse("");
             }, 2000);
         }
     }, [receivedResponse]);
@@ -354,8 +367,10 @@ export const BrowseWriting: React.FC<BrowseWritingProps> = ({
 
     return (
         <div>
-            { showWarning ? <Alert className="position absolute z-10 content-center left-1/3" severity="warning">{warningMsg}</Alert> : null }
-            { showNotification ? <Alert className="position absolute z-10 content-center left-1/3" severity="success">{receivedResponse}</Alert> : null }
+            <div className="position absolute z-10 content-center left-1/3">
+                { showWarning ? <Alert severity="warning">{warningMsg}</Alert> : null }
+                { showNotification ? <Alert severity="success">{receivedResponse}</Alert> : null }
+            </div>
             <PastWritingsBar 
                 generation_ids={generation_ids} 
                 onClick={handleClickPastWritingIcon}
@@ -437,7 +452,9 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
                         isEvaluationModalOpen={isEvaluationModalOpen}
                         setIsEvaluationModalOpen={setIsEvaluationModalOpen}
                         warningMsg={warningMsg}
+                        setWarningMsg={setWarningMsg}
                         receivedResponse={receivedResponse}
+                        setReceivedResponse={setReceivedResponse}
                     />
                 </div>
                 <div className="h-7/8 w-full">
