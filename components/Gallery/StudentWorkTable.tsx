@@ -559,7 +559,7 @@ const StudentWorkTable: React.FC<StudentWorkTableProps> = ({
                 .sort((a, b) => b.engagement_score - a.engagement_score)
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => (
-                  <RoundRow rank={index + 1} showStudentNames={showStudentNames} key={row.id} row={row} />
+                  <RoundRow rank={page * rowsPerPage + index + 1} showStudentNames={showStudentNames} key={row.id} row={row} />
                 ))}
             </TableBody>
           </Table>
