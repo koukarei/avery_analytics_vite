@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { css } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import MenuItem from "@mui/material/MenuItem";
@@ -10,6 +10,7 @@ import StepLabel from '@mui/material/StepLabel';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import { Alert } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -220,6 +221,9 @@ interface ImageUploadProps {
 
 const ImageUpload: React.FC<ImageUploadProps> = ({ handleNext, onClose, file, setFile }) => {
   const fileTypes = ["JPG", "PNG"];
+  const { t } = useLocalization();
+  const [warningMsg, setWarningMsg] = useState<string>('');
+  const [showWarning, setShowWarning] = useState<boolean>(false);
   const handleChange = (file: File | File[]) => {
     if (Array.isArray(file)) {
       setFile(file[0] || null);
@@ -228,13 +232,36 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ handleNext, onClose, file, se
     }
   };
 
+  useEffect(() => {
+    if (warningMsg!=="") {
+      setShowWarning(true);
+    } else {
+      setShowWarning(false);
+    }
+  }, [warningMsg]);
+
   return (
     <>
-      <FileUploader
-        handleChange={handleChange}
-        name="file"
-        types={fileTypes}
-      />
+      {showWarning && <Alert severity="error">{warningMsg}</Alert>}
+      <Box>
+        <FileUploader
+          handleChange={handleChange}
+          name="file"
+          types={fileTypes}
+        />
+        <Box sx={{ width: '200px', height: '200px', marginLeft: '20px', display: file ? 'block' : 'none', border: `1px solid ${theme.palette.primary.main}` }} >
+          {
+            file && 
+            <img 
+              src={file ? URL.createObjectURL(file) : ''} 
+              alt="Preview" 
+              style= {{ width: '100%', height: '100%', objectFit: 'contain' }}
+              onError={() => setWarningMsg(t('galleryView.AddImageModal.warning.checkImgFile'))}
+              onLoad={()=> setWarningMsg('')}
+            />
+          }
+        </Box>
+      </Box>
       {/*選択ファイル名を表示させる*/}
       <p>{file !== null ? `ファイル名：${file['name']}` : ''}</p>
       <React.Fragment>
@@ -251,7 +278,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ handleNext, onClose, file, se
           <Button
             css={addButtonStyle(theme)}
             onClick={handleNext}
-            disabled={!file}
+            disabled={!file || warningMsg !== ''}
           >
             次へ/ Next
           </Button>

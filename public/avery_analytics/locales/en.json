@@ -23,6 +23,7 @@
   "galleryView.publishedAtEndDate": "to",
   "galleryView.is_public": "Public",
   "galleryView.addWritingTask": "Add a New Writing Task",
+  "galleryView.AddImageModal.warning.checkImgFile": "The selected file could not be loaded. Please check the file and try again.",
   "galleryView.AddImageModal.uploadImage": "Upload Image",
   "galleryView.AddImageModal.typeDetail": "Enter details for the writing task",
   "galleryView.AddImageModal.addRelatedVocabulary": "Add related vocabulary (optional)",

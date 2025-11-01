@@ -23,6 +23,7 @@
   "galleryView.publishedAtEndDate": "～",
   "galleryView.is_public": "公開",
   "galleryView.addWritingTask": "新しい作文タスクを追加",
+  "galleryView.AddImageModal.warning.checkImgFile": "選択したファイルを読み込めませんでした。ファイルを確認して再試行してください。",
   "galleryView.AddImageModal.uploadImage": "画像をアップロード",
   "galleryView.AddImageModal.typeDetail": "情報を入力",
   "galleryView.AddImageModal.addRelatedVocabulary": "相関単語を追加（任意）",
