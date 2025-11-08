@@ -49,6 +49,8 @@ interface PastWritingContentProps {
 }
 
 interface GenerationFeedbackProps {
+    needIMG: boolean;
+    needAWE: boolean;
     feedbackLoading: boolean;
     showImage: boolean;
     imageUrl: string | null;
@@ -61,6 +63,8 @@ interface GenerationFeedbackProps {
 }
 
 const GenerationFeedback: React.FC<GenerationFeedbackProps> = ({ 
+    needIMG,
+    needAWE,
     feedbackLoading,
     showImage,
     imageUrl,
@@ -77,6 +81,33 @@ const GenerationFeedback: React.FC<GenerationFeedbackProps> = ({
         return <LoadingSpinner />;
     }
 
+    if (!needIMG && !needAWE) {
+        return <Box>{t("writerView.pastWritingFrame.noFeedbackRequested")}</Box>;
+    }
+
+    if (needIMG && !needAWE) {
+        return (
+        <>
+            <Box mt={2}>
+                {showImage && imageUrl ? (
+                    <img src={imageUrl ? imageUrl : ""} alt="Generated" style={{ maxWidth: '100%' }} />
+                ) : null}
+            </Box>
+        </>
+        );
+    }
+
+    if (!needIMG && needAWE) {
+        return (
+        <>
+            <Box mt={2}>
+                {showAWE ? (
+                    <MarkdownEvalViewer content={aWEText ? aWEText : ""} />
+                ) : null }
+            </Box>
+        </>
+        );
+    }
 
     return (
         <>
@@ -266,6 +297,8 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
         const imgReady = !needsImg || imgFeedbackLoaded;
         const aweReady = !needsAwe || aweFeedbackLoaded;
 
+        
+
         setFeedbackLoading(!(imgReady && aweReady));
     }, [feedback, imgFeedbackLoaded, aweFeedbackLoaded]);
 
@@ -285,7 +318,8 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
             <CardContent sx={modalCardContentStyle}>
                 <Box mb={2}>
                     {detailData ? (
-                        compareWriting(detailData.sentence, detailData.correct_sentence)
+                        detailData.sentence
+                        // compareWriting(detailData.sentence, detailData.correct_sentence)
                     ) : "No writing detail available."}
                 </Box>
                 <Box>
@@ -295,6 +329,8 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
                     {t("writerView.pastWritingFrame.clickButtonsBelow")}
                 </Box>
                 <GenerationFeedback
+                    needIMG={feedback ? feedback.includes("IMG") : false}
+                    needAWE={feedback ? feedback.includes("AWE") : false}
                     feedbackLoading={feedbackLoading}
                     showImage={showImage}
                     imageUrl={imageUrl}
