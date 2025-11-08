@@ -32,6 +32,7 @@
 
   "galleryView.Tab.leaderboard": "リーダーボード",
   "galleryView.Tab.leaderboard.no_writings": "表示する作文がありません。",
+
   "galleryView.Tab.leaderboard.tableHeader.rank": "ランク",
   "galleryView.Tab.leaderboard.tableHeader.student_name": "名前",
   "galleryView.Tab.leaderboard.tableHeader.created_at": "作成日",
@@ -40,6 +41,13 @@
   "galleryView.Tab.leaderboard.tableHeader.duration": "総時間",
   "galleryView.Tab.leaderboard.tableHeader.first_writing": "最初の作文",
   "galleryView.Tab.leaderboard.tableHeader.last_writing": "最後の作文",
+
+  "galleryView.Tab.leaderboard.roundTableHeader.sentence": "作文",
+  "galleryView.Tab.leaderboard.roundTableHeader.correct_sentence": "修正された作文",
+  "galleryView.Tab.leaderboard.roundTableHeader.img_feedback": "画像フィードバック",
+  "galleryView.Tab.leaderboard.roundTableHeader.awe_feedback": "自動評価フィードバック",
+  "galleryView.Tab.leaderboard.roundTableHeader.duration": "所要時間",
+
   "galleryView.Tab.leaderboard.anonymous": "匿名",
   "galleryView.Tab.leaderboard.you": "あなた",
 
