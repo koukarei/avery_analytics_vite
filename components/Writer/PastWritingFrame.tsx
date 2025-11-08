@@ -300,8 +300,12 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
         const imgReady = !needsImg || imgFeedbackLoaded;
         const aweReady = !needsAwe || aweFeedbackLoaded;
 
+        if (needsImg && !needsAwe) {
+            setShowImage(true);
+        }else if (!needsImg && needsAwe) {
+            setShowAWE(true);
+        }
         
-
         setFeedbackLoading(!(imgReady && aweReady));
     }, [feedback, imgFeedbackLoaded, aweFeedbackLoaded]);
 
