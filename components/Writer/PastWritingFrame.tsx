@@ -111,6 +111,9 @@ const GenerationFeedback: React.FC<GenerationFeedbackProps> = ({
 
     return (
         <>
+            <Box css={instructionStyle} sx={{ borderTop: 1, borderColor: 'divider' }}>
+                {t("writerView.pastWritingFrame.clickButtonsBelow")}
+            </Box>
             <Button
                 css={showImage && imageUrl ? hideButtonStyle(theme) : showButtonStyle(theme)}
                 disabled={!imgFeedbackLoaded}
@@ -324,9 +327,6 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
                 </Box>
                 <Box>
                     {(isLoading) && <LoadingSpinner />}
-                </Box>
-                <Box css={instructionStyle} sx={{ borderTop: 1, borderColor: 'divider' }}>
-                    {t("writerView.pastWritingFrame.clickButtonsBelow")}
                 </Box>
                 <GenerationFeedback
                     needIMG={feedback ? feedback.includes("IMG") : false}
