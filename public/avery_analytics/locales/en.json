@@ -1,6 +1,6 @@
 {
   "appTitle": "AVERY Analytics",
-  "header.title": "AVERY Analytics Dashboard",
+  "header.title": "AVERY Analytics",
   "header.display_name": "Display Name",
   "footer.text": "© {year} Learning and Educational Technologies Research Unit, Kyoto University",
   "loading.text": "Loading data...",

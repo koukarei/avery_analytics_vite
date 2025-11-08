@@ -1,6 +1,6 @@
 {
   "appTitle": "AVERY分析",
-  "header.title": "AVERY分析ダッシュボード",
+  "header.title": "AVERY分析",
   "header.display_name": "表示名",
   "footer.text": "© {year} 京都大学　学術情報メディアセンター　緒方研究室",
   "loading.text": "データを読み込み中...",
