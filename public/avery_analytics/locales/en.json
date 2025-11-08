@@ -47,6 +47,8 @@
   "galleryView.Tab.leaderboard.roundTableHeader.img_feedback": "Image\u00a0Feedback",
   "galleryView.Tab.leaderboard.roundTableHeader.awe_feedback": "AWE\u00a0Feedback",
   "galleryView.Tab.leaderboard.roundTableHeader.duration": "Duration",
+  "galleryView.Tab.leaderboard.roundTableHeader.grammar_errors": "Grammar\u00a0Errors",
+  "galleryView.Tab.leaderboard.roundTableHeader.spelling_errors": "Spelling\u00a0Errors",
 
   "galleryView.Tab.leaderboard.anonymous": "Anonymous",
   "galleryView.Tab.leaderboard.you": "You",

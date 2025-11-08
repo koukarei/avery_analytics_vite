@@ -47,6 +47,8 @@
   "galleryView.Tab.leaderboard.roundTableHeader.img_feedback": "生成画像",
   "galleryView.Tab.leaderboard.roundTableHeader.awe_feedback": "自動評価",
   "galleryView.Tab.leaderboard.roundTableHeader.duration": "所要時間",
+  "galleryView.Tab.leaderboard.roundTableHeader.grammar_errors": "文法エラー",
+  "galleryView.Tab.leaderboard.roundTableHeader.spelling_errors": "スペルエラー",
 
   "galleryView.Tab.leaderboard.anonymous": "匿名",
   "galleryView.Tab.leaderboard.you": "あなた",
