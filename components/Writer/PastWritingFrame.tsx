@@ -22,7 +22,7 @@ import { Button } from '@mui/material';
 
 import { useLocalization } from '../../contexts/localizationUtils';
 import { MarkdownEvalViewer } from '../../util/showMD';
-import { compareWriting } from '../../util/CompareWriting';
+//import { compareWriting } from '../../util/CompareWriting';
 
 import { LoadingSpinner } from '../Common/LoadingSpinner';
 
