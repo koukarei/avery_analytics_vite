@@ -44,8 +44,8 @@
 
   "galleryView.Tab.leaderboard.roundTableHeader.sentence": "作文",
   "galleryView.Tab.leaderboard.roundTableHeader.correct_sentence": "修正された作文",
-  "galleryView.Tab.leaderboard.roundTableHeader.img_feedback": "画像フィードバック",
-  "galleryView.Tab.leaderboard.roundTableHeader.awe_feedback": "自動評価フィードバック",
+  "galleryView.Tab.leaderboard.roundTableHeader.img_feedback": "生成画像",
+  "galleryView.Tab.leaderboard.roundTableHeader.awe_feedback": "自動評価",
   "galleryView.Tab.leaderboard.roundTableHeader.duration": "所要時間",
 
   "galleryView.Tab.leaderboard.anonymous": "匿名",
