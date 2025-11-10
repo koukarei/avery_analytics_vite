@@ -2,6 +2,10 @@
   "appTitle": "AVERY分析",
   "header.title": "AVERY分析",
   "header.display_name": "表示名",
+  "header.menuDrawer.languageSettings": "言語設定",
+  "header.menuDrawer.appManagement": "アプリ管理",
+  "header.menuDrawer.programManagement": "プログラム管理",
+  
   "footer.text": "© {year} 京都大学　学術情報メディアセンター　緒方研究室",
   "loading.text": "データを読み込み中...",
   "error.title": "エラー！",

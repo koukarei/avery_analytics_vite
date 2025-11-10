@@ -2,6 +2,10 @@
   "appTitle": "AVERY Analytics",
   "header.title": "AVERY Analytics",
   "header.display_name": "Display Name",
+  "header.menuDrawer.languageSettings": "Language Settings",
+  "header.menuDrawer.appManagement": "App Management",
+  "header.menuDrawer.programManagement": "Program Management",
+  
   "footer.text": "© {year} Learning and Educational Technologies Research Unit, Kyoto University",
   "loading.text": "Loading data...",
   "error.title": "Error!",
