@@ -2,6 +2,10 @@
   "appTitle": "AVERY分析",
   "header.title": "AVERY分析",
   "header.display_name": "表示名",
+  "header.menuDrawer.languageSettings": "言語設定",
+  "header.menuDrawer.appManagement": "アプリ管理",
+  "header.menuDrawer.programManagement": "プログラム管理",
+  
   "footer.text": "© {year} 京都大学　学術情報メディアセンター　緒方研究室",
   "loading.text": "データを読み込み中...",
   "error.title": "エラー！",
@@ -32,6 +36,7 @@
 
   "galleryView.Tab.leaderboard": "リーダーボード",
   "galleryView.Tab.leaderboard.no_writings": "表示する作文がありません。",
+
   "galleryView.Tab.leaderboard.tableHeader.rank": "ランク",
   "galleryView.Tab.leaderboard.tableHeader.student_name": "名前",
   "galleryView.Tab.leaderboard.tableHeader.created_at": "作成日",
@@ -40,6 +45,15 @@
   "galleryView.Tab.leaderboard.tableHeader.duration": "総時間",
   "galleryView.Tab.leaderboard.tableHeader.first_writing": "最初の作文",
   "galleryView.Tab.leaderboard.tableHeader.last_writing": "最後の作文",
+
+  "galleryView.Tab.leaderboard.roundTableHeader.sentence": "作文",
+  "galleryView.Tab.leaderboard.roundTableHeader.correct_sentence": "修正された作文",
+  "galleryView.Tab.leaderboard.roundTableHeader.img_feedback": "生成画像",
+  "galleryView.Tab.leaderboard.roundTableHeader.awe_feedback": "自動評価",
+  "galleryView.Tab.leaderboard.roundTableHeader.duration": "所要時間",
+  "galleryView.Tab.leaderboard.roundTableHeader.grammar_errors": "文法エラー",
+  "galleryView.Tab.leaderboard.roundTableHeader.spelling_errors": "スペルエラー",
+
   "galleryView.Tab.leaderboard.anonymous": "匿名",
   "galleryView.Tab.leaderboard.you": "あなた",
 

@@ -131,17 +131,17 @@ interface WritingColumn {
 
 
 const writingColumns: readonly WritingColumn[] = [
-  { id: 'sentence', label: 'Sentence', minWidth: 170 },
-  { id: 'correct_sentence', label: 'Corrected\u00a0Sentence', minWidth: 170 },
-  { 
-    id: 'img_feedback', 
-    label: 'Image\u00a0Feedback', 
+  { id: 'sentence', label: 'galleryView.Tab.leaderboard.roundTableHeader.sentence', minWidth: 170 },
+  { id: 'correct_sentence', label: 'galleryView.Tab.leaderboard.roundTableHeader.correct_sentence', minWidth: 170 },
+  {
+    id: 'img_feedback',
+    label: 'galleryView.Tab.leaderboard.roundTableHeader.img_feedback',
     minWidth: 170,
   },
-  { id: 'awe_feedback', label: 'AWE\u00a0Feedback', minWidth: 170 },
-  { id: 'duration', label: 'Duration', minWidth: 100, align: 'right' },
-  { id: 'grammar_errors', label: 'Grammar\u00a0Errors', minWidth: 170 },
-  { id: 'spelling_errors', label: 'Spelling\u00a0Errors', minWidth: 170 },
+  { id: 'awe_feedback', label: 'galleryView.Tab.leaderboard.roundTableHeader.awe_feedback', minWidth: 170 },
+  { id: 'duration', label: 'galleryView.Tab.leaderboard.roundTableHeader.duration', minWidth: 100, align: 'right' },
+  { id: 'grammar_errors', label: 'galleryView.Tab.leaderboard.roundTableHeader.grammar_errors', minWidth: 170 },
+  { id: 'spelling_errors', label: 'galleryView.Tab.leaderboard.roundTableHeader.spelling_errors', minWidth: 170 },
 ];
 
 interface WritingData {
@@ -291,7 +291,7 @@ const RenderTableRow: React.FC<RenderTableRowProps> = ({
                       align={column.align}
                       style={{ minWidth: column.minWidth }}
                     >
-                      {column.label}
+                      {t(column.label)}
                     </TableCell>
                   ))}
                 </TableRow>

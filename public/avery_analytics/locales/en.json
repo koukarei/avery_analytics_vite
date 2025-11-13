@@ -2,6 +2,10 @@
   "appTitle": "AVERY Analytics",
   "header.title": "AVERY Analytics",
   "header.display_name": "Display Name",
+  "header.menuDrawer.languageSettings": "Language Settings",
+  "header.menuDrawer.appManagement": "App Management",
+  "header.menuDrawer.programManagement": "Program Management",
+  
   "footer.text": "© {year} Learning and Educational Technologies Research Unit, Kyoto University",
   "loading.text": "Loading data...",
   "error.title": "Error!",
@@ -32,6 +36,7 @@
   
   "galleryView.Tab.leaderboard": "Leaderboard",
   "galleryView.Tab.leaderboard.no_writings": "No writings to display.",
+
   "galleryView.Tab.leaderboard.tableHeader.rank": "Rank",
   "galleryView.Tab.leaderboard.tableHeader.student_name": "Name",
   "galleryView.Tab.leaderboard.tableHeader.created_at": "Created\u00a0At",
@@ -40,6 +45,15 @@
   "galleryView.Tab.leaderboard.tableHeader.duration": "Total\u00a0Duration",
   "galleryView.Tab.leaderboard.tableHeader.first_writing": "First\u00a0Writing",
   "galleryView.Tab.leaderboard.tableHeader.last_writing": "Last\u00a0Writing",
+
+  "galleryView.Tab.leaderboard.roundTableHeader.sentence": "Sentence",
+  "galleryView.Tab.leaderboard.roundTableHeader.correct_sentence": "Corrected\u00a0Sentence",
+  "galleryView.Tab.leaderboard.roundTableHeader.img_feedback": "Image\u00a0Feedback",
+  "galleryView.Tab.leaderboard.roundTableHeader.awe_feedback": "AWE\u00a0Feedback",
+  "galleryView.Tab.leaderboard.roundTableHeader.duration": "Duration",
+  "galleryView.Tab.leaderboard.roundTableHeader.grammar_errors": "Grammar\u00a0Errors",
+  "galleryView.Tab.leaderboard.roundTableHeader.spelling_errors": "Spelling\u00a0Errors",
+
   "galleryView.Tab.leaderboard.anonymous": "Anonymous",
   "galleryView.Tab.leaderboard.you": "You",
 

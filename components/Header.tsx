@@ -3,8 +3,9 @@
 import React, {useContext, useState} from 'react';
 import { useLocalization } from '../contexts/localizationUtils';
 import IconComponent from './icons/AVERYIcon';
-import LoginIcon from './icons/LoginIcon';
 import LogoutIcon from './icons/LogoutIcon';
+import PersonIcon from '@mui/icons-material/Person';
+import MenuDrawer from './MenuDrawer';
 import { AuthUserContext } from '../providers/AuthUserProvider';
 import IconButton from '@mui/material/IconButton';
 import Popover from '@mui/material/Popover';
@@ -12,15 +13,13 @@ import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
-import { SUPPORTED_LANGUAGES } from '../constants';
-import type { Language } from '../types/ui';
 import { Button } from '@mui/material';
 import { css } from "@emotion/react";
 import {theme} from "../src/Theme";
 
 const ShowUserProfile: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const { currentUser, loading } = useContext(AuthUserContext);
+  const { currentUser, loading } = useContext (AuthUserContext);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -72,7 +71,7 @@ const ShowUserProfile: React.FC = () => {
   return (
     <div>
       <IconButton css={iconStyle} aria-describedby={id} aria-label="user profile" onClick={handleClick}>
-        <LoginIcon className='w-10 h-10' />
+        <PersonIcon className='w-24 h-24' />
       </IconButton>
       <Popover
         id={id}
@@ -101,9 +100,12 @@ const ShowUserProfile: React.FC = () => {
   );
 }
 
+const ShowMenuSidebar: React.FC = () => {
+  return <MenuDrawer />;
+}
 
 const Header: React.FC = () => {
-  const { t, language, setLanguage } = useLocalization();
+  const { t } = useLocalization();
 
   return (
     <header className="shadow-md" css={headerStyles}>
@@ -115,21 +117,8 @@ const Header: React.FC = () => {
           </button>
         </div>
         <div className="flex space-x-2">
-          {Object.keys(SUPPORTED_LANGUAGES).map((langCode) => (
-            <button
-              key={langCode}
-              onClick={() => setLanguage(langCode as Language)}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors
-                ${language === langCode 
-                  ? 'bg-white text-primary' 
-                  : 'bg-primary-dark text-white hover:bg-primary-light hover:text-primary-dark'
-                }`}
-              aria-pressed={language === langCode}
-            >
-              {SUPPORTED_LANGUAGES[langCode as Language].name}
-            </button>
-          ))}
           <ShowUserProfile />
+          <ShowMenuSidebar />
         </div>
       </div>
     </header>
@@ -145,4 +134,6 @@ const headerStyles = css`
 
 const iconStyle = css`
   color: ${theme.palette.primary.contrastText};
+  justify-content: center;
+  align-items: center;
 `;
