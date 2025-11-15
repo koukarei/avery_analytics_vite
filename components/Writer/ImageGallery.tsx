@@ -1,42 +1,50 @@
 /** @jsxImportSource @emotion/react */
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { css } from "@emotion/react";
 import type { Leaderboard } from '../../types/leaderboard';
 import type { GalleryView } from '../../types/ui';
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
 import { useLocalization } from '../../contexts/localizationUtils';
+import { LoadingSpinner } from '../Common/LoadingSpinner';
+import { ErrorDisplay } from '../Common/ErrorDisplay';
+import { LeaderboardImageContext, LeaderboardImageProvider } from '../../providers/LeaderboardProvider';
 
 interface ImageGalleryProps {
   view: GalleryView;
   setView: (view: GalleryView) => void;
   leaderboards: Leaderboard[];
-  images: Record<number, string>; // Mapping of leaderboard ID to image URL
   currentIndex: number; // Index of the first image in the triplet to display
+  n_leaderboards: number;
+  setCurrentLeaderboard: (leaderboard: Leaderboard | null) => void;
+  setCurrentImageUrl: (url: string) => void;
   onScroll: (direction: 'up' | 'down') => void;
 }
 
 interface ImagePanelProps {
   leaderboard: Leaderboard | null;
-  imageUrl: string | null;
   position: 'left' | 'center' | 'right';
   isHovered: boolean;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
   onClick?: () => void; // Added for click navigation
+  setCurrentImageUrl: (url: string) => void;
 }
 
 const ImagePanel: React.FC<ImagePanelProps> = ({ 
   leaderboard, 
-  imageUrl,
   position, 
   isHovered, 
   onMouseEnter, 
   onMouseLeave,
-  onClick 
+  onClick,
+  setCurrentImageUrl
 }) => {
   const { t } = useLocalization();
+  const { loading, fetchImage } = useContext(LeaderboardImageContext);
+  const [ errorKey, setErrorKey ] = useState<string | null>(null);
+  const [ loadedImageUrl, setLoadedImageUrl ] = useState<string | null>(null);
   let transformClasses = 'transition-all duration-700 ease-in-out transform-gpu'; 
   let opacityClass = 'opacity-100';
 
@@ -55,6 +63,18 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
       break;
   }
   
+    useEffect(() => {
+      setErrorKey(null);
+      if (leaderboard) {
+        fetchImage(leaderboard?.id).then(imageUrl => {
+          setLoadedImageUrl(imageUrl);
+        }).catch(err => {
+          setErrorKey('error.fetch_leaderboard_image');
+          console.error("Failed to fetch leaderboard image: ", err);
+        });
+      }
+    }, [leaderboard?.id]);
+  
   if (!leaderboard) {
     return (
       <div 
@@ -66,49 +86,73 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
       </div>
     );
   }
-  
-  return (
-    <div
-      className={`w-2/3 sm:w-1/2 md:w-1/3 aspect-[4/3] cursor-pointer group`}
-      style={{
-        transformStyle: 'preserve-3d',
-        // visual stacking and pointer behavior:
-        zIndex: position === 'center' ? 60 : 40,
-        // if center should not intercept clicks except when hovered/focused:
-        pointerEvents: 'auto'
-      }}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      onFocus={onMouseEnter} 
-      onBlur={onMouseLeave}  
-      onClick={onClick} // Added onClick handler
-      tabIndex={onClick ? 0 : -1} // Make clickable items focusable
-      role="button" // Role implies clickability
-      aria-label={onClick ? `Navigate to ${position === 'left' ? 'previous' : 'next'} image: ${leaderboard.title}` : leaderboard.title}
-      onKeyDown={(e) => { // Allow activation with Enter/Space for accessibility
-        if (onClick && (e.key === 'Enter' || e.key === ' ')) {
-          e.preventDefault();
-          onClick();
-        }
-      }}
-    >
-      <div className={`w-full h-full border-2 border-neutral-600 bg-neutral-800 rounded-lg shadow-2xl overflow-hidden relative ${transformClasses} ${opacityClass}`}>
-        <img src={imageUrl ? imageUrl : ""} alt={leaderboard?.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-focus:scale-105" />
-        <div className="absolute top-0 right-0 m-2">
-            <span css={sceneStyles(theme)} className="inline-block bg-cyan-500 text-white text-xs font-semibold px-2 py-1 rounded-full uppercase tracking-wider">
-            {leaderboard.scene.name}
-          </span>
-        </div>
 
-        {(isHovered) && (
-          <div className="absolute inset-0 bg-black opacity-60 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out">
-            <p className="text-white text-lg sm:text-xl md:text-2xl font-semibold text-center select-none">{position === "center" ? t('writerView.writingPage.start') : leaderboard.title}</p>
+  const handleOnClick = () => {
+    if (position === 'center' && loadedImageUrl) {
+      setCurrentImageUrl(loadedImageUrl);
+    }
+    if (onClick) {
+      onClick();
+    }
+  };
+    
+    const renderContent = () => {
+      if (loading) {
+        return <LoadingSpinner />;
+      }
+      if (errorKey) {
+        return <ErrorDisplay messageKey={errorKey} />;
+      }
+  
+      return (
+        <div
+          className={`w-2/3 sm:w-1/2 md:w-1/3 aspect-[4/3] cursor-pointer group`}
+          style={{
+            transformStyle: 'preserve-3d',
+            // visual stacking and pointer behavior:
+            zIndex: position === 'center' ? 60 : 40,
+            // if center should not intercept clicks except when hovered/focused:
+            pointerEvents: 'auto'
+          }}
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
+          onFocus={onMouseEnter} 
+          onBlur={onMouseLeave}  
+          onClick={handleOnClick} // Added onClick handler
+          tabIndex={onClick ? 0 : -1} // Make clickable items focusable
+          role="button" // Role implies clickability
+          aria-label={onClick ? `Navigate to ${position === 'left' ? 'previous' : 'next'} image: ${leaderboard.title}` : leaderboard.title}
+          onKeyDown={(e) => { // Allow activation with Enter/Space for accessibility
+            if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+              e.preventDefault();
+              handleOnClick();
+            }
+          }}
+        >
+          <div className={`w-full h-full border-2 border-neutral-600 bg-neutral-800 rounded-lg shadow-2xl overflow-hidden relative ${transformClasses} ${opacityClass}`}>
+            <img src={loadedImageUrl ? loadedImageUrl : ""} alt={leaderboard?.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-focus:scale-105" />
+            <div className="absolute top-0 right-0 m-2">
+                <span css={sceneStyles(theme)} className="inline-block bg-cyan-500 text-white text-xs font-semibold px-2 py-1 rounded-full uppercase tracking-wider">
+                {leaderboard.scene.name}
+              </span>
+            </div>
+
+            {(isHovered) && (
+              <div className="absolute inset-0 bg-black opacity-60 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out">
+                <p className="text-white text-lg sm:text-xl md:text-2xl font-semibold text-center select-none">{position === "center" ? t('writerView.writingPage.start') : leaderboard.title}</p>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    </div>
-  );
-};
+        </div>
+      );
+    };
+    
+    return (
+      <>
+        {renderContent()}
+      </>
+    );
+  };
 
 function useDebouncedCallback<A extends unknown[],>(
   callback: (...args: A) => void,
@@ -137,7 +181,7 @@ function useDebouncedCallback<A extends unknown[],>(
 }
 
 
-export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboards, images, currentIndex, onScroll }) => {
+export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboards, currentIndex, n_leaderboards, setCurrentLeaderboard, setCurrentImageUrl, onScroll }) => {
   const galleryRef = useRef<HTMLDivElement>(null);
   const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
 
@@ -213,9 +257,9 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
   if (!leaderboards || leaderboards.length === 0) return null;
 
   // Ensure we always have 3 potential slots, even if images run out
-  const leftImage = leaderboards[currentIndex] || null;
-  const centerImage = leaderboards[(currentIndex + 1) % leaderboards.length] || null;
-  const rightImage = leaderboards[(currentIndex + 2) % leaderboards.length] || null;
+  const leftImage = leaderboards[(currentIndex - 1 + n_leaderboards) % n_leaderboards] || null;
+  const centerImage = leaderboards[currentIndex] || null;
+  const rightImage = leaderboards[(currentIndex + 1) % n_leaderboards] || null;
   
   return (
     <div>
@@ -226,33 +270,42 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
         role="region"
         aria-label="Leaderboard"
       >
-        <ImagePanel
-          leaderboard={leftImage}
-          imageUrl={images[leftImage?.id]}
-          position="left"
-          isHovered={hoveredImageId === leftImage?.id}
-          onMouseEnter={() => leftImage && setHoveredImageId(leftImage.id)}
-          onMouseLeave={() => setHoveredImageId(null)}
-          onClick={leftImage ? () => debouncedScroll('up') : undefined}
-        />
-        <ImagePanel
-          leaderboard={centerImage}
-          imageUrl={images[centerImage?.id]}
-          position="center"
-          isHovered={hoveredImageId === centerImage?.id}
-          onMouseEnter={() => centerImage && setHoveredImageId(centerImage.id)}
-          onMouseLeave={() => setHoveredImageId(null)}
-          onClick={centerImage ? () => setView('detail') : undefined}
-        />
-        <ImagePanel
-          leaderboard={rightImage}
-          imageUrl={images[rightImage?.id]}
-          position="right"
-          isHovered={hoveredImageId === rightImage?.id}
-          onMouseEnter={() => rightImage && setHoveredImageId(rightImage.id)}
-          onMouseLeave={() => setHoveredImageId(null)}
-          onClick={rightImage ? () => debouncedScroll('down') : undefined}
-        />
+        <LeaderboardImageProvider>
+          <ImagePanel
+            leaderboard={leftImage}
+            setCurrentImageUrl={setCurrentImageUrl}
+            position="left"
+            isHovered={hoveredImageId === leftImage?.id}
+            onMouseEnter={() => leftImage && setHoveredImageId(leftImage.id)}
+            onMouseLeave={() => setHoveredImageId(null)}
+            onClick={leftImage ? () => debouncedScroll('up') : undefined}
+          />
+        </LeaderboardImageProvider>
+        <LeaderboardImageProvider>
+          <ImagePanel
+            leaderboard={centerImage}
+            setCurrentImageUrl={setCurrentImageUrl}
+            position="center"
+            isHovered={hoveredImageId === centerImage?.id}
+            onMouseEnter={() => centerImage && setHoveredImageId(centerImage.id)}
+            onMouseLeave={() => setHoveredImageId(null)}
+            onClick={centerImage ? () => {
+              setView('detail')
+              setCurrentLeaderboard(centerImage);
+            } : undefined}
+          />
+        </LeaderboardImageProvider>
+        <LeaderboardImageProvider>
+          <ImagePanel
+            leaderboard={rightImage}
+            setCurrentImageUrl={setCurrentImageUrl}
+            position="right"
+            isHovered={hoveredImageId === rightImage?.id}
+            onMouseEnter={() => rightImage && setHoveredImageId(rightImage.id)}
+            onMouseLeave={() => setHoveredImageId(null)}
+            onClick={rightImage ? () => debouncedScroll('down') : undefined}
+          />
+        </LeaderboardImageProvider>
       </div>
     </div>
   );

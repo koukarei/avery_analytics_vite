@@ -12,7 +12,6 @@ import { useLocalization } from '../../contexts/localizationUtils';
 import { LoadingSpinner } from '../Common/LoadingSpinner';
 import { ErrorDisplay } from '../Common/ErrorDisplay';
 import { LeaderboardImageContext, LeaderboardImageProvider } from '../../providers/LeaderboardProvider';
-import { set } from 'react-hook-form';
 
 interface ImageGalleryProps {
   view: GalleryView;
@@ -72,8 +71,8 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
       fetchImage(leaderboard?.id).then(imageUrl => {
         setLoadedImageUrl(imageUrl);
       }).catch(err => {
-        setErrorKey('error.fetch_leaderboard_stats');
-        console.error("Failed to fetch leaderboard stats: ", err);
+        setErrorKey('error.fetch_leaderboard_image');
+        console.error("Failed to fetch leaderboard image: ", err);
       });
     }
   }, [leaderboard?.id]);
