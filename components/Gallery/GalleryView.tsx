@@ -9,7 +9,8 @@ import { CustomSettingContext } from '../../providers/CustomSettingProvider';
 export default function GalleryView() {
   const [view, setView] = useState<GalleryView>('browsing');
   const { t } = useLocalization();
-
+  const [ galleryCurrentIndex, setGalleryCurrentIndex ] = useState<number>(1);
+  const [ loadedLeaderboards, setLoadedLeaderboards ] = useState<Leaderboard[]>([]);
   const [ curLeaderboard, setCurLeaderboard ] = useState<Leaderboard | null>(null);
   const [ curImageUrl, setCurImageUrl ] = useState<string>('');
   const { showStudentNames } = useContext(CustomSettingContext);
@@ -26,6 +27,10 @@ export default function GalleryView() {
           <GalleryBrowsing
             view={view}
             setView={handleViewChange}
+            loadedLeaderboards={loadedLeaderboards}
+            setLoadedLeaderboards={setLoadedLeaderboards}
+            galleryCurrentIndex={galleryCurrentIndex}
+            setGalleryCurrentIndex={setGalleryCurrentIndex}
             setCurLeaderboard={setCurLeaderboard}
             setCurImageUrl={setCurImageUrl}
           />
@@ -35,7 +40,6 @@ export default function GalleryView() {
         <div className="h-full w-full pt-4 md:pt-8">
           {curLeaderboard ? (
             <GalleryTabs
-              view={view}
               setView={handleViewChange}
               imageUrl={curImageUrl}
               leaderboard={curLeaderboard || null}

@@ -7,6 +7,7 @@ import type { GalleryView } from '../../types/ui';
 import type { Theme } from "@mui/material/styles";
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { Button } from '@mui/material';
 import {theme} from "../../src/Theme";
 import { useLocalization } from '../../contexts/localizationUtils';
 import { LoadingSpinner } from '../Common/LoadingSpinner';
@@ -90,7 +91,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   }
 
   const handleOnClick = () => {
-    if (position === 'center' && loadedImageUrl) {
+    if (loadedImageUrl) {
       setCurrentImageUrl(loadedImageUrl);
     }
     if (onClick) {
@@ -254,7 +255,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
 
   // Ensure we always have 3 potential slots, even if images run out
   const leftImage = leaderboards[(currentIndex - 1 + n_leaderboards) % n_leaderboards] || null;
-  const centerImage = leaderboards[currentIndex] || null;
+  const centerImage = leaderboards[currentIndex % n_leaderboards] || null;
   const rightImage = leaderboards[(currentIndex + 1) % n_leaderboards] || null;
   
   return (
@@ -265,6 +266,13 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
       role="region"
       aria-label="Leaderboard"
     >
+      <Button
+        aria-label="Previous"
+        onClick={() => debouncedScroll('up')}
+        css={arrowStyles('left')}
+      >
+        <ArrowBackIosIcon style={{ color: 'white' }} />
+      </Button>
       <LeaderboardImageProvider>
         <ImagePanel
           leaderboard={leftImage}
@@ -273,7 +281,11 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
           isHovered={hoveredImageId === leftImage?.id}
           onMouseEnter={() => leftImage && setHoveredImageId(leftImage.id)}
           onMouseLeave={() => setHoveredImageId(null)}
-          onClick={leftImage ? () => debouncedScroll('up') : undefined}
+          onClick={leftImage ? () => {
+            debouncedScroll('up')
+            setCurrentLeaderboard(leftImage);
+            setView('detail');
+          } : undefined}
         />
       </LeaderboardImageProvider>
       <LeaderboardImageProvider>
@@ -298,9 +310,20 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
           isHovered={hoveredImageId === rightImage?.id}
           onMouseEnter={() => rightImage && setHoveredImageId(rightImage.id)}
           onMouseLeave={() => setHoveredImageId(null)}
-          onClick={rightImage ? () => debouncedScroll('down') : undefined}
+          onClick={rightImage ? () => {
+            debouncedScroll('down')
+            setCurrentLeaderboard(rightImage);
+            setView('detail');
+          } : undefined}
         />
       </LeaderboardImageProvider>
+      <Button
+        aria-label="Next"
+        onClick={() => debouncedScroll('down')}
+        css={arrowStyles('right')}
+      >
+        <ArrowForwardIosIcon style={{ color: 'white' }} />
+      </Button>
     </div>
   );
 };
@@ -309,3 +332,15 @@ const sceneStyles = (theme: Theme) => css`
   background-color: ${theme.palette.primary.dark};
   color: ${theme.palette.primary.contrastText};
 `;
+
+const arrowStyles = (position: 'left' | 'right') => css`
+  position: absolute;
+  top: 40%;
+  ${position}: 0;
+  height: 100%;
+  transform: translateY(-50%);
+  z-index: 100;
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+`

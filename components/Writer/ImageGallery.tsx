@@ -5,6 +5,9 @@ import { css } from "@emotion/react";
 import type { Leaderboard } from '../../types/leaderboard';
 import type { GalleryView } from '../../types/ui';
 import type { Theme } from "@mui/material/styles";
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { Button } from '@mui/material';
 import {theme} from "../../src/Theme";
 import { useLocalization } from '../../contexts/localizationUtils';
 import { LoadingSpinner } from '../Common/LoadingSpinner';
@@ -51,14 +54,14 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   // Adjusted 3D transforms to match the example image more closely
   switch (position) {
     case 'left':
-      transformClasses += ' rotate-y-[50deg] scale-[0.8]';
+      transformClasses += ' rotate-y-[50deg] scale-[0.8] -translate-z-[100px]';
       opacityClass = 'opacity-75 group-hover:opacity-90 group-focus:opacity-90';
       break;
     case 'center':
       transformClasses += ' scale-100 translate-z-[20px]'; // Center panel pops slightly forward
       break;
     case 'right':
-      transformClasses += ' -rotate-y-[50deg] scale-[0.8]';
+      transformClasses += ' -rotate-y-[50deg] scale-[0.8] -translate-z-[100px]';
       opacityClass = 'opacity-75 group-hover:opacity-90 group-focus:opacity-90';
       break;
   }
@@ -88,7 +91,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   }
 
   const handleOnClick = () => {
-    if (position === 'center' && loadedImageUrl) {
+    if (loadedImageUrl) {
       setCurrentImageUrl(loadedImageUrl);
     }
     if (onClick) {
@@ -258,55 +261,75 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
 
   // Ensure we always have 3 potential slots, even if images run out
   const leftImage = leaderboards[(currentIndex - 1 + n_leaderboards) % n_leaderboards] || null;
-  const centerImage = leaderboards[currentIndex] || null;
+  const centerImage = leaderboards[currentIndex % n_leaderboards] || null;
   const rightImage = leaderboards[(currentIndex + 1) % n_leaderboards] || null;
   
   return (
-    <div>
-      <div 
-        ref={galleryRef} 
-        className="w-full h-full flex items-start justify-center gap-4 relative" 
-        style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
-        role="region"
-        aria-label="Leaderboard"
+    <div 
+      ref={galleryRef} 
+      className="w-full h-full flex items-start justify-center space-x-[-5%] sm:space-x-[-2%] md:space-x-[-1%] relative" 
+      style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
+      role="region"
+      aria-label="Leaderboard"
+    >
+      <Button
+        aria-label="Previous"
+        onClick={() => debouncedScroll('up')}
+        css={arrowStyles('left')}
       >
-        <LeaderboardImageProvider>
-          <ImagePanel
-            leaderboard={leftImage}
-            setCurrentImageUrl={setCurrentImageUrl}
-            position="left"
-            isHovered={hoveredImageId === leftImage?.id}
-            onMouseEnter={() => leftImage && setHoveredImageId(leftImage.id)}
-            onMouseLeave={() => setHoveredImageId(null)}
-            onClick={leftImage ? () => debouncedScroll('up') : undefined}
-          />
-        </LeaderboardImageProvider>
-        <LeaderboardImageProvider>
-          <ImagePanel
-            leaderboard={centerImage}
-            setCurrentImageUrl={setCurrentImageUrl}
-            position="center"
-            isHovered={hoveredImageId === centerImage?.id}
-            onMouseEnter={() => centerImage && setHoveredImageId(centerImage.id)}
-            onMouseLeave={() => setHoveredImageId(null)}
-            onClick={centerImage ? () => {
-              setView('detail')
-              setCurrentLeaderboard(centerImage);
-            } : undefined}
-          />
-        </LeaderboardImageProvider>
-        <LeaderboardImageProvider>
-          <ImagePanel
-            leaderboard={rightImage}
-            setCurrentImageUrl={setCurrentImageUrl}
-            position="right"
-            isHovered={hoveredImageId === rightImage?.id}
-            onMouseEnter={() => rightImage && setHoveredImageId(rightImage.id)}
-            onMouseLeave={() => setHoveredImageId(null)}
-            onClick={rightImage ? () => debouncedScroll('down') : undefined}
-          />
-        </LeaderboardImageProvider>
-      </div>
+        <ArrowBackIosIcon style={{ color: 'white' }} />
+      </Button>
+      <LeaderboardImageProvider>
+        <ImagePanel
+          leaderboard={leftImage}
+          setCurrentImageUrl={setCurrentImageUrl}
+          position="left"
+          isHovered={hoveredImageId === leftImage?.id}
+          onMouseEnter={() => leftImage && setHoveredImageId(leftImage.id)}
+          onMouseLeave={() => setHoveredImageId(null)}
+          onClick={leftImage ? () => {
+            debouncedScroll('up')
+            setCurrentLeaderboard(leftImage);
+            setView('detail');
+          } : undefined}
+        />
+      </LeaderboardImageProvider>
+      <LeaderboardImageProvider>
+        <ImagePanel
+          leaderboard={centerImage}
+          setCurrentImageUrl={setCurrentImageUrl}
+          position="center"
+          isHovered={hoveredImageId === centerImage?.id}
+          onMouseEnter={() => centerImage && setHoveredImageId(centerImage.id)}
+          onMouseLeave={() => setHoveredImageId(null)}
+          onClick={centerImage ? () => {
+            setView('detail')
+            setCurrentLeaderboard(centerImage);
+          } : undefined}
+        />
+      </LeaderboardImageProvider>
+      <LeaderboardImageProvider>
+        <ImagePanel
+          leaderboard={rightImage}
+          setCurrentImageUrl={setCurrentImageUrl}
+          position="right"
+          isHovered={hoveredImageId === rightImage?.id}
+          onMouseEnter={() => rightImage && setHoveredImageId(rightImage.id)}
+          onMouseLeave={() => setHoveredImageId(null)}
+          onClick={rightImage ? () => {
+            debouncedScroll('down')
+            setCurrentLeaderboard(rightImage);
+            setView('detail');
+          } : undefined}
+        />
+      </LeaderboardImageProvider>
+      <Button
+        aria-label="Next"
+        onClick={() => debouncedScroll('down')}
+        css={arrowStyles('right')}
+      >
+        <ArrowForwardIosIcon style={{ color: 'white' }} />
+      </Button>
     </div>
   );
 };
@@ -315,3 +338,15 @@ const sceneStyles = (theme: Theme) => css`
   background-color: ${theme.palette.primary.dark};
   color: ${theme.palette.primary.contrastText};
 `;
+
+const arrowStyles = (position: 'left' | 'right') => css`
+  position: absolute;
+  top: 40%;
+  ${position}: 0;
+  height: 100%;
+  transform: translateY(-50%);
+  z-index: 100;
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+`

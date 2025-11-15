@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { useState, useCallback, useEffect, useContext } from 'react';
+import { useState, useCallback, useEffect, useContext, Dispatch, SetStateAction } from 'react';
 import { ImageGallery } from './ImageGallery';
 import { AddImageModal } from './AddImageModal';
 import type { GalleryView } from '../../types/ui';
@@ -21,24 +21,27 @@ import { Checkbox, FormControlLabel } from '@mui/material';
 interface GalleryBrowsingProps {
   view: GalleryView;
   setView: (view: GalleryView) => void;
+  loadedLeaderboards: Leaderboard[];
+  setLoadedLeaderboards: (leaderboards: Leaderboard[]) => void;
+  galleryCurrentIndex: number;
+  setGalleryCurrentIndex: Dispatch<SetStateAction<number>>;
   setCurLeaderboard: (leaderboard: Leaderboard | null) => void;
   setCurImageUrl: (url: string) => void;
 }
 
-export const GalleryBrowsing: React.FC<GalleryBrowsingProps> = ({ view, setView, setCurLeaderboard, setCurImageUrl }) => {
+export const GalleryBrowsing: React.FC<GalleryBrowsingProps> = ({ view, setView, loadedLeaderboards, setLoadedLeaderboards, galleryCurrentIndex, setGalleryCurrentIndex, setCurLeaderboard, setCurImageUrl }) => {
   const { t } = useLocalization();
   const { currentUser } = useContext(AuthUserContext);
   const { listParams, setListParams, pageParams, setPageParams, fetchLeaderboards, fetchStats } = useContext(LeaderboardListContext);
-  const [ loadedLeaderboards, setLoadedLeaderboards ] = useState<Leaderboard[]>([]);
   const [ loadedStart, setLoadedStart ] = useState<number>(0);
   const [ loadedEnd, setLoadedEnd ] = useState<number>(0);
   const [ toLoadStart, setToLoadStart ] = useState<number>(0);
   const [ toLoadEnd, setToLoadEnd ] = useState<number>(0);
 
   const [errorKey, setErrorKey] = useState<string | null>(null);
-  const [galleryCurrentIndex, setGalleryCurrentIndex] = useState<number>(1);
   const [n_leaderboards, setN_Leaderboards] = useState<number>(0);
   const limitLeaderboardIndex = 3;
+  const test=false;
 
   const initialLoading = ()=>{
     setToLoadStart(0);
@@ -170,6 +173,12 @@ export const GalleryBrowsing: React.FC<GalleryBrowsingProps> = ({ view, setView,
   const renderGallery = () => {
         return (
         <div className='h-full w-full bg-neutral-900 items-center justify-center'>
+          {
+            test && 
+              <div className='bg-white'>
+                {`Gallery Current Index: ${galleryCurrentIndex} / ${n_leaderboards} | Loaded: ${loadedStart} - ${loadedEnd} | To Load: ${toLoadStart} - ${toLoadEnd} | Loaded Count: ${loadedLeaderboards.length}`}
+              </div>
+          }
           <div className="h-2/3 relative flex flex-col overflow-hidden pt-4 md:pt-8">
             <StoryProvider>
               <SceneProvider>
@@ -180,7 +189,10 @@ export const GalleryBrowsing: React.FC<GalleryBrowsingProps> = ({ view, setView,
             {n_leaderboards > 0 ? (
               <ImageGallery
                 view={view}
-                setView={setView}
+                setView={(newView: GalleryView) => {
+                  setView(newView)
+                  initialLoading();
+                }}
                 leaderboards={loadedLeaderboards}
                 currentIndex={galleryCurrentIndex}
                 n_leaderboards={n_leaderboards}

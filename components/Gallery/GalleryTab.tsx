@@ -67,14 +67,15 @@ function a11yProps(index: number) {
 }
 
 interface GalleryTabProps {
-  view: GalleryView;
   setView: (view: GalleryView) => void;
   imageUrl: string;
   leaderboard: Leaderboard | null;
   showStudentNames: boolean;
 }
 
-export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, imageUrl, leaderboard, showStudentNames }) => {
+export const GalleryTabs: React.FC<GalleryTabProps> = ({ 
+  setView, imageUrl, leaderboard, showStudentNames 
+}) => {
   const galleryRef = useRef<HTMLDivElement>(null);
   const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
   const [detailView, setDetailView] = useState<GalleryDetailView>(GALLERY_DETAIL_VIEWS[0]);

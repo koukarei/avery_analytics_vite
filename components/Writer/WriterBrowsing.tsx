@@ -170,7 +170,10 @@ export const WriterBrowsing: React.FC<WriterBrowsingProps> = ({ view, setView, s
             {n_leaderboards > 0 ? (
               <ImageGallery
                 view={view}
-                setView={setView}
+                setView={(newView: GalleryView) => {
+                  setView(newView)
+                  initialLoading();
+                }}
                 leaderboards={loadedLeaderboards}
                 currentIndex={galleryCurrentIndex}
                 n_leaderboards={n_leaderboards}
