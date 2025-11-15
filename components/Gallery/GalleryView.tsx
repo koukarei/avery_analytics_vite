@@ -10,10 +10,10 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LeaderboardListContext, LeaderboardImagesContext } from '../../providers/LeaderboardProvider';
+import { LeaderboardListContext } from '../../providers/LeaderboardProvider';
+import type { Leaderboard } from '../../types/leaderboard';
 import { AuthUserContext } from '../../providers/AuthUserProvider';
 import { useLocalization } from '../../contexts/localizationUtils';
-import { LoadingSpinner } from '../Common/LoadingSpinner';
 import { ErrorDisplay } from '../Common/ErrorDisplay';
 import { StoryProvider } from '../../providers/StoryProvider';
 import { SceneProvider } from '../../providers/SceneProvider';
@@ -24,66 +24,152 @@ export default function GalleryView() {
   const [view, setView] = useState<GalleryView>('browsing');
   const { t } = useLocalization();
   const { currentUser } = useContext(AuthUserContext);
-  const { leaderboards, loading, params, setParams, fetchLeaderboards } = useContext(LeaderboardListContext);
-  const { images, loading: imagesLoading, fetchImages } = useContext(LeaderboardImagesContext);
+  const { listParams, setListParams, pageParams, setPageParams, fetchLeaderboards, fetchStats } = useContext(LeaderboardListContext);
+  const [ loadedLeaderboards, setLoadedLeaderboards ] = useState<Leaderboard[]>([]);
+  const [ loadedStart, setLoadedStart ] = useState<number>(0);
+  const [ loadedEnd, setLoadedEnd ] = useState<number>(0);
+  const [ toLoadStart, setToLoadStart ] = useState<number>(0);
+  const [ toLoadEnd, setToLoadEnd ] = useState<number>(0);
+
+  const [ curLeaderboard, setCurLeaderboard ] = useState<Leaderboard | null>(null);
+  const [ curImageUrl, setCurImageUrl ] = useState<string>('');
   const { showStudentNames } = useContext(CustomSettingContext);
 
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [galleryCurrentIndex, setGalleryCurrentIndex] = useState<number>(1);
-  const [startLeaderboardIndex, setStartLeaderboardIndex] = useState<number>(0);
-  const limitLeaderboardIndex = 10;
+  const [n_leaderboards, setN_Leaderboards] = useState<number>(0);
+  const limitLeaderboardIndex = 3;
+
+  const initialLoading = ()=>{
+    setToLoadStart(0);
+    setToLoadEnd(limitLeaderboardIndex);
+    setLoadedStart(0);
+    setLoadedEnd(0);
+    setGalleryCurrentIndex(1);
+    setLoadedLeaderboards([]);
+    setPageParams({ ...(pageParams ?? {}), skip: 0, limit: limitLeaderboardIndex });
+    return;
+  }
 
   const handleGalleryScroll = useCallback((direction: 'up' | 'down') => {
-    setGalleryCurrentIndex(prevIndex => {
-      const length = leaderboards.length;
-      let newIndex = prevIndex;
-      if (direction === 'down') { // Scroll down -> move images left (next)
-        newIndex = prevIndex + 1;
-      } else { // Scroll up -> move images right (previous)
-        newIndex = prevIndex - 1;
+      setGalleryCurrentIndex(prevIndex => {
+        const length = n_leaderboards;
+        if (length === 0) return prevIndex;
+        let newIndex = prevIndex;
+        if (direction === 'down') { // Scroll down -> move images left (next)
+          newIndex = prevIndex + 1;
+        } else { // Scroll up -> move images right (previous)
+          newIndex = prevIndex - 1;
+        }
+        
+        if (newIndex < 0) {
+          return (length + newIndex) % length;
+        } else {
+          return newIndex % length;
+        }
+      });
+  
+      setToLoadEnd(prevEnd => {
+        if (direction === 'down' && n_leaderboards > 0 && prevEnd < n_leaderboards) {
+          return prevEnd + 1;
+        }
+        return prevEnd;
+      })
+      
+      setToLoadStart(prevStart => {
+        if (direction === 'up' && n_leaderboards > 0) {
+          return (prevStart - 1 + n_leaderboards) % n_leaderboards;
+        }
+        return prevStart;
+      });
+  
+    }, [n_leaderboards]);
+
+  useEffect(() => {
+    if (n_leaderboards === 0) return;
+    if (loadedLeaderboards.length < n_leaderboards) {
+      let skipNumber;
+      let limitNumber = 1;
+      if (loadedEnd < toLoadEnd) {
+        skipNumber = toLoadEnd - 1;
+      } else if (loadedStart !== toLoadStart) {
+        skipNumber = toLoadStart;
+      } else {
+        skipNumber = 0;
+        limitNumber = 3;
       }
       
-      if (newIndex < 0) {
-        return length + newIndex;
-      } else {
-        return newIndex % length;
-      }
-    });
-  }, [leaderboards]);
+      setPageParams({ ...(pageParams ?? {}), skip: skipNumber, limit: limitNumber });
+    }
+
+  }, [toLoadStart, toLoadEnd]);
 
   const handleViewChange = (newView: GalleryView) => {
     setView(newView);
   };
   
   useEffect(() => {
-    if (typeof setParams !== "function") return; // guard if context not ready
+    if (typeof setListParams !== "function") return; // guard if context not ready
+    if (typeof setPageParams !== "function") return; // guard if context not ready
+    if (!currentUser) return;
 
     const published_at_start = dayjs().startOf('day').subtract(9, 'day');
     const published_at_end = dayjs().startOf('day');
 
-    setParams({
-      ...(params ?? {}),
-      skip: params?.skip ?? startLeaderboardIndex,
-      limit: params?.limit ?? limitLeaderboardIndex,
-      published_at_start: params?.published_at_start ?? published_at_start,
-      published_at_end: params?.published_at_end ?? published_at_end,
+    setListParams({
+      ...(listParams ?? {}),
+      published_at_start: listParams?.published_at_start ?? published_at_start,
+      published_at_end: listParams?.published_at_end ?? published_at_end,
       is_public: true,
     });
+
+    initialLoading();
+
   }, [currentUser]);
   
   useEffect(() => {
     setErrorKey(null);
     if (currentUser) {
+      fetchStats(currentUser?.is_admin || false).then(statsData => {
+        if (statsData) {
+          setGalleryCurrentIndex(1);
+          setN_Leaderboards(statsData.n_leaderboards || 0);
+          setToLoadStart(pageParams?.skip || 0);
+          setToLoadEnd(limitLeaderboardIndex);
+          fetchLeaderboards(currentUser?.is_admin || false).then(leaderboard => {
+            setLoadedLeaderboards([...leaderboard]);
+            setLoadedStart(toLoadStart);
+            setLoadedEnd(leaderboard.length);
+          }).catch(err => {
+            setErrorKey('error.fetch_leaderboards');
+            console.error("Failed to fetch leaderboards: ", err);
+          });
+        }
+      }).catch(err => {
+        setErrorKey('error.fetch_leaderboard_stats');
+        console.error("Failed to fetch leaderboard stats: ", err);
+      });
+    }
+  }, [listParams]);
+  
+  useEffect(() => {
+    setErrorKey(null);
+    if (currentUser) {
       fetchLeaderboards(currentUser?.is_admin || false).then(leaderboard => {
-        if (leaderboard.length > 0) {
-          fetchImages(leaderboard.map(lb => lb.id));
+        if (toLoadEnd !== loadedEnd) {
+          setLoadedLeaderboards([...loadedLeaderboards, ...leaderboard]);
+          setLoadedEnd(prev => prev + leaderboard.length);
+        } else if (toLoadStart !== loadedStart) {
+          setLoadedLeaderboards([...leaderboard, ...loadedLeaderboards]);
+          setGalleryCurrentIndex(prev => prev + leaderboard.length);
+          setLoadedStart(prev=> (prev - 1 + n_leaderboards) % n_leaderboards);
         }
       }).catch(err => {
         setErrorKey('error.fetch_leaderboards');
         console.error("Failed to fetch leaderboards: ", err);
       });
     }
-  }, [params]);
+  }, [pageParams]);
 
   const renderGallery = () => {
     switch (view) {
@@ -97,13 +183,15 @@ export default function GalleryView() {
               </SceneProvider>
             </StoryProvider>
             
-            {leaderboards ? (
+            {n_leaderboards > 0 ? (
               <ImageGallery
                 view={view}
                 setView={handleViewChange}
-                leaderboards={leaderboards}
-                images={images}
+                leaderboards={loadedLeaderboards}
                 currentIndex={galleryCurrentIndex}
+                n_leaderboards={n_leaderboards}
+                setCurrentLeaderboard={setCurLeaderboard}
+                setCurrentImageUrl={setCurImageUrl}
                 onScroll={handleGalleryScroll}
               />
             ) : (
@@ -115,20 +203,21 @@ export default function GalleryView() {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
                   label={t('galleryView.publishedAtStartDate')}
-                  value={params.published_at_start ?? null}
+                  value={listParams.published_at_start ?? null}
                   views={['year', 'month', 'day']}
                   onChange={(date) => {
-                   setParams({ ...(params ?? {}), published_at_start: date ?? undefined });
-                   setStartLeaderboardIndex(0);
+                   setListParams({ ...(listParams ?? {}), published_at_start: date ?? undefined });
+                   initialLoading();
+
                  }}
                 />
                 <DatePicker
                   label={t('galleryView.publishedAtEndDate')}
-                  value={params.published_at_end ?? null}
+                  value={listParams.published_at_end ?? null}
                   views={['year', 'month', 'day']}
                   onChange={(date) => {
-                   setParams({ ...(params ?? {}), published_at_end: date ?? undefined });
-                   setStartLeaderboardIndex(0);
+                   setListParams({ ...(listParams ?? {}), published_at_end: date ?? undefined });
+                   initialLoading();
                  }}
                 />
               </LocalizationProvider>
@@ -136,11 +225,11 @@ export default function GalleryView() {
                 <FormControlLabel
                   control={
                     <Checkbox
-                      checked={params.is_public}
+                      checked={listParams.is_public}
                       color="default"
                       onChange={(_e) => {
-                        setStartLeaderboardIndex(0);
-                        setParams({ ...(params ?? {}), is_public: !params.is_public });
+                        initialLoading();
+                        setListParams({ ...(listParams ?? {}), is_public: !listParams.is_public });
                       }}
                     />
                   }
@@ -154,12 +243,12 @@ export default function GalleryView() {
       case 'detail':
         return (
         <div className="h-full w-full pt-4 md:pt-8">
-          {leaderboards ? (
+          {loadedLeaderboards ? (
             <GalleryTabs
               view={view}
               setView={handleViewChange}
-              leaderboard={leaderboards[(galleryCurrentIndex + 1) % leaderboards.length] || null}
-              images={images}
+              imageUrl={curImageUrl}
+              leaderboard={curLeaderboard || null}
               showStudentNames={showStudentNames}
             />
           ) : (
@@ -174,9 +263,9 @@ export default function GalleryView() {
   };
 
   const renderContent = () => {
-    if (loading || imagesLoading) {
-      return <LoadingSpinner />;
-    }
+    // if (loading) {
+    //   return <LoadingSpinner />;
+    // }
     if (errorKey) {
       return <ErrorDisplay messageKey={errorKey} />;
     }

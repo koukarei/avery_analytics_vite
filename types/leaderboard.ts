@@ -94,6 +94,11 @@ export interface Leaderboard {
   vocabularies: Vocabulary[];
 }
 
+export interface Stats {
+  n_leaderboards?: number;
+  n_rounds?: number;
+}
+
 export interface School {
   school: string;
 }
@@ -186,6 +191,17 @@ export interface MistakeItem {
 }
 
 export type LeaderboardListParams = {
+  published_at_start?: dayjs.Dayjs;
+  published_at_end?: dayjs.Dayjs;
+  is_public?: boolean;
+};
+
+export type LeaderboardPageParams = {
+  skip?: number;
+  limit?: number;
+};
+
+export type LeaderboardFetchParams = {
   skip?: number;
   limit?: number;
   published_at_start?: dayjs.Dayjs;

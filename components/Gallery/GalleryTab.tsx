@@ -69,12 +69,12 @@ function a11yProps(index: number) {
 interface GalleryTabProps {
   view: GalleryView;
   setView: (view: GalleryView) => void;
-  images: Record<number, string>; // Mapping of leaderboard ID to image URL
+  imageUrl: string;
   leaderboard: Leaderboard | null;
   showStudentNames: boolean;
 }
 
-export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leaderboard, showStudentNames }) => {
+export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, imageUrl, leaderboard, showStudentNames }) => {
   const galleryRef = useRef<HTMLDivElement>(null);
   const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
   const [detailView, setDetailView] = useState<GalleryDetailView>(GALLERY_DETAIL_VIEWS[0]);
@@ -98,13 +98,13 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
         >
           {leaderboard ? (
             <ImagePanel
-            leaderboard_title={leaderboard.title}
-            hoverText={t('galleryView.Tab.back')}
-            imageUrl={images[leaderboard?.id]}
-            isHovered={hoveredImageId === leaderboard?.id}
-            onMouseEnter={() => leaderboard && setHoveredImageId(leaderboard.id)}
-            onMouseLeave={() => setHoveredImageId(null)}
-            onClick={leaderboard ? () => setView('browsing') : undefined}
+              leaderboard_title={leaderboard.title}
+              hoverText={t('galleryView.Tab.back')}
+              imageUrl={imageUrl}
+              isHovered={hoveredImageId === leaderboard?.id}
+              onMouseEnter={() => leaderboard && setHoveredImageId(leaderboard.id)}
+              onMouseLeave={() => setHoveredImageId(null)}
+              onClick={leaderboard ? () => setView('browsing') : undefined}
           />) : (
             <p className="text-xl text-gray-400">{t('galleryView.noImageToDisplay')}</p>
           )
@@ -180,7 +180,7 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({ setView, images, leader
 interface ImagePanelProps {
   leaderboard_title: string;
   hoverText: string;
-  imageUrl: string | null;
+  imageUrl: string;
   isHovered: boolean;
   onMouseEnter: () => void;
   onMouseLeave: () => void;

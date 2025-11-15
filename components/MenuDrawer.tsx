@@ -9,6 +9,8 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import { TextField } from "@mui/material";
 import FeedbackIcon from '@mui/icons-material/Feedback';
+import PanoramaIcon from '@mui/icons-material/Panorama';
+import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -46,6 +48,8 @@ export default function MenuDrawer() {
 
     const MenuItemSet = [
         {name: "header.menuDrawer.programManagement", icon: <FeedbackIcon />},
+        {name: "header.menuDrawer.sceneManagement", icon: <PanoramaIcon />},
+        {name: "header.menuDrawer.storyManagement", icon: <AutoStoriesIcon />},
     ];
 
     const defaultLangCode: string = language || 'ja';

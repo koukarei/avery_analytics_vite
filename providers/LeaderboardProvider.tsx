@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useState } from "react";
-import type { Leaderboard, School, LeaderboardStartNew, LeaderboardAnalysis, LeaderboardItem, LeaderboardListParams, LeaderboardAnalysisParams, WordCloudParams } from '../types/leaderboard';
+import type { Stats, Leaderboard, School, LeaderboardStartNew, LeaderboardAnalysis, LeaderboardItem, LeaderboardListParams, LeaderboardPageParams, LeaderboardFetchParams, LeaderboardAnalysisParams, WordCloudParams } from '../types/leaderboard';
 import type { WritingMistake, ChatWordCloudItem, Round } from "../types/studentWork"
 import { LeaderboardAPI } from "../api/Leaderboard";
 
@@ -44,8 +44,14 @@ const LeaderboardItemProvider = ({
 type LeaderboardListContextType = {
   leaderboards: Leaderboard[];
   loading: boolean;
-  params: LeaderboardListParams;
-  setParams: (params: LeaderboardListParams) => void;
+  listParams: LeaderboardListParams;
+  setListParams: (listParams: LeaderboardListParams) => void;
+  pageParams: LeaderboardPageParams;
+  setPageParams: (pageParams: LeaderboardPageParams) => void;
+
+  stats: Stats | null;
+  setStats: (stats: Stats | null) => void;
+  fetchStats: (is_admin: boolean) => Promise<Stats | null>;
   fetchLeaderboards: (is_admin: boolean) => Promise<Leaderboard[]>;
 };
 
@@ -58,7 +64,9 @@ const LeaderboardListProvider = ({
 }) => {
   const [leaderboards, setLeaderboards] = useState<Leaderboard[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [params, setParams] = useState<LeaderboardListParams>({ skip: 0, limit: 10, is_public: true });
+  const [listParams, setListParams] = useState<LeaderboardListParams>({ is_public: true });
+  const [pageParams, setPageParams] = useState<LeaderboardPageParams>({ skip: 0, limit: 3 });
+  const [stats, setStats] = useState<Stats | null>(null);
 
   const fetchLeaderboards = useCallback(async (is_admin: boolean=false) => {
     setLoading(true);
@@ -66,6 +74,11 @@ const LeaderboardListProvider = ({
     let leaderboard: Leaderboard[] = [];
     const school: School[] = [];
     try {
+      const params: LeaderboardFetchParams = {
+        ...pageParams,
+        ...listParams,
+      };
+
       if (is_admin) {
         leaderboard = await LeaderboardAPI.fetchLeaderboardListAdmin(params);
         setLeaderboards(leaderboard);
@@ -80,13 +93,32 @@ const LeaderboardListProvider = ({
       }
     } catch (e) {
       console.log(e);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
     return leaderboard;
-  }, [params]);
+  }, [pageParams, listParams]);
+
+  const fetchStats = useCallback(async (is_admin: boolean=false) => {
+    setLoading(true);
+    let statsData: Stats | null = null;
+    try {
+      if (is_admin) {
+        statsData = await LeaderboardAPI.fetchLeaderboardStatsAdmin(listParams);
+      } else {
+        statsData = await LeaderboardAPI.fetchLeaderboardStats(listParams);
+      }
+      setStats(statsData);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+    return statsData;
+  }, [listParams]);
 
   return (
-    <LeaderboardListContext.Provider value={{ leaderboards, loading, params, setParams, fetchLeaderboards }}>
+    <LeaderboardListContext.Provider value={{ leaderboards, loading, listParams, setListParams, pageParams, setPageParams, fetchLeaderboards, stats, setStats, fetchStats }}>
       {children}
     </LeaderboardListContext.Provider>
   );

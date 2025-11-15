@@ -9,12 +9,42 @@ import type {
   LeaderboardUpdate, 
   LeaderboardCreateAPI,
   LeaderboardSchoolUpdate,
-  LeaderboardStartNew
+  LeaderboardStartNew,
+  Stats
 } from "../types/leaderboard";
 import type { WritingMistake, ChatWordCloudItem, Round } from "../types/studentWork"
 import { authAxios } from "./axios";
 
 export class LeaderboardAPI {
+  static async fetchLeaderboardStats(params: LeaderboardListParams): Promise<Stats> {
+    const response = await authAxios.get("leaderboards/stats", {
+      params: {
+        published_at_start: params.published_at_start ? params.published_at_start.format('DDMMYYYY') : null,
+        published_at_end: params.published_at_end ? params.published_at_end.format('DDMMYYYY') : null,
+        is_public: params.is_public !== undefined ? params.is_public : true,
+      },
+      paramsSerializer: { indexes: null },
+      headers: sessionStorage.getItem("access_token")
+        ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
+        : {},
+    });
+    return response.data;
+  }
+  
+  static async fetchLeaderboardStatsAdmin(params: LeaderboardListParams): Promise<Stats> {
+    const response = await authAxios.get("leaderboards/admin/stats", {
+      params: {
+        published_at_start: params.published_at_start ? params.published_at_start.format('DDMMYYYY') : null,
+        published_at_end: params.published_at_end ? params.published_at_end.format('DDMMYYYY') : null,
+        is_public: params.is_public !== undefined ? params.is_public : true,
+      },
+      paramsSerializer: { indexes: null },
+      headers: sessionStorage.getItem("access_token")
+        ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
+        : {},
+    });
+    return response.data;
+  }
   static async fetchLeaderboardList(params: LeaderboardListParams): Promise<[Leaderboard, School][]> {
     const response = await authAxios.get("leaderboards/", {
       params: {

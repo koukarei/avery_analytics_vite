@@ -157,7 +157,7 @@ function ViewLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
 function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: LeaderboardItem, scenes: Scene[], stories: Story[] }) {
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
-  const { params, setParams } = useContext(LeaderboardListContext);
+  const { listParams, setListParams } = useContext(LeaderboardListContext);
   const [openAddStoryModal, setOpenAddStoryModal] = React.useState<boolean>(false);
   const [storiesForm, setStoriesForm] = React.useState<Story[]>([...stories]);
   const { t } = useLocalization();
@@ -197,7 +197,7 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
         published_at_end: dayjs(data_LeaderboardUpdate.published_at).add(1, 'day'),
         is_public: data_LeaderboardUpdate.is_public
       };
-      setParams({ ...(params ?? {}), ...updatedParams });
+      setListParams({ ...(listParams ?? {}), ...updatedParams });
 
     } catch (e) {
       console.log(e);
