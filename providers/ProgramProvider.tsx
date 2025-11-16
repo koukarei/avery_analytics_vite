@@ -1,17 +1,18 @@
 import React, { createContext, useState, useEffect, useCallback } from "react";
-import type { Program, ProgramListParam, ProgramBase } from '../types/program';
+import type { Program } from '../types/program';
 import { ProgramAPI } from "../api/Program";
 
 type ProgramContextType = {
   availablePrograms: Program[];
   programListLoading: boolean;
-  fetchPrograms: () => Promise<void>;
+  fetchPrograms: () => Promise<Program[]>;
 
   checkingSchoolName: string;
   setCheckingSchoolName: (name: string) => void;
 
   schoolPrograms: Program[];
-  fetchSchoolPrograms: (schoolName: string) => Promise<void>;
+  isSchoolLoading: boolean;
+  fetchSchoolPrograms: () => Promise<Program[]>;
 
   addSchoolProgram: (programId: number) => Promise<void>;
   deleteSchoolProgram: (programId: number) => Promise<void>;
@@ -20,7 +21,8 @@ type ProgramContextType = {
   setCheckingUserId: (id: number) => void;
 
   userPrograms: Program[];
-  fetchUserPrograms: (userId: number) => Promise<void>;
+  isUserLoading: boolean;
+  fetchUserPrograms: () => Promise<Program[]>;
 
   addUserProgram: (programId: number) => Promise<void>;
   deleteUserProgram: (programId: number) => Promise<void>;
@@ -40,52 +42,49 @@ export const ProgramProvider = ({
   const [checkingUserId, setCheckingUserId] = useState<number>(0);
   const [userPrograms, setUserPrograms] = useState<Program[]>([]);
 
+  const [isSchoolLoading, setIsSchoolLoading] = useState<boolean>(false);
+  const [isUserLoading, setIsUserLoading] = useState<boolean>(false);
 
-  const programs = [
-    {
-      value: "inlab_test",
-      label: "InLab テストプログラム",
-    },
-    {
-      value: "student_1_sem_awe",
-      label: "自動評価プログラム",
-    },
-    {
-      value: "student_1_sem_img",
-      label: "画像生成プログラム",
-    },
-    {
-      value: "student_2_sem",
-      label: "自動評価・画像生成プログラム",
-    },
-  ];
   const fetchPrograms = useCallback(async () => {
+    let programs: Program[] = [];
     setProgramListLoading(true);
     try {
-      const programList = await ProgramAPI.fetchProgramList();
-      setAvailablePrograms(programList);
+      programs = await ProgramAPI.fetchProgramList();
+      setAvailablePrograms(programs);
     } catch (e) {
       console.log(e);
+    } finally {
+      setProgramListLoading(false);
     }
-    setProgramListLoading(false);
+    return programs;
   }, []);
 
   const fetchSchoolPrograms = async () => {
+    let programs: Program[] = [];
+    setIsSchoolLoading(true);
     try {
-      const programs = await ProgramAPI.fetchSchoolPrograms(checkingSchoolName);
+      programs = await ProgramAPI.fetchSchoolPrograms(checkingSchoolName);
       setSchoolPrograms(programs);
     } catch (e) {
       console.log(e);
+    } finally {
+      setIsSchoolLoading(false);
     }
+    return programs;
   };
 
   const fetchUserPrograms = async () => {
+    let programs: Program[] = [];
+    setIsUserLoading(true);
     try {
-      const programs = await ProgramAPI.fetchUserPrograms(checkingUserId);
+      programs = await ProgramAPI.fetchUserPrograms(checkingUserId);
       setUserPrograms(programs);
     } catch (e) {
       console.log(e);
+    } finally {
+      setIsUserLoading(false);
     }
+    return programs;
   };
 
   useEffect(() => {
@@ -144,12 +143,14 @@ export const ProgramProvider = ({
       checkingSchoolName,
       setCheckingSchoolName,
       schoolPrograms,
+      isSchoolLoading,
       fetchSchoolPrograms,
       addSchoolProgram,
       deleteSchoolProgram,
       checkingUserId,
       setCheckingUserId,
       userPrograms,
+      isUserLoading,
       fetchUserPrograms,
       addUserProgram,
       deleteUserProgram,

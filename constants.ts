@@ -21,6 +21,12 @@ export const SUPPORTED_LANGUAGES = {
   en: { name: "English" },
   ja: { name: "日本語" },
 };
+export const SUPPORTED_PROGRAMS = {
+  inlab_test: { name: "InLab テストプログラム" },
+  student_1_sem_awe: { name: "自動評価プログラム" },
+  student_1_sem_img: { name: "画像生成プログラム" },
+  student_2_sem: { name: "自動評価・画像生成プログラム" },
+};
 
 export const GRAMMAR_MISTAKES_DATA: GrammarMistakeItem[] = [
   { 

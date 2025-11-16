@@ -15,9 +15,13 @@ import ListItemText from '@mui/material/ListItemText';
 import { css } from "@emotion/react";
 import {theme} from "../src/Theme";
 import { useLocalization } from '../contexts/localizationUtils';
-import { SUPPORTED_LANGUAGES } from '../constants';
+import { SUPPORTED_LANGUAGES, SUPPORTED_PROGRAMS } from '../constants';
 import type { Language, settingTabName, SettingTab } from '../types/ui';
 import { SETTING_TABS } from '../types/ui';
+import { ProgramContext } from '../providers/ProgramProvider';
+import { AuthUserContext } from '../providers/AuthUserProvider';
+import type { Program } from '../types/program';
+import { CustomSettingContext } from '../contexts/CustomSettingContext';
 
 type Anchor = 'top' | 'left' | 'bottom' | 'right';
 
@@ -37,7 +41,10 @@ export default function MenuDrawer({
     bottom: false,
     right: false,
   });
-
+  const { setCheckingUserId, fetchUserPrograms } = React.useContext(ProgramContext);
+  const { curProgram, setCurProgram } = React.useContext(CustomSettingContext);
+  const [ userPrograms, setUserPrograms ] = React.useState<Program[]>([]);
+  const { currentUser } = React.useContext(AuthUserContext);
   const toggleDrawer =
     (anchor: Anchor, open: boolean) =>
     (event: React.KeyboardEvent | React.MouseEvent) => {
@@ -59,6 +66,15 @@ export default function MenuDrawer({
     setTabName(tabName);
   };
 
+  React.useEffect(() => {
+    if (currentUser) {
+      setCheckingUserId(currentUser.id);
+      fetchUserPrograms().then((userPrograms) => {
+        setUserPrograms(userPrograms);
+      })
+    }
+  }, [currentUser]);
+
   const list = (anchor: Anchor) => (
     <Box
       sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 250 }}
@@ -71,7 +87,7 @@ export default function MenuDrawer({
             hiddenLabel
             variant="filled"
             size="small"
-            css={langSettingStyle}
+            css={menuSettingStyle}
             select 
             defaultValue={defaultLangCode}
             onChange={(e) => {
@@ -82,6 +98,29 @@ export default function MenuDrawer({
             {Object.keys(SUPPORTED_LANGUAGES).map((langCode) => (
                 <MenuItem key={langCode} value={langCode}>
                     {SUPPORTED_LANGUAGES[langCode as Language].name}
+                </MenuItem>
+            ))}
+        </TextField>
+        <Typography sx={{ p: 2, color: 'text.secondary' }}>{t("header.menuDrawer.programSettings")}</Typography>
+        <TextField 
+            hiddenLabel
+            variant="filled"
+            size="small"
+            css={menuSettingStyle}
+            select 
+            defaultValue={curProgram ? curProgram.name : ''}
+            onChange={(e) => {
+                const selectedProgram = e.target.value as keyof typeof SUPPORTED_PROGRAMS;
+                setCurProgram(userPrograms.find(prog => prog.name === selectedProgram) || null);
+            }}
+        >
+            {userPrograms.map((program) => (
+                <MenuItem key={program.id} value={program.name}>
+                    {
+                      program.name && (program.name in SUPPORTED_PROGRAMS)
+                        ? SUPPORTED_PROGRAMS[program.name as keyof typeof SUPPORTED_PROGRAMS].name
+                        : program.name
+                    }
                 </MenuItem>
             ))}
         </TextField>
@@ -132,7 +171,7 @@ const iconStyle = css`
   align-items: center;
 `;
 
-const langSettingStyle = css`
+const menuSettingStyle = css`
     border-radius: 8px;
     margin: 10px;
     width: calc(100% - 32px);

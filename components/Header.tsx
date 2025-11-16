@@ -18,6 +18,7 @@ import { css } from "@emotion/react";
 import {theme} from "../src/Theme";
 import { SETTING_TABS, type settingTabName } from '../types/ui';
 import { SettingModal } from './SettingModal/SettingModal';
+import { ProgramProvider } from '../providers/ProgramProvider';
 
 const ShowUserProfile: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -118,10 +119,12 @@ const Header: React.FC = () => {
         </div>
         <div className="flex space-x-2">
           <ShowUserProfile />
-          <MenuDrawer 
-            setSettingModalOpen={setSettingModalOpen}
-            setTabName={setTabName}
-          />
+          <ProgramProvider>
+            <MenuDrawer 
+              setSettingModalOpen={setSettingModalOpen}
+              setTabName={setTabName}
+            />
+          </ProgramProvider>
           <SettingModal
             open={settingModalOpen}
             setOpen={setSettingModalOpen}

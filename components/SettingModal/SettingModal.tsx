@@ -7,9 +7,11 @@ import { Modal } from '@mui/material';
 import {theme} from "../../src/Theme";
 import { useLocalization } from '../../contexts/localizationUtils';
 import { SETTING_TABS } from '../../types/ui';
+import { ProgramSelectionTab } from './ProgramSelectionTab';
 
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
+import { ProgramProvider } from '../../providers/ProgramProvider';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -126,7 +128,11 @@ const SettingTabs: React.FC<SettingTabsProps> = ({ value, setValue }) => {
   const renderSettingTab = (tabName: string) => {
     switch (tabName) {
       case 'program':
-        return (<div>Program Settings Content</div>);
+        return (
+          <ProgramProvider>
+            <ProgramSelectionTab />
+          </ProgramProvider>
+      );
       case 'scene':
         return (<div>Scene Settings Content</div>);
       case 'story':
@@ -162,6 +168,7 @@ const SettingTabs: React.FC<SettingTabsProps> = ({ value, setValue }) => {
           ))}
         </Tabs>
       </Box>
+      <Box sx={{ overflowY: 'auto', height: 'calc(90vh - 100px)' }}>
       {
         SETTING_TABS.map((tab, index) => (
           <SettingTabPanel value={value} index={index} key={tab.tabName}>
@@ -169,6 +176,7 @@ const SettingTabs: React.FC<SettingTabsProps> = ({ value, setValue }) => {
           </SettingTabPanel>
         ))
       }
+      </Box>
     </Box>
   );
 }
