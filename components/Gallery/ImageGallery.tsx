@@ -7,7 +7,7 @@ import type { GalleryView } from '../../types/ui';
 import type { Theme } from "@mui/material/styles";
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import { Button } from '@mui/material';
+import { Alert, Button } from '@mui/material';
 import {theme} from "../../src/Theme";
 import { useLocalization } from '../../contexts/localizationUtils';
 import { LoadingSpinner } from '../Common/LoadingSpinner';
@@ -48,6 +48,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   const { loading, fetchImage } = useContext(LeaderboardImageContext);
   const [ errorKey, setErrorKey ] = useState<string | null>(null);
   const [ loadedImageUrl, setLoadedImageUrl ] = useState<string | null>(null);
+  const [ warningMsg, setWarningMsg ] = useState<string>('');
   let transformClasses = 'transition-all duration-700 ease-in-out transform-gpu'; 
   let opacityClass = 'opacity-100';
   
@@ -127,7 +128,23 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
         }}
       >
         <div className={`w-full h-full border-2 border-neutral-600 bg-neutral-800 rounded-lg shadow-2xl overflow-hidden relative ${transformClasses} ${opacityClass}`}>
-          <img src={loadedImageUrl ? loadedImageUrl : ""} alt={leaderboard?.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-focus:scale-105" />
+          {loadedImageUrl ? (
+            <img 
+              src={loadedImageUrl}
+              onError={() => setWarningMsg(t('galleryView.galleryPage.warning.load_failed'))}
+              onLoad={() => setWarningMsg('')}
+              alt={leaderboard?.title}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-focus:scale-105"
+            />
+          ) : (
+            <div className="w-full h-full bg-neutral-700 flex items-center justify-center text-neutral-400">
+              {/* Placeholder when image URL is not yet available */}
+              <span>{t('galleryView.galleryPage.placeholder') || ''}</span>
+            </div>
+          )}
+          {warningMsg && (
+             <Alert severity="warning" className="absolute bottom-2 left-2 right-2">{warningMsg}</Alert>
+          )}
           <div className="absolute top-0 right-0 m-2">
               <span css={sceneStyles(theme)} className="inline-block bg-cyan-500 text-white text-xs font-semibold px-2 py-1 rounded-full uppercase tracking-wider">
               {leaderboard.scene.name}
