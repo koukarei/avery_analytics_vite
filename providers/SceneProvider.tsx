@@ -1,10 +1,11 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useState } from "react";
 import type { Scene } from '../types/leaderboard';
 import { SceneAPI } from "../api/Scene";
 
 type SceneContextType = {
   scenes: Scene[];
   loading: boolean;
+  fetchScenes: () => Promise<void>;
 };
 
 export const SceneContext = createContext({} as SceneContextType);
@@ -28,12 +29,8 @@ export const SceneProvider = ({
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchScenes();
-  }, []);
-
   return (
-    <SceneContext.Provider value={{ scenes, loading }}>
+    <SceneContext.Provider value={{ scenes, loading, fetchScenes }}>
       {children}
     </SceneContext.Provider>
   );

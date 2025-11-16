@@ -317,12 +317,12 @@ const AddRelatedVocab: React.FC<AddRelatedVocabProps> = ({ handleNext }) => {
 };
 
 const AddImageContext: React.FC<AddImageContextProps> = ({ isOpen, onClose }) => {
-
+  const [ errorKey, setErrorKey ] = useState<string | null>(null);
   const [activeStep, setActiveStep] = useState(0);
 
-  const { scenes } = useContext(SceneContext);
-  const { stories } = useContext(StoryContext);
-  const { params, setParams } = useContext(LeaderboardListContext)
+  const { scenes, fetchScenes } = useContext(SceneContext);
+  const { stories, fetchStories } = useContext(StoryContext);
+  const { listParams, setListParams } = useContext(LeaderboardListContext)
   const { t } = useLocalization();
 
   const steps = [
@@ -366,10 +366,24 @@ const AddImageContext: React.FC<AddImageContextProps> = ({ isOpen, onClose }) =>
         published_at_end: dayjs(formValues.published_at).add(1, 'day'),
         is_public: true
       };
-      setParams({ ...(params ?? {}), ...updatedParams });
+      setListParams({ ...(listParams ?? {}), ...updatedParams });
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      setErrorKey(null);
+      fetchScenes().catch(err => {
+        console.error("Failed to fetch scenes: ", err);
+        setErrorKey('error.fetch_scenes');
+      });
+      fetchStories().catch(err => {
+        console.error("Failed to fetch stories: ", err);
+        setErrorKey('error.fetch_stories');
+      });
+    }
+  }, [isOpen]);
 
   if (!isOpen) {
     return null;
@@ -444,6 +458,7 @@ const AddImageContext: React.FC<AddImageContextProps> = ({ isOpen, onClose }) =>
           </React.Fragment>
         ) : (
           <React.Fragment>
+            {errorKey && <Typography color="error">{t(errorKey)}</Typography>}
             <Box sx={{ mt: 2, mb: 1 }}>
               {renderStepContent(activeStep)}
             </Box>

@@ -1,10 +1,11 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useState } from "react";
 import type { Story } from '../types/leaderboard';
 import { StoryAPI } from "../api/Story";
 
 type StoryContextType = {
   stories: Story[];
   loading: boolean;
+  fetchStories: () => Promise<void>;
 };
 
 export const StoryContext = createContext({} as StoryContextType);
@@ -28,12 +29,8 @@ export const StoryProvider = ({
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchStories();
-  }, []);
-
   return (
-    <StoryContext.Provider value={{ stories, loading }}>
+    <StoryContext.Provider value={{ stories, loading, fetchStories }}>
       {children}
     </StoryContext.Provider>
   );

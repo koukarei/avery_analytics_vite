@@ -9,6 +9,7 @@ import { StoryContext } from "../../providers/StoryProvider";
 import { ViewLeaderboard, EditLeaderboard } from './LeaderboardForm';
 import { useLocalization } from '../../contexts/localizationUtils';
 import { ErrorDisplay } from '../Common/ErrorDisplay';
+import { LoadingSpinner } from '../Common/LoadingSpinner';
 
 interface LeaderboardDetailProps {
     leaderboard_id: number
@@ -17,8 +18,8 @@ interface LeaderboardDetailProps {
 export const LeaderboardDetail: React.FC<LeaderboardDetailProps> = ({ leaderboard_id }) => {
   const authUserData = useContext(AuthUserContext);
   const { leaderboard, loading, fetchLeaderboard } = useContext(LeaderboardItemContext);
-  const { scenes } = useContext(SceneContext);
-  const { stories } = useContext(StoryContext);
+  const { scenes, loading: scenesLoading, fetchScenes } = useContext(SceneContext);
+  const { stories, loading: storiesLoading, fetchStories } = useContext(StoryContext);
   const [ errorKey, setErrorKey ] = useState<string | null>(null);
   const { t } = useLocalization();
   
@@ -28,11 +29,19 @@ export const LeaderboardDetail: React.FC<LeaderboardDetailProps> = ({ leaderboar
       console.error("Failed to fetch leaderboard analysis: ", err);
       setErrorKey('error.fetch_analysis');
     });
-  }, [fetchLeaderboard, leaderboard_id]);
+    fetchScenes().catch(err => {
+      console.error("Failed to fetch scenes: ", err);
+      setErrorKey('error.fetch_scenes');
+    });
+    fetchStories().catch(err => {
+      console.error("Failed to fetch stories: ", err);
+      setErrorKey('error.fetch_stories');
+    });
+  }, [ leaderboard_id]);
   
   // Loading state
-  if (loading || !leaderboard || !scenes) {
-    return <div>{t('loading')}...</div>;
+  if ( loading || scenesLoading || storiesLoading || !leaderboard ) {
+    return <LoadingSpinner />;
   }
   if (errorKey) {
     return <ErrorDisplay messageKey={errorKey} />;
