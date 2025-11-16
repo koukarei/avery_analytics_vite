@@ -156,6 +156,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                                     css={typingFieldStyle(theme)}
                                     multiline
                                     fullWidth
+                                    spellCheck={false}
                                     onFocus={(event) => {
                                         if (!disabledSubmit) {
                                             event.target.select();
