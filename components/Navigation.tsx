@@ -12,7 +12,7 @@ import ChartBarIcon from './icons/ChartBarIcon';
 import EyeIcon from './icons/EyeIcon';
 import EyeSlashIcon from './icons/EyeSlashIcon';
 import { AuthUserContext } from '../providers/AuthUserProvider';
-import { CustomSettingContext } from '../providers/CustomSettingProvider';
+import { CustomSettingContext } from '../contexts/CustomSettingContext';
 import { Link, useLocation } from "react-router-dom";
 import { Button } from '@mui/material';
 

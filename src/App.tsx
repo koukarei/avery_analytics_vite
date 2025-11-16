@@ -13,6 +13,7 @@ import AppRoutes from '../routes/AppRoutes';
 
 import { LocalizationProvider } from '../contexts/LocalizationContext';
 import { AuthUserProvider } from '../providers/AuthUserProvider';
+import { CustomSettingProvider } from '../contexts/CustomSettingContext';
 
 function MainPage() {
   const RequireAuth: React.FC<{ children: React.ReactElement }> = ({ children }) => {
@@ -27,9 +28,11 @@ function MainPage() {
     <AuthUserProvider>
       <RequireAuth>
         <LocalizationProvider>
-          <MainLayout>
-            <AppRoutes />
-          </MainLayout>
+          <CustomSettingProvider>
+            <MainLayout>
+              <AppRoutes />
+            </MainLayout>
+          </CustomSettingProvider>
         </LocalizationProvider>
       </RequireAuth>
     </AuthUserProvider>

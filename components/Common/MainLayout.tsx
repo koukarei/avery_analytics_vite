@@ -6,7 +6,7 @@ import Header from '../Header';
 import Footer from '../Footer';
 import Navigation from '../Navigation';
 import { AuthUserProvider } from '../../providers/AuthUserProvider';
-import { CustomSettingProvider } from '../../providers/CustomSettingProvider';
+import { CustomSettingProvider } from '../../contexts/CustomSettingContext';
 import { css } from '@emotion/react';
 import { UserActionAPI } from '../../api/UserAction';
 
@@ -41,10 +41,8 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     <div>
         <AuthUserProvider>
           <Header />
-          <CustomSettingProvider>
-            <Navigation />
-            <main css={contentStyle}>{children}</main>
-          </CustomSettingProvider>
+          <Navigation />
+          <main css={contentStyle}>{children}</main>
         </AuthUserProvider>
         <Footer />
     </div>

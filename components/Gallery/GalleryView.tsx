@@ -4,7 +4,7 @@ import { GalleryBrowsing } from './GalleryBrowsing';
 import type { GalleryView } from '../../types/ui';
 import type { Leaderboard } from '../../types/leaderboard';
 import { useLocalization } from '../../contexts/localizationUtils';
-import { CustomSettingContext } from '../../providers/CustomSettingProvider';
+import { CustomSettingContext } from '../../contexts/CustomSettingContext';
 
 export default function GalleryView() {
   const [view, setView] = useState<GalleryView>('browsing');

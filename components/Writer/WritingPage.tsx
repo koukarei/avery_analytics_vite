@@ -7,6 +7,7 @@ import { LoadingSpinner } from "../Common/LoadingSpinner";
 import { ErrorDisplay } from "../Common/ErrorDisplay";
 import Alert from '@mui/material/Alert';
 import { LeaderboardStartNewContext } from "../../providers/LeaderboardProvider";
+import { CustomSettingContext } from "../../contexts/CustomSettingContext";
 
 import { socketCls } from "./socketCls";
 
@@ -74,6 +75,7 @@ export const Writing: React.FC<WritingProps> = ({
     const [isLoading, setIsLoading] = useState(false);
     const [generatingLoading, setGeneratingLoading] = useState(false);
     const [errorKey, setErrorKey] = useState<string | null>(null);
+    const { curProgram } = useContext(CustomSettingContext);
     
     const [roundId, _setRoundId] = useState<number>(0);
     const [generationTime, _setGenerationTime] = useState<number>(0);
@@ -125,7 +127,7 @@ export const Writing: React.FC<WritingProps> = ({
                     obj = {
                         leaderboard_id: leaderboard_id,
                         model: 'gpt-4o-mini',
-                        program: sessionStorage.getItem('program') || 'none',
+                        program: curProgram ? curProgram.name : 'none',
                         created_at: new Date(),
                     }
                     break
@@ -133,7 +135,7 @@ export const Writing: React.FC<WritingProps> = ({
                     obj = {
                         leaderboard_id: leaderboard_id,
                         model: 'gpt-4o-mini',
-                        program: sessionStorage.getItem('program') || 'none',
+                        program: curProgram ? curProgram.name : 'none',
                         created_at: new Date(),
                     }
                     break
@@ -408,6 +410,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
     const [receivedResponse, setReceivedResponse] = useState<string>("");
 
     const { fetchLeaderboard } = useContext(LeaderboardStartNewContext);
+    const { curProgram } = useContext(CustomSettingContext);
     const { t } = useLocalization();
     
     useEffect(() => {
@@ -415,7 +418,7 @@ export const WritingPage: React.FC<WritingPageProps> = ({ setView, leaderboard, 
         setIsLoading(true);
             try {
                 if (leaderboard) {
-                    const program = sessionStorage.getItem('program') || 'none';
+                    const program = curProgram ? curProgram.name : 'none';
                     fetchLeaderboard(leaderboard.id, program).then((okToStartData) => {
                         if (okToStartData) {
                             setToStartNew(okToStartData.start_new);

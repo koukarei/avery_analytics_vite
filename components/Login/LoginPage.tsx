@@ -93,30 +93,8 @@ const rules = {
   },
   user_type: {
     required: "ユーザータイプを選択してください",
-  },
-  program: {
-    required: "プログラムを選択してください",
   }
 };
-
-const programs = [
-  {
-    value: "inlab_test",
-    label: "InLab テストプログラム",
-  },
-  {
-    value: "student_1_sem_awe",
-    label: "自動評価プログラム",
-  },
-  {
-    value: "student_1_sem_img",
-    label: "画像生成プログラム",
-  },
-  {
-    value: "student_2_sem",
-    label: "自動評価・画像生成プログラム",
-  },
-];
 
 function Signin() {
   const {
@@ -127,7 +105,6 @@ function Signin() {
     formState: { errors },
   } = useForm<SigninData>({
     defaultValues:{
-        program: "student_2_sem", // Default program for login
         username: "",
         password: "",
     }
@@ -140,7 +117,6 @@ function Signin() {
       for (const [key, value] of Object.entries(authData)) {
         sessionStorage.setItem(key, String(value));
       }
-      sessionStorage.setItem("program", data.program)
       navigate("/writer");
     } catch (e) {
       console.log(e);
@@ -200,30 +176,6 @@ function Signin() {
                   },
                 }}
               />
-            )}
-          />
-        </div>
-        <div css={formInputStyle}>
-          <Controller
-            name="program"
-            control={control}
-            rules={rules.program}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                fullWidth
-                select
-                label="プログラム"
-                placeholder="プログラム"
-                error={errors[field.name] ? true : false}
-                helperText={(errors[field.name]?.message as string) || " "}
-              >
-                {programs.map((program) => (
-                  <MenuItem key={program.value} value={program.value}>
-                    {program.label}
-                  </MenuItem>
-                ))}
-              </TextField>
             )}
           />
         </div>

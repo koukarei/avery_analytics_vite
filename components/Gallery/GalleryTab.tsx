@@ -20,6 +20,7 @@ import { GenerationDetailProvider, GenerationImageProvider, GenerationEvaluation
 import { LeaderboardSettings } from './LeaderboardSettings';
 import { ChatStatsProvider } from '../../providers/ChatProvider';
 import { AuthUserContext } from '../../providers/AuthUserProvider';
+import { CustomSettingContext } from '../../contexts/CustomSettingContext';
 
 import StudentWorkTable from './StudentWorkTable';
 
@@ -80,8 +81,8 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({
   const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
   const [detailView, setDetailView] = useState<GalleryDetailView>(GALLERY_DETAIL_VIEWS[0]);
   const [value, setValue] = useState<number>(GALLERY_DETAIL_VIEWS.indexOf(detailView));
-  const program_name = sessionStorage.getItem('program') ? sessionStorage.getItem('program') as string : '';
   const { t } = useLocalization();
+  const { curProgram } = useContext(CustomSettingContext);
   const { currentUser } = useContext(AuthUserContext);
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
@@ -143,7 +144,7 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({
                     <GenerationDetailProvider>
                       <GenerationImageProvider>
                         <GenerationEvaluationProvider>
-                          <StudentWorkTable leaderboard_id={leaderboard.id} program_name={program_name} showStudentNames={showStudentNames } />
+                          <StudentWorkTable leaderboard_id={leaderboard.id} program_name={curProgram ? curProgram.name : ''} showStudentNames={showStudentNames } />
                         </GenerationEvaluationProvider>
                       </GenerationImageProvider>
                     </GenerationDetailProvider>
