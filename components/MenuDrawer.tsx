@@ -8,7 +8,6 @@ import List from '@mui/material/List';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import { TextField } from "@mui/material";
-import { SETTING_TABS } from '../types/ui';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -17,13 +16,22 @@ import { css } from "@emotion/react";
 import {theme} from "../src/Theme";
 import { useLocalization } from '../contexts/localizationUtils';
 import { SUPPORTED_LANGUAGES } from '../constants';
-import type { Language } from '../types/ui';
+import type { Language, settingTabName, SettingTab } from '../types/ui';
+import { SETTING_TABS } from '../types/ui';
 
 type Anchor = 'top' | 'left' | 'bottom' | 'right';
 
-export default function MenuDrawer() {
+interface MenuDrawerProps {
+  setSettingModalOpen: (open: boolean) => void;
+  setTabName: (tabName: settingTabName) => void;
+}
+
+export default function MenuDrawer({
+  setSettingModalOpen,
+  setTabName,
+}: MenuDrawerProps) {
   const { t, language, setLanguage } = useLocalization();
-  const [state, setState] = React.useState({
+  const [ state, setState ] = React.useState({
     top: false,
     left: false,
     bottom: false,
@@ -44,7 +52,12 @@ export default function MenuDrawer() {
       setState({ ...state, [anchor]: open });
     };
 
-    const defaultLangCode: string = language || 'ja';
+  const defaultLangCode: string = language || 'ja';
+
+  const handleModalOpen = (tabName: settingTabName) => {
+    setSettingModalOpen(true);
+    setTabName(tabName);
+  };
 
   const list = (anchor: Anchor) => (
     <Box
@@ -76,11 +89,13 @@ export default function MenuDrawer() {
       <Divider />
       <Typography sx={{ p: 2, color: 'text.secondary' }}>{t("header.menuDrawer.appManagement")}</Typography>
       <List>
-        {SETTING_TABS.map((item: typeof SETTING_TABS[number]) => {
+        {SETTING_TABS.map((item: SettingTab) => {
           const Icon = item.icon;
           return (
             <ListItem key={item.tabName} disablePadding>
-              <ListItemButton>
+              <ListItemButton onClick={
+                () => handleModalOpen(item.tabName)
+              }>
                 <ListItemIcon>
                   {Icon ? <Icon /> : null}
                 </ListItemIcon>
@@ -102,7 +117,7 @@ export default function MenuDrawer() {
                 open={state['right']}
                 onClose={toggleDrawer('right', false)}
             >
-            {list('right')}
+              {list('right')}
             </Drawer>
         </React.Fragment>
     </div>

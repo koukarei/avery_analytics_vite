@@ -24,8 +24,10 @@ export const GALLERY_DETAIL_VIEWS: GalleryDetailView[] = [
     { viewName: 'settings', displayToStudents: false },
 ];
 
+export type settingTabName = 'program' | 'scene' | 'story';
+
 export type SettingTab = {
-    tabName: 'program' | 'scene' | 'story',
+    tabName: settingTabName,
     label: string,
     displayToStudents: boolean,
     icon: React.ElementType | null,

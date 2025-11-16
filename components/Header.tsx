@@ -16,6 +16,8 @@ import CardContent from '@mui/material/CardContent';
 import { Button } from '@mui/material';
 import { css } from "@emotion/react";
 import {theme} from "../src/Theme";
+import { SETTING_TABS, type settingTabName } from '../types/ui';
+import { SettingModal } from './SettingModal/SettingModal';
 
 const ShowUserProfile: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -98,14 +100,12 @@ const ShowUserProfile: React.FC = () => {
       </Popover>
     </div>
   );
-}
-
-const ShowMenuSidebar: React.FC = () => {
-  return <MenuDrawer />;
-}
+};
 
 const Header: React.FC = () => {
   const { t } = useLocalization();
+  const [ settingModalOpen, setSettingModalOpen ] = React.useState(false);
+  const [ tabName, setTabName ] = React.useState<settingTabName>(SETTING_TABS[0].tabName);
 
   return (
     <header className="shadow-md" css={headerStyles}>
@@ -118,7 +118,15 @@ const Header: React.FC = () => {
         </div>
         <div className="flex space-x-2">
           <ShowUserProfile />
-          <ShowMenuSidebar />
+          <MenuDrawer 
+            setSettingModalOpen={setSettingModalOpen}
+            setTabName={setTabName}
+          />
+          <SettingModal
+            open={settingModalOpen}
+            setOpen={setSettingModalOpen}
+            tabName={tabName}
+          />
         </div>
       </div>
     </header>
