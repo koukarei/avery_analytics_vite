@@ -8,9 +8,7 @@ import List from '@mui/material/List';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import { TextField } from "@mui/material";
-import FeedbackIcon from '@mui/icons-material/Feedback';
-import PanoramaIcon from '@mui/icons-material/Panorama';
-import AutoStoriesIcon from '@mui/icons-material/AutoStories';
+import { SETTING_TABS } from '../types/ui';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -46,12 +44,6 @@ export default function MenuDrawer() {
       setState({ ...state, [anchor]: open });
     };
 
-    const MenuItemSet = [
-        {name: "header.menuDrawer.programManagement", icon: <FeedbackIcon />},
-        {name: "header.menuDrawer.sceneManagement", icon: <PanoramaIcon />},
-        {name: "header.menuDrawer.storyManagement", icon: <AutoStoriesIcon />},
-    ];
-
     const defaultLangCode: string = language || 'ja';
 
   const list = (anchor: Anchor) => (
@@ -84,16 +76,19 @@ export default function MenuDrawer() {
       <Divider />
       <Typography sx={{ p: 2, color: 'text.secondary' }}>{t("header.menuDrawer.appManagement")}</Typography>
       <List>
-        {MenuItemSet.map((item) => (
-          <ListItem key={item.name} disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={t(item.name)} />
-            </ListItemButton>
-          </ListItem>
-        ))}
+        {SETTING_TABS.map((item: typeof SETTING_TABS[number]) => {
+          const Icon = item.icon;
+          return (
+            <ListItem key={item.tabName} disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  {Icon ? <Icon /> : null}
+                </ListItemIcon>
+                <ListItemText primary={t(item.label)} />
+              </ListItemButton>
+            </ListItem>
+          );
+        })}
       </List>
     </Box>
   );
