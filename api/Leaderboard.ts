@@ -4,6 +4,7 @@ import type {
   School, 
   LeaderboardAnalysis, 
   LeaderboardListParams, 
+  LeaderboardFetchParams,
   LeaderboardAnalysisParams, 
   WordCloudParams, 
   LeaderboardUpdate, 
@@ -45,7 +46,7 @@ export class LeaderboardAPI {
     });
     return response.data;
   }
-  static async fetchLeaderboardList(params: LeaderboardListParams): Promise<[Leaderboard, School][]> {
+  static async fetchLeaderboardList(params: LeaderboardFetchParams): Promise<[Leaderboard, School][]> {
     const response = await authAxios.get("leaderboards/", {
       params: {
         skip: params.skip ? params.skip : 0,
@@ -62,7 +63,7 @@ export class LeaderboardAPI {
     return response.data;
   }
   
-  static async fetchLeaderboardListAdmin(params: LeaderboardListParams): Promise<Leaderboard[]> {
+  static async fetchLeaderboardListAdmin(params: LeaderboardFetchParams): Promise<Leaderboard[]> {
     const response = await authAxios.get("leaderboards/admin/", {
       params: {
         skip: params.skip ? params.skip : 0,
