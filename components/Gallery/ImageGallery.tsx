@@ -271,7 +271,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
         onClick={() => debouncedScroll('up')}
         css={arrowStyles('left')}
       >
-        <ArrowBackIosIcon style={{ color: 'white' }} />
+        <ArrowBackIosIcon />
       </Button>
       <LeaderboardImageProvider>
         <ImagePanel
@@ -322,7 +322,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
         onClick={() => debouncedScroll('down')}
         css={arrowStyles('right')}
       >
-        <ArrowForwardIosIcon style={{ color: 'white' }} />
+        <ArrowForwardIosIcon />
       </Button>
     </div>
   );
@@ -340,6 +340,7 @@ const arrowStyles = (position: 'left' | 'right') => css`
   height: 100%;
   transform: translateY(-50%);
   z-index: 100;
+  color: white;
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
