@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useState } from "react";
-import { UserAPI } from '../api/UserAPI';
+import { UserAPI } from '../api/User';
 import type { User, UserListParams, UsersStats } from '../types/user';
 
 type UsersContextType = {
@@ -30,7 +30,7 @@ const UsersProvider = ({
     setLoading(true);
     let usersData: User[] = [];
     try {
-      usersData = await UserAPI.fetchUsers(listParams);
+      usersData = await UserAPI.fetchUsersList(listParams);
       setUsers(usersData);
     } catch (e) {
       console.log(e);
@@ -44,7 +44,7 @@ const UsersProvider = ({
     setLoading(true);
     let statsData: UsersStats | null = null;
     try {
-      statsData = await UserAPI.fetchUsersStats(listParams);
+      statsData = await UserAPI.fetchUsersStats();
       setStats(statsData);
     } catch (e) {
       console.log(e);

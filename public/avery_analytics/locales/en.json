@@ -11,6 +11,26 @@
   "error.title": "Error!",
   "error.fetchMessage": "Could not fetch necessary data. Please try again later.",
   "error.no_rounds": "No writing records to display.",
+
+  "settingModal": {
+    "programSelection": {
+      "generalProgramManagement": "View Your Program Details",
+      "schoolProgramManagement": "School-wide Program Management",
+      "userProgramManagement": "User-specific Program Management",
+      "programName": "Program Name",
+      "description": "Description",
+      "feedback": "Feedback",
+      "error": {
+        "fetch_user_programs_error": "Error fetching user programs.",
+        "delete_user_program_error": "Error deleting user program.",
+        "add_user_program_error": "Error adding user program.",
+        "fetch_programs_error": "Error fetching programs.",
+        "fetch_school_programs_error": "Error fetching school programs.",
+        "fetch_user_stats_error": "Error fetching user stats."
+      }
+    }
+  },
+
   "navigation.gallery": "Student Gallery",
   "navigation.writer": "Writer",
   "navigation.word_cloud": "Word Cloud",

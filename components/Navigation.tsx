@@ -62,7 +62,7 @@ const Navigation: React.FC = () => {
 
   // new: compactMode toggles when there isn't enough horizontal space for nav labels
   const navListRef = useRef<HTMLUListElement | null>(null);
-  const [compactMode, setCompactMode] = useState(false);
+  const { compactMode, setCompactMode } = useContext(CustomSettingContext);
 
   useEffect(() => {
     const listEl = navListRef.current;

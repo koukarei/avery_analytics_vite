@@ -387,14 +387,6 @@ const LeaderboardRoundProvider = ({
             roundData = await LeaderboardAPI.fetchLeaderboardRounds(leaderboard_id, params);
             setRounds(roundData);
 
-            if (is_admin) {
-              roundData = await LeaderboardAPI.fetchLeaderboardRounds(leaderboard_id, { program: "overview"});
-              setRounds(roundData);
-            } else {
-              roundData = await LeaderboardAPI.fetchLeaderboardRounds(leaderboard_id, params);
-              setRounds(roundData);
-            }
-
         } catch (e) {
             console.log(e);
         }

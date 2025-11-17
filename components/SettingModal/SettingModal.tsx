@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { css } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import Box from '@mui/material/Box';
@@ -8,6 +8,7 @@ import {theme} from "../../src/Theme";
 import { useLocalization } from '../../contexts/localizationUtils';
 import { SETTING_TABS } from '../../types/ui';
 import { ProgramSelectionTab } from './ProgramSelectionTab';
+import { CustomSettingContext } from '../../contexts/CustomSettingContext';
 
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -49,81 +50,10 @@ interface SettingTabsProps {
 
 const SettingTabs: React.FC<SettingTabsProps> = ({ value, setValue }) => {
   const { t } = useLocalization();
-  const [compactMode, setCompactMode] = useState(false);
+  const { compactMode } = useContext(CustomSettingContext);
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
-  const settingTabsRef = useRef<HTMLUListElement | null>(null);
-
-  useEffect(() => {
-    const listEl = settingTabsRef.current;
-    if (!listEl) return;
-
-    const parent = listEl.parentElement as HTMLElement | null;
-
-    // measure the full width required when labels are visible by cloning the UL
-    const measureRequiredWithLabels = () => {
-      // clone the list so we can force labels visible without affecting real layout
-      const clone = listEl.cloneNode(true) as HTMLElement;
-      // place offscreen so it doesn't affect layout
-      clone.style.position = 'absolute';
-      clone.style.left = '-9999px';
-      clone.style.top = '-9999px';
-      clone.style.width = 'auto';
-      clone.style.height = 'auto';
-      clone.style.overflow = 'visible';
-      // override common 'sr-only' / hidden styles so labels inside clone contribute to width
-      const style = document.createElement('style');
-      style.textContent = `
-        .sr-only, .sr-only * { position: static !important; width: auto !important; height: auto !important; clip: auto !important; overflow: visible !important; white-space: nowrap !important; }
-        .hidden, .hidden * { display: inline !important; }
-      `;
-      clone.appendChild(style);
-      document.body.appendChild(clone);
-
-      // compute required width summing children (matches how layout will behave)
-      const items = Array.from(clone.children) as HTMLElement[];
-      const required = items.reduce((sum, li) => sum + li.getBoundingClientRect().width, 0);
-
-      document.body.removeChild(clone);
-      return required;
-    };
-
-    const checkOverflow = () => {
-      const required = measureRequiredWithLabels();
-
-      // available width: parent container minus any controls (toggle button)
-      const containerWidth = parent ? parent.clientWidth : listEl.clientWidth;
-
-      const tolerance = 5;
-      const available = containerWidth - tolerance;
-
-      const newCompact = required > available;
-      // avoid unnecessary state updates (prevents flip-flop)
-      setCompactMode((prev) => (prev === newCompact ? prev : newCompact));
-    };
-
-    // initial checks (next paint + a short timeout for font/layout)
-    requestAnimationFrame(checkOverflow);
-    const timeoutId = window.setTimeout(checkOverflow, 80);
-
-    // observe resizes of the list element and its container
-    let ro: ResizeObserver | null = null;
-    if (typeof ResizeObserver !== 'undefined') {
-      ro = new ResizeObserver(checkOverflow);
-      ro.observe(listEl);
-      if (parent) ro.observe(parent);
-    }
-
-    window.addEventListener('resize', checkOverflow);
-
-    return () => {
-      if (ro) ro.disconnect();
-      window.removeEventListener('resize', checkOverflow);
-      window.clearTimeout(timeoutId);
-    };
-  }, [t]); // re-run when localization function changes (labels may change length)
-
 
   const renderSettingTab = (tabName: string) => {
     switch (tabName) {

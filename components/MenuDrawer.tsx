@@ -20,8 +20,8 @@ import type { Language, settingTabName, SettingTab } from '../types/ui';
 import { SETTING_TABS } from '../types/ui';
 import { ProgramContext } from '../providers/ProgramProvider';
 import { AuthUserContext } from '../providers/AuthUserProvider';
-import type { Program } from '../types/program';
 import { CustomSettingContext } from '../contexts/CustomSettingContext';
+import { LoadingSpinner } from './Common/LoadingSpinner';
 
 type Anchor = 'top' | 'left' | 'bottom' | 'right';
 
@@ -41,9 +41,8 @@ export default function MenuDrawer({
     bottom: false,
     right: false,
   });
-  const { setCheckingUserId, fetchUserPrograms } = React.useContext(ProgramContext);
   const { curProgram, setCurProgram } = React.useContext(CustomSettingContext);
-  const [ userPrograms, setUserPrograms ] = React.useState<Program[]>([]);
+  const { fetchUserPrograms, setCheckingUserId, userPrograms, isUserLoading } = React.useContext(ProgramContext);
   const { currentUser } = React.useContext(AuthUserContext);
   const toggleDrawer =
     (anchor: Anchor, open: boolean) =>
@@ -70,7 +69,9 @@ export default function MenuDrawer({
     if (currentUser) {
       setCheckingUserId(currentUser.id);
       fetchUserPrograms().then((userPrograms) => {
-        setUserPrograms(userPrograms);
+        if (curProgram === null && userPrograms.length > 0) {
+          setCurProgram(userPrograms[0]);
+        }
       })
     }
   }, [currentUser]);
@@ -146,6 +147,10 @@ export default function MenuDrawer({
       </List>
     </Box>
   );
+
+  if (isUserLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <div>

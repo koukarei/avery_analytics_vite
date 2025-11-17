@@ -11,6 +11,26 @@
   "error.title": "エラー！",
   "error.fetchMessage": "必要なデータを取得できませんでした。後でもう一度お試しください。",
   "error.no_rounds": "表示する作文記録がありません。",
+
+  "settingModal": {
+    "programSelection": {
+      "generalProgramManagement": "プログラムの詳細を表示",
+      "schoolProgramManagement": "学校全体のプログラム管理",
+      "userProgramManagement": "ユーザー別プログラム管理",
+      "programName": "プログラム名",
+      "description": "説明",
+      "feedback": "フィードバック",
+      "error": {
+        "fetch_user_programs_error": "ユーザープログラムの取得中にエラーが発生しました。",
+        "delete_user_program_error": "ユーザープログラムの削除中にエラーが発生しました。",
+        "add_user_program_error": "ユーザープログラムの追加中にエラーが発生しました。",
+        "fetch_programs_error": "プログラムの取得中にエラーが発生しました。",
+        "fetch_school_programs_error": "学校プログラムの取得中にエラーが発生しました。",
+        "fetch_user_stats_error": "ユーザースタッツの取得中にエラーが発生しました。"
+      }
+    }
+  },
+
   "navigation.gallery": "学生ギャラリー",
   "navigation.word_cloud": "ワードクラウド",
   "navigation.writer": "作文",

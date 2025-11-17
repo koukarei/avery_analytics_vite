@@ -13,6 +13,8 @@ type CustomSettingContextType = {
     curProgram: Program | null;
     setCurProgram: (program: Program | null) => void;
     isInitialized: boolean;
+    compactMode: boolean;
+    setCompactMode: (value: boolean) => void;
 };
 
 export const CustomSettingContext = createContext({
@@ -21,6 +23,8 @@ export const CustomSettingContext = createContext({
     curProgram: null,
     setCurProgram: () => {},
     isInitialized: false,
+    compactMode: false,
+    setCompactMode: () => {},
 } as CustomSettingContextType);
 
 export const CustomSettingProvider = ({
@@ -30,12 +34,10 @@ export const CustomSettingProvider = ({
 }) => {
     const [ showStudentNames, setShowStudentNames ] = useState(false);
     const [ curProgram, setCurProgram ] = useState<Program | null>(null);
-    const programName = () => {
-        const saved = sessionStorage.getItem("program");
-        return saved || "";
-    };
+    const programName = sessionStorage.getItem("program") || "";
     const { currentUser } = useContext(AuthUserContext);
     const [ isInitialized, setIsInitialized ] = useState<boolean>(false);
+    const [ compactMode, setCompactMode ] = useState(false);
 
     const contextValue = {
         showStudentNames,
@@ -43,6 +45,8 @@ export const CustomSettingProvider = ({
         curProgram,
         setCurProgram,
         isInitialized,
+        compactMode,
+        setCompactMode,
     };
 
     useEffect(() => {
