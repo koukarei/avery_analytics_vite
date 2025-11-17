@@ -3,6 +3,7 @@
   "header.title": "AVERY分析",
   "header.display_name": "表示名",
   "header.menuDrawer.languageSettings": "言語設定",
+  "header.menuDrawer.programSettings": "プログラム設定",
   "header.menuDrawer.appManagement": "アプリ管理",
   "header.menuDrawer.programManagement": "プログラム管理",
   "header.menuDrawer.sceneManagement": "シーン管理",
