@@ -68,15 +68,20 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   }
   
     useEffect(() => {
-      setErrorKey(null);
-      if (leaderboard) {
-        fetchImage(leaderboard?.id).then(imageUrl => {
-          setLoadedImageUrl(imageUrl);
-        }).catch(err => {
+      const loadImage = async () => {
+        setErrorKey(null);
+        try {
+          if (leaderboard) {
+            const fetchedImage = await fetchImage(leaderboard.id);
+            setLoadedImageUrl(fetchedImage);
+          }
+        } catch (err) {
           setErrorKey('error.fetch_leaderboard_image');
           console.error("Failed to fetch leaderboard image: ", err);
-        });
-      }
+        }
+      };
+  
+      loadImage();
     }, [leaderboard?.id]);
   
   if (!leaderboard) {
