@@ -175,23 +175,125 @@ interface SelectListProps {
 }
 
 const SelectList: React.FC<SelectListProps> = ({ names, curSelected, setCurSelected }) => {
-    const handleItemClick = (item: SelectListItem) => {
-        const index = curSelected.findIndex(selected => selected.id === item.id);
-        if (index === -1) {
-            setCurSelected([...curSelected, item]);
-        } else {
-            setCurSelected(curSelected.filter(selected => selected.id !== item.id));
+    const [startListIndex, setStartListIndex] = useState<number | null>(null);
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragPerformed, setDragPerformed] = useState(false);
+
+    const handleItemClick = (event: React.MouseEvent | React.KeyboardEvent, item: SelectListItem, index: number) => {
+        // if we just performed a drag-based selection, ignore the click that follows
+        if ((event as React.MouseEvent).type === 'click' && dragPerformed) {
+            setDragPerformed(false);
+            return;
+        }
+
+        const isSelected = curSelected.findIndex(selected => selected.id === item.id) !== -1;
+
+        // Ctrl / Cmd multi-select
+        if ('ctrlKey' in event && (event.ctrlKey || (event as any).metaKey)) {
+            if (!isSelected) {
+                setCurSelected([...curSelected, item]);
+            } else {
+                setCurSelected(curSelected.filter(s => s.id !== item.id));
+            }
+            return;
+        }
+
+        // Shift range-select (only when Shift is held)
+        if ('shiftKey' in event && event.shiftKey) {
+            // use existing anchor if set, otherwise fall back to current selection's first item
+            const anchorIndex = startListIndex ?? (curSelected[0] ? names.findIndex(n => n.id === curSelected[0].id) : null);
+            if (anchorIndex === null || anchorIndex === undefined) {
+                setStartListIndex(index);
+                setCurSelected([item]);
+                return;
+            }
+            const [from, to] = anchorIndex < index ? [anchorIndex, index] : [index, anchorIndex];
+            const range = names.slice(from, to + 1);
+            setCurSelected([
+                ...curSelected,
+                ...range.filter(n => !curSelected.find(s => s.id === n.id))
+            ]);
+            return;
+        }
+
+        // Default single select (click or Enter) — set start anchor
+        setCurSelected([item]);
+        setStartListIndex(index);
+    };
+
+    const handleKeyDown = (event: React.KeyboardEvent, item: SelectListItem, index: number) => {
+        // Enter selects, Shift sets anchor
+        if (event.key === 'Enter') {
+            handleItemClick(event, item, index);
+        } else if (event.key === 'Shift') {
+            setStartListIndex(index);
         }
     };
-    
+
+    const handleKeyUp = (event: React.KeyboardEvent, item: SelectListItem, index: number) => {
+        // on Shift release, perform range select
+        if (event.key === 'Shift') {
+            handleItemClick(event, item, index);
+        }
+    };
+
+    const handleMouseDown = (event: React.MouseEvent, index: number) => {
+        // set anchor on mousedown and start dragging
+        if (event.type === "mousedown") {
+            if (!event.shiftKey) {
+                setStartListIndex(index);
+                setIsDragging(true);
+            }
+        }
+    };
+
+    const handleMouseUp = (event: React.MouseEvent, index: number) => {
+        // if we were dragging, perform a range selection between anchor and this index
+        if (!isDragging) return;
+        setIsDragging(false);
+
+        const anchor = startListIndex ?? index;
+        const [from, to] = anchor < index ? [anchor, index] : [index, anchor];
+        const range = names.slice(from, to + 1);
+
+        // If shift held, append the range; otherwise replace selection with the range
+        if (event.shiftKey) {
+            setCurSelected([
+                ...curSelected,
+                ...range.filter(n => !curSelected.find(s => s.id === n.id))
+            ]);
+        } else if (event.ctrlKey || event.metaKey) {
+            // ctrl + drag -> toggle items in range
+            const toggled = [...curSelected];
+            range.forEach(
+                r => {
+                    const idx = toggled.findIndex(s => s.id === r.id);
+                    if (idx === -1) toggled.push(r);
+                    else toggled.splice(idx, 1);
+                }
+            )
+            setCurSelected(toggled);
+        } else {
+            setCurSelected(range);
+        }
+
+        // prevent the subsequent click handler from toggling selection again
+        setDragPerformed(true);
+    };
+
+
     return (
         <List sx={{ height: '100%', overflow: 'auto' }}>
-            {names.map((item) => (
+            {names.map((item, index) => (
                 <ListItem key={item.id} disablePadding>
                     <ListItemButton
-                    css={selectListItemStyle(theme)}
-                    selected={curSelected.findIndex(selected => selected.id === item.id) !== -1}
-                    onClick={() => handleItemClick(item)}
+                        onKeyDown={(e) => handleKeyDown(e, item, index)}
+                        onKeyUp={(e) => handleKeyUp(e, item, index)}
+                        onMouseDown={(e) => handleMouseDown(e, index)}
+                        onMouseUp={(e) => handleMouseUp(e, index)}
+                        onClick={(e) => handleItemClick(e, item, index)}
+                        css={selectListItemStyle(theme)}
+                        selected={curSelected.findIndex(selected => selected.id === item.id) !== -1}
                     >
                         {item.name}
                     </ListItemButton>
@@ -317,30 +419,35 @@ const SchoolProgramManagement: React.FC = () => {
     const [ errorKey, setErrorKey ] = useState<string | null>(null);
     const [ selectedSchools, setSelectedSchools ] = useState<SelectListItem[]>([]);
 
-    const handleOnClick = (program: Program) => {
+    const handleOnClick = async (program: Program) => {
         if (selectedSchools.length > 1) {
             selectedSchools.forEach((school) => {
                 ProgramAPI.addSchoolProgram(school.name, program.id).catch((e) => {
                     console.log(e);
+                    setErrorKey('settingModal.programSelection.error.add_school_program_error');
                 });
-                setLoadedSchoolPrograms((prevPrograms) => [...prevPrograms, program]);
             });
-        } else if (selectedSchools.length === 0) {
+            setLoadedSchoolPrograms((prevPrograms) => [...prevPrograms, program]);
+        }
+
+        if (selectedSchools.length === 0) {
             return;
-        } else {
-            setCheckingSchoolName(selectedSchools[0].name);
-            const isProgramAdded = schoolPrograms.findIndex((p) => p.id === program.id) !== -1;
-            if (isProgramAdded) {
-                deleteSchoolProgram(program.id).catch((e) => {
-                    console.log(e);
-                }
-                );
+        } 
+        
+        const isProgramAdded = schoolPrograms.findIndex((p) => p.id === program.id) !== -1;
+        if (isProgramAdded) {
+            try {
+                await deleteSchoolProgram(program.id);
                 setLoadedSchoolPrograms((prevPrograms) => prevPrograms.filter((p) => p.id !== program.id));
-            } else {
-                addSchoolProgram(program.id).catch((e) => {
-                    console.log(e);
-                });
+            } catch {
+                setErrorKey('settingModal.programSelection.error.delete_school_program_error');
+            }
+        } else {
+            try {
+                await addSchoolProgram(program.id);
                 setLoadedSchoolPrograms((prevPrograms) => [...prevPrograms, program]);
+            } catch {
+                setErrorKey('settingModal.programSelection.error.add_school_program_error');
             }
         }
     };
@@ -390,14 +497,11 @@ const SchoolProgramManagement: React.FC = () => {
         return <LoadingSpinner />;
     }
 
-    if (errorKey) {
-        return <ErrorDisplay messageKey={errorKey} />;
-    }
-
     if (compactMode) {
         return (
             <>
             <Box sx={{ display: 'flex', flexDirection: 'column', height: '80vh' }}>
+                {errorKey && <ErrorDisplay messageKey={errorKey} />}
                 <Box>
                     <DropDownSelect 
                         names={schoolRecords}
@@ -421,24 +525,25 @@ const SchoolProgramManagement: React.FC = () => {
 
     return (
         <>
-        <Box sx={{ display: 'flex', flexDirection: 'row', height: '80vh' }}>
-            <Box sx={{ width: '20%'}}>
-                <SelectList 
-                    names={schoolRecords}
-                    curSelected={selectedSchools}
-                    setCurSelected={setSelected}
-                />
-            </Box>
-            <Box sx={{ width: '80%'}}>
-                <ShowPrograms
-                    inUsePrograms={loadedSchoolPrograms}
-                    availablePrograms={availablePrograms}
-                    handleOnClick={handleOnClick}
-                    showCheckbox={currentUser?.is_admin || false}
-                />
-            </Box>
+            {errorKey && <ErrorDisplay messageKey={errorKey} />}
+            <Box sx={{ display: 'flex', flexDirection: 'row', height: '80vh' }}>
+                <Box sx={{ width: '20%'}}>
+                    <SelectList 
+                        names={schoolRecords}
+                        curSelected={selectedSchools}
+                        setCurSelected={setSelected}
+                    />
+                </Box>
+                <Box sx={{ width: '80%'}}>
+                    <ShowPrograms
+                        inUsePrograms={loadedSchoolPrograms}
+                        availablePrograms={availablePrograms}
+                        handleOnClick={handleOnClick}
+                        showCheckbox={currentUser?.is_admin || false}
+                    />
+                </Box>
 
-        </Box>
+            </Box>
         </>
     )
 }
@@ -459,28 +564,36 @@ const UserProgramManagement: React.FC = () => {
     const [ selectedUsers, setSelectedUsers ] = useState<SelectListItem[]>([]);
     const [ loadedUserPrograms, setLoadedUserPrograms ] = useState<Program[]>([]);
 
-    const handleOnClick = (program: Program) => {
+    const handleOnClick = async (program: Program) => {
         if (selectedUsers.length > 1) {
             selectedUsers.forEach((user) => {
                 ProgramAPI.addUserProgram(user.id, program.id).catch((e) => {
                     console.log(e);
+                    setErrorKey('settingModal.programSelection.error.add_user_program_error');
                 });
-                setLoadedUserPrograms((prevPrograms) => [...prevPrograms, program]);
             });
-        } else if (selectedUsers.length === 0) {
+            setLoadedUserPrograms((prevPrograms) => [...prevPrograms, program]);
             return;
-        } else {
-            const isProgramAdded = userPrograms.findIndex((p) => p.id === program.id) !== -1;
-            if (isProgramAdded) {
-                deleteUserProgram(program.id).catch((e) => {
-                    console.log(e);
-                });
+        } 
+        
+        if (selectedUsers.length === 0) {
+            return;
+        } 
+
+        const isProgramAdded = userPrograms.findIndex((p) => p.id === program.id) !== -1;
+        if (isProgramAdded) {
+            try {
+                await deleteUserProgram(program.id);
                 setLoadedUserPrograms((prevPrograms) => prevPrograms.filter((p) => p.id !== program.id));
-            } else {
-                addUserProgram(program.id).catch((e) => {
-                    console.log(e);
-                });
+            } catch {
+                setErrorKey('settingModal.programSelection.error.delete_user_program_error');
+            }
+        } else {
+            try {
+                await addUserProgram(program.id);
                 setLoadedUserPrograms((prevPrograms) => [...prevPrograms, program]);
+            } catch {
+                setErrorKey('settingModal.programSelection.error.add_user_program_error');
             }
         }
     };
@@ -572,14 +685,11 @@ const UserProgramManagement: React.FC = () => {
         return <LoadingSpinner />;
     }
 
-    if (errorKey) {
-        return <ErrorDisplay messageKey={errorKey} />;
-    }
-
     if (compactMode) {
         return (
             <>
             <Box sx={{ display: 'flex', flexDirection: 'column', height: '80vh' }}>
+                {errorKey && <ErrorDisplay messageKey={errorKey} />}
                 <Box>
                     <DropDownSelect 
                         names={userRecord}
@@ -603,24 +713,25 @@ const UserProgramManagement: React.FC = () => {
 
     return (
         <>
-        <Box sx={{ display: 'flex', flexDirection: 'row', height: '80vh' }}>
-            <Box sx={{ width: '20%'}}>
-                <SelectList 
-                    names={userRecord}
-                    curSelected={selectedUsers}
-                    setCurSelected={handleUserSelect}
-                />
-            </Box>
-            <Box sx={{ width: '80%'}}>
-                <ShowPrograms
-                    inUsePrograms={loadedUserPrograms}
-                    availablePrograms={availablePrograms}
-                    handleOnClick={handleOnClick}
-                    showCheckbox={currentUser?.is_admin || false}
-                />
-            </Box>
+            {errorKey && <ErrorDisplay messageKey={errorKey} />}
+            <Box sx={{ display: 'flex', flexDirection: 'row', height: '80vh' }}>
+                <Box sx={{ width: '20%'}}>
+                    <SelectList 
+                        names={userRecord}
+                        curSelected={selectedUsers}
+                        setCurSelected={handleUserSelect}
+                    />
+                </Box>
+                <Box sx={{ width: '80%'}}>
+                    <ShowPrograms
+                        inUsePrograms={loadedUserPrograms}
+                        availablePrograms={availablePrograms}
+                        handleOnClick={handleOnClick}
+                        showCheckbox={currentUser?.is_admin || false}
+                    />
+                </Box>
 
-        </Box>
+            </Box>
         </>
     )
 }

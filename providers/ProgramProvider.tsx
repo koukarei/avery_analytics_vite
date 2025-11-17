@@ -105,6 +105,7 @@ export const ProgramProvider = ({
       fetchSchoolPrograms();
     } catch (e) {
       console.log(e);
+      throw e;
     }
   };
 
@@ -114,15 +115,18 @@ export const ProgramProvider = ({
       fetchSchoolPrograms();
     } catch (e) {
       console.log(e);
+      throw e;
     }
   };
 
   const addUserProgram = async (programId: number) => {
     try {
-      await ProgramAPI.addUserProgram(checkingUserId, programId);
+      const result = await ProgramAPI.addUserProgram(checkingUserId, programId);
       fetchUserPrograms();
+      return result;
     } catch (e) {
       console.log(e);
+      throw e;
     }
   };
 
@@ -132,6 +136,7 @@ export const ProgramProvider = ({
       fetchUserPrograms();
     } catch (e) {
       console.log(e);
+      throw e;
     }
   };
 
