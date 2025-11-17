@@ -304,6 +304,7 @@ const SelectList: React.FC<SelectListProps> = ({ names, curSelected, setCurSelec
 }
 
 const DropDownSelect: React.FC<SelectListProps> = ({ names, curSelected, setCurSelected }) => {
+    const selectedItem = curSelected[0]?.name || "";
     return (
         <TextField 
             hiddenLabel
@@ -311,7 +312,7 @@ const DropDownSelect: React.FC<SelectListProps> = ({ names, curSelected, setCurS
             size="small"
             css={menuSettingStyle}
             select 
-            defaultValue={curSelected}
+            defaultValue={selectedItem}
             onChange={(e) => {
                 const selectedName = e.target.value as keyof typeof names;
                 setCurSelected([names.find(name => name.name === selectedName) || names[0]]);
