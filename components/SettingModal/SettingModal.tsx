@@ -12,7 +12,6 @@ import { CustomSettingContext } from '../../contexts/CustomSettingContext';
 
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import { ProgramProvider } from '../../providers/ProgramProvider';
 
 interface TabPanelProps {
   children?: React.ReactNode;

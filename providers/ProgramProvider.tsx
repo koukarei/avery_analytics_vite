@@ -24,7 +24,7 @@ type ProgramContextType = {
   isUserLoading: boolean;
   fetchUserPrograms: () => Promise<Program[]>;
 
-  addUserProgram: (programId: number) => Promise<void>;
+  addUserProgram: (programId: number) => Promise<Program>;
   deleteUserProgram: (programId: number) => Promise<void>;
 };
 
