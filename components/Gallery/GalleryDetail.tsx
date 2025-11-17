@@ -7,7 +7,6 @@ import { SceneContext } from "../../providers/SceneProvider";
 import { StoryContext } from "../../providers/StoryProvider";
 
 import { ViewLeaderboard, EditLeaderboard } from './LeaderboardForm';
-import { useLocalization } from '../../contexts/localizationUtils';
 import { ErrorDisplay } from '../Common/ErrorDisplay';
 import { LoadingSpinner } from '../Common/LoadingSpinner';
 
@@ -21,7 +20,6 @@ export const LeaderboardDetail: React.FC<LeaderboardDetailProps> = ({ leaderboar
   const { scenes, loading: scenesLoading, fetchScenes } = useContext(SceneContext);
   const { stories, loading: storiesLoading, fetchStories } = useContext(StoryContext);
   const [ errorKey, setErrorKey ] = useState<string | null>(null);
-  const { t } = useLocalization();
   
   useEffect(() => {
     setErrorKey(null);

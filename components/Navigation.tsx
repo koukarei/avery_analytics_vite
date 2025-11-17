@@ -109,7 +109,9 @@ const Navigation: React.FC = () => {
 
       const newCompact = required > available;
       // avoid unnecessary state updates (prevents flip-flop)
-      setCompactMode((prev) => (prev === newCompact ? prev : newCompact));
+      if (compactMode !== newCompact) {
+        setCompactMode(newCompact);
+      }
     };
 
     // initial checks (next paint + a short timeout for font/layout)

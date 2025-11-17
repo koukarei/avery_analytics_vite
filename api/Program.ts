@@ -1,4 +1,4 @@
-import type { ProgramBase, Program, ProgramListParam } from "../types/program";
+import type { ProgramBase, Program } from "../types/program";
 import { authAxios } from "./axios";
 
 export class ProgramAPI {

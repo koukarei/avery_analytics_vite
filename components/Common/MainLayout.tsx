@@ -6,7 +6,6 @@ import Header from '../Header';
 import Footer from '../Footer';
 import Navigation from '../Navigation';
 import { AuthUserProvider } from '../../providers/AuthUserProvider';
-import { CustomSettingProvider } from '../../contexts/CustomSettingContext';
 import { css } from '@emotion/react';
 import { UserActionAPI } from '../../api/UserAction';
 

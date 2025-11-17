@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { useState, useCallback, useEffect, useContext, Dispatch, SetStateAction } from 'react';
+import { useState, useCallback, useEffect, useContext, type Dispatch, type SetStateAction } from 'react';
 import { ImageGallery } from './ImageGallery';
 import { AddImageModal } from './AddImageModal';
 import type { GalleryView } from '../../types/ui';

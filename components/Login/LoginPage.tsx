@@ -1,6 +1,5 @@
 /** @jsxImportSource @emotion/react */
 import { css, keyframes } from "@emotion/react";
-import MenuItem from "@mui/material/MenuItem";
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";

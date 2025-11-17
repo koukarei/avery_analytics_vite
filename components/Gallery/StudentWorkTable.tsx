@@ -467,7 +467,7 @@ const StudentWorkTable: React.FC<StudentWorkTableProps> = ({
 
   useEffect(() => {
     setErrorKey(null);
-    fetchRounds(leaderboard_id, { program: program_name }, currentUser?.is_admin || false )
+    fetchRounds(leaderboard_id, { program: program_name } )
       .then(async (rounds) => {
         if (!rounds || rounds.length === 0) {
           setErrorKey('error.no_rounds');

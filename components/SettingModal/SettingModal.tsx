@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { css } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import Box from '@mui/material/Box';
@@ -51,7 +51,7 @@ interface SettingTabsProps {
 const SettingTabs: React.FC<SettingTabsProps> = ({ value, setValue }) => {
   const { t } = useLocalization();
   const { compactMode } = useContext(CustomSettingContext);
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
@@ -64,9 +64,9 @@ const SettingTabs: React.FC<SettingTabsProps> = ({ value, setValue }) => {
           </ProgramProvider>
       );
       case 'scene':
-        return (<div>Scene Settings Content</div>);
+        return (<div>Under development</div>);
       case 'story':
-        return (<div>Story Settings Content</div>);
+        return (<div>Under development</div>);
       default:
         return null;
     }

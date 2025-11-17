@@ -3,7 +3,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { css } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
-import { Box, Checkbox, TableHead, TableRow, TableCell, TableBody, TableContainer, Table, Typography } from '@mui/material';
+import { Box, Checkbox, TableHead, TableRow, TableCell, TableBody, TableContainer, Table } from '@mui/material';
 import { Tabs, Tab } from '@mui/material';
 import { List, ListItem, ListItemButton, MenuItem, TextField } from '@mui/material';
 import { LoadingSpinner } from '../Common/LoadingSpinner';
@@ -542,7 +542,7 @@ interface ManagementTabsProps {
 const ManagementTabs: React.FC<ManagementTabsProps> = ({ value, setValue }) => {
   const { t } = useLocalization();
   const { currentUser } = useContext(AuthUserContext);
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 

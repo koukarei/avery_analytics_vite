@@ -368,7 +368,7 @@ const LeaderboardSchoolProvider = ({
 type LeaderboardRoundContextType = {
     rounds: Round[];
     loading: boolean;
-    fetchRounds: (leaderboard_id: number, params: { program: string }, is_admin: boolean) => Promise<Round[]>;
+    fetchRounds: (leaderboard_id: number, params: { program: string }) => Promise<Round[]>;
 }
 
 const LeaderboardRoundContext = createContext({} as LeaderboardRoundContextType);
@@ -380,7 +380,7 @@ const LeaderboardRoundProvider = ({
 }) => {
     const [rounds, setRounds] = useState<Round[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-    const fetchRounds = useCallback(async (leaderboard_id: number, params: { program: string }, is_admin: boolean=false) => {
+    const fetchRounds = useCallback(async (leaderboard_id: number, params: { program: string }) => {
         setLoading(true);
         let roundData: Round[] = [];
         try {
