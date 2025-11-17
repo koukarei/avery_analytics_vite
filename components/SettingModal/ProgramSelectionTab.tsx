@@ -65,7 +65,7 @@ function ProgramManagementTabPanel(props: TabPanelProps) {
 const ShowPrograms: React.FC<avaliableProgramsProps> = ({
     inUsePrograms, availablePrograms, handleOnClick, showCheckbox
 }) => {
-
+    const { t } = useLocalization();
     interface HeadCell {
     disablePadding: boolean;
     id: keyof Program;
@@ -104,7 +104,7 @@ const ShowPrograms: React.FC<avaliableProgramsProps> = ({
                             key={headCell.id}
                             padding={headCell.disablePadding ? 'none' : 'normal'}
                         >
-                            {headCell.label}
+                            {t(headCell.label)}
                         </TableCell>
                     ))}
                 </TableRow>

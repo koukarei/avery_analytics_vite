@@ -92,7 +92,7 @@ const SettingTabs: React.FC<SettingTabsProps> = ({ value, setValue }) => {
                 tab.icon && <tab.icon /> :
                 <>
                   {tab.icon && <tab.icon />}
-                  <span className="sr-only">{t(tab.label)}</span>
+                  <span>{t(tab.label)}</span>
                 </>
             } {...a11yProps(index)} />
           ))}
