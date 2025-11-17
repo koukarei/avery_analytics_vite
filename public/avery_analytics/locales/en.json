@@ -22,7 +22,7 @@
   "settingModal.programSelection.feedback": "Feedback",
   "settingModal.programSelection.error.fetch_user_programs_error": "Error fetching user programs.",
   "settingModal.programSelection.error.delete_user_program_error": "Error deleting user program.",
-  "settingModal.programSelection.error.add_user_program_error": "Error adding user program.",
+  "settingModal.programSelection.error.add_user_program_error": "This program is not available for the user.",
   "settingModal.programSelection.error.fetch_programs_error": "Error fetching programs.",
   "settingModal.programSelection.error.fetch_school_programs_error": "Error fetching school programs.",
   "settingModal.programSelection.error.fetch_user_stats_error": "Error fetching user stats.",

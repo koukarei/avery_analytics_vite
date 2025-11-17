@@ -22,7 +22,7 @@
   "settingModal.programSelection.feedback": "フィードバック",
   "settingModal.programSelection.error.fetch_user_programs_error": "ユーザープログラムの取得中にエラーが発生しました。",
   "settingModal.programSelection.error.delete_user_program_error": "ユーザープログラムの削除中にエラーが発生しました。",
-  "settingModal.programSelection.error.add_user_program_error": "ユーザープログラムの追加中にエラーが発生しました。",
+  "settingModal.programSelection.error.add_user_program_error": "このプログラムはユーザーに利用できません。",
   "settingModal.programSelection.error.fetch_programs_error": "プログラムの取得中にエラーが発生しました。",
   "settingModal.programSelection.error.fetch_school_programs_error": "学校プログラムの取得中にエラーが発生しました。",
   "settingModal.programSelection.error.fetch_user_stats_error": "ユーザースタッツの取得中にエラーが発生しました。",

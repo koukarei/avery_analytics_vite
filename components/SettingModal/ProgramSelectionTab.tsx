@@ -383,21 +383,21 @@ const GeneralProgramManagement: React.FC = () => {
             });
         }
     };
-
-    if (errorKey) {
-        return <ErrorDisplay messageKey={errorKey} />;
-    }
+    
     if (programListLoading || isUserLoading || isLoading) {
         return <LoadingSpinner />;
     }
 
     return (
-        <ShowPrograms
-            inUsePrograms={userPrograms}
-            availablePrograms={availablePrograms}
-            handleOnClick={handleOnClick}
+        <>
+            {errorKey && <ErrorDisplay messageKey={errorKey} />}
+            <ShowPrograms
+                inUsePrograms={userPrograms}
+                availablePrograms={availablePrograms}
+                handleOnClick={handleOnClick}
             showCheckbox={currentUser?.user_type === 'instructor' || currentUser?.is_admin || false}
         />
+        </>
     )
 }
 
