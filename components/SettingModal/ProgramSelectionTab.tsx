@@ -792,6 +792,17 @@ const ManagementTabs: React.FC<ManagementTabsProps> = ({ value, setValue }) => {
     }
   }
 
+  if (viewableTabs().length === 0) {
+    return <ErrorDisplay messageKey="settingModal.programSelection.error.no_permission_to_view_tabs" />;
+  }
+  if (viewableTabs().length === 1) {
+    return (
+        <Box sx={{ width: '100%', height: 'calc(90vh - 100px)' }}>
+            { renderManagementTab(viewableTabs()[0].tabName) }
+        </Box>
+    )
+  }
+
   return (
     <Box sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>

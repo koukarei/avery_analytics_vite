@@ -26,6 +26,7 @@
   "settingModal.programSelection.error.fetch_programs_error": "Error fetching programs.",
   "settingModal.programSelection.error.fetch_school_programs_error": "Error fetching school programs.",
   "settingModal.programSelection.error.fetch_user_stats_error": "Error fetching user stats.",
+  "settingModal.programSelection.error.no_permission_to_view_tabs": "You do not have permission to view any tabs in this program.",
   
   "navigation.gallery": "Student Gallery",
   "navigation.writer": "Writer",
