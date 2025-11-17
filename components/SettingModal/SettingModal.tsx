@@ -59,9 +59,7 @@ const SettingTabs: React.FC<SettingTabsProps> = ({ value, setValue }) => {
     switch (tabName) {
       case 'program':
         return (
-          <ProgramProvider>
-            <ProgramSelectionTab />
-          </ProgramProvider>
+          <ProgramSelectionTab />
       );
       case 'scene':
         return (<div>Under development</div>);

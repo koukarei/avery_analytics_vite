@@ -11,12 +11,13 @@ import { ErrorDisplay } from '../Common/ErrorDisplay';
 
 import { AuthUserContext } from '../../providers/AuthUserProvider';
 import { CustomSettingContext } from '../../contexts/CustomSettingContext';
-import { ProgramContext } from '../../providers/ProgramProvider';
+import { ProgramContext, ProgramProvider } from '../../providers/ProgramProvider';
 import { UsersContext, UsersProvider } from '../../providers/UserProvider';
 import type { Program } from '../../types/program';
 import { SCHOOLS } from '../../types/ui';
 import { SUPPORTED_PROGRAMS } from '../../constants';
 import { useLocalization } from '../../contexts/localizationUtils';
+import { ProgramAPI } from '../../api/Program';
 
 interface avaliableProgramsProps {
     inUsePrograms: Program[];
@@ -114,15 +115,13 @@ const ShowPrograms: React.FC<avaliableProgramsProps> = ({
 
     const ProgramTableBody = () => {
         return (
-            <Box css={programTableStyle(theme)}>
-            <ProgramTableHead />
-                <TableBody>
+            <TableBody>
                 {availablePrograms.map((program) => {
                     const isItemUsable = program && inUsePrograms.findIndex((p) => p.id === program.id) !== -1;
                     return (
                         <TableRow
                             hover
-                            onClick={() => handleOnClick(program)}
+                            onClick={showCheckbox ? () => handleOnClick(program) : undefined}
                             selected={isItemUsable}
                             key={program.id}
                             role="checkbox"
@@ -138,7 +137,7 @@ const ShowPrograms: React.FC<avaliableProgramsProps> = ({
                             }
                             <TableCell padding="none">
                                 {
-                                  program.name && (program.name in SUPPORTED_PROGRAMS)
+                                program.name && (program.name in SUPPORTED_PROGRAMS)
                                     ? SUPPORTED_PROGRAMS[program.name as keyof typeof SUPPORTED_PROGRAMS].name
                                     : program.name
                                 }
@@ -148,15 +147,15 @@ const ShowPrograms: React.FC<avaliableProgramsProps> = ({
                         </TableRow>
                     )
                 })}
-                </TableBody>
-            </Box>
+            </TableBody>
         )
     }
 
     return (
-        <Box>
+        <Box css={programTableStyle(theme)}>
             <TableContainer>
                 <Table sx={{ width: '100%' }} aria-label="program selection table">
+                    <ProgramTableHead />
                     <ProgramTableBody />
                 </Table>
             </TableContainer>
@@ -171,19 +170,28 @@ interface SelectListItem {
 
 interface SelectListProps {
     names: SelectListItem[];
-    curSelected: SelectListItem;
-    setCurSelected: (name: SelectListItem) => void;
+    curSelected: SelectListItem[];
+    setCurSelected: (names: SelectListItem[]) => void;
 }
 
 const SelectList: React.FC<SelectListProps> = ({ names, curSelected, setCurSelected }) => {
+    const handleItemClick = (item: SelectListItem) => {
+        const index = curSelected.findIndex(selected => selected.id === item.id);
+        if (index === -1) {
+            setCurSelected([...curSelected, item]);
+        } else {
+            setCurSelected(curSelected.filter(selected => selected.id !== item.id));
+        }
+    };
+    
     return (
         <List sx={{ height: '100%', overflow: 'auto' }}>
             {names.map((item) => (
                 <ListItem key={item.id} disablePadding>
                     <ListItemButton
                     css={selectListItemStyle(theme)}
-                    selected={curSelected.id === item.id}
-                    onClick={() => setCurSelected(item)}
+                    selected={curSelected.findIndex(selected => selected.id === item.id) !== -1}
+                    onClick={() => handleItemClick(item)}
                     >
                         {item.name}
                     </ListItemButton>
@@ -204,7 +212,7 @@ const DropDownSelect: React.FC<SelectListProps> = ({ names, curSelected, setCurS
             defaultValue={curSelected}
             onChange={(e) => {
                 const selectedName = e.target.value as keyof typeof names;
-                setCurSelected(names.find(name => name.name === selectedName) || names[0]);
+                setCurSelected([names.find(name => name.name === selectedName) || names[0]]);
             }}
         >
             {names.map((item) => (
@@ -219,26 +227,44 @@ const DropDownSelect: React.FC<SelectListProps> = ({ names, curSelected, setCurS
 const GeneralProgramManagement: React.FC = () => {
     const {
         availablePrograms, programListLoading, fetchPrograms, 
-        setCheckingUserId, isUserLoading,
+        checkingUserId, setCheckingUserId, isUserLoading,
         userPrograms, fetchUserPrograms, addUserProgram, deleteUserProgram
 
     } = useContext(ProgramContext)
     const { currentUser } = useContext(AuthUserContext);
     const [ errorKey, setErrorKey ] = useState<string | null>(null);
+    const [ isLoading, setIsLoading ] = useState<boolean>(false);
 
     useEffect(() => {
+        let mounted = true;
         setErrorKey(null);
-        if (typeof fetchPrograms !== 'function' || !currentUser) return;
-        fetchPrograms().catch((e) => {
-            console.log(e);
-            setErrorKey('settingModal.programSelection.error.fetch_programs_error');
-        });
-        setCheckingUserId(currentUser.id);
-        fetchUserPrograms().catch((e) => {
-            console.log(e);
-            setErrorKey('settingModal.programSelection.error.fetch_user_programs_error');
-        });
-    }, [currentUser]);
+        setIsLoading(true);
+        if (typeof fetchPrograms !== 'function' || !currentUser) {
+            setIsLoading(false);
+            return;
+        }
+
+        (async () => {
+            try {
+                fetchPrograms().catch((e) => {
+                    console.log(e);
+                    setErrorKey('settingModal.programSelection.error.fetch_programs_error');
+                });
+                setCheckingUserId(currentUser.id);
+                fetchUserPrograms().catch((e) => {
+                    console.log(e);
+                    setErrorKey('settingModal.programSelection.error.fetch_user_programs_error');
+                });
+
+                if (mounted) setIsLoading(false);
+
+            } catch (e) {
+                console.log(e);
+                setErrorKey('settingModal.programSelection.error.fetch_user_stats_error');
+            }
+        })();
+        return () => { mounted = false; }
+    }, [currentUser, checkingUserId]);
 
     const handleOnClick = (program: Program) => {
         const isProgramAdded = userPrograms.findIndex((p) => p.id === program.id) !== -1;
@@ -259,7 +285,7 @@ const GeneralProgramManagement: React.FC = () => {
     if (errorKey) {
         return <ErrorDisplay messageKey={errorKey} />;
     }
-    if (programListLoading || isUserLoading) {
+    if (programListLoading || isUserLoading || isLoading) {
         return <LoadingSpinner />;
     }
 
@@ -283,47 +309,81 @@ const SchoolProgramManagement: React.FC = () => {
     const {
         availablePrograms, programListLoading, fetchPrograms, 
         checkingSchoolName, setCheckingSchoolName,
-        schoolPrograms, fetchSchoolPrograms, addSchoolProgram, deleteSchoolProgram,
+        schoolPrograms, fetchSchoolPrograms, 
+        addSchoolProgram, deleteSchoolProgram, 
         isSchoolLoading
     } = useContext(ProgramContext);
+    const [ loadedSchoolPrograms, setLoadedSchoolPrograms ] = useState<Program[]>([]);
     const [ errorKey, setErrorKey ] = useState<string | null>(null);
-    const [ selectedSchool, setSelectedSchool ] = useState<SelectListItem>(schoolRecords[0]);
+    const [ selectedSchools, setSelectedSchools ] = useState<SelectListItem[]>([]);
 
     const handleOnClick = (program: Program) => {
-        const isProgramAdded = schoolPrograms.findIndex((p) => p.id === program.id) !== -1;
-        if (isProgramAdded) {
-            deleteSchoolProgram(program.id).catch((e) => {
-                console.log(e);
-            }
-            );
-        } else {
-            addSchoolProgram(program.id).catch((e) => {
-                console.log(e);
+        if (selectedSchools.length > 1) {
+            selectedSchools.forEach((school) => {
+                ProgramAPI.addSchoolProgram(school.name, program.id).catch((e) => {
+                    console.log(e);
+                });
+                setLoadedSchoolPrograms((prevPrograms) => [...prevPrograms, program]);
             });
+        } else if (selectedSchools.length === 0) {
+            return;
+        } else {
+            setCheckingSchoolName(selectedSchools[0].name);
+            const isProgramAdded = schoolPrograms.findIndex((p) => p.id === program.id) !== -1;
+            if (isProgramAdded) {
+                deleteSchoolProgram(program.id).catch((e) => {
+                    console.log(e);
+                }
+                );
+                setLoadedSchoolPrograms((prevPrograms) => prevPrograms.filter((p) => p.id !== program.id));
+            } else {
+                addSchoolProgram(program.id).catch((e) => {
+                    console.log(e);
+                });
+                setLoadedSchoolPrograms((prevPrograms) => [...prevPrograms, program]);
+            }
         }
     };
 
-    const setSelected = (selected: SelectListItem) => {
-        setSelectedSchool(selected);
-        setCheckingSchoolName(selected.name);
+    const setSelected = (selected: SelectListItem[]) => {
+        setSelectedSchools([...selected]);
+        if (selected.length === 1 ) {
+            setCheckingSchoolName(selected[0]?.name || '');
+        } else {
+            setCheckingSchoolName('');
+        }
     }
 
     useEffect(() => {
         setErrorKey(null);
         if (typeof fetchPrograms !== 'function' || !currentUser) return;
-        if (checkingSchoolName === '') {
-            setSelected(
-                schoolRecords.find(school => school.name === currentUser?.school) || schoolRecords[0]
-            )
-        }
-        fetchPrograms().catch((e) => {
-            console.log(e);
-            setErrorKey('settingModal.programSelection.error.fetch_programs_error');
-        });
-        fetchSchoolPrograms().catch((e) => {
-            console.log(e);
-            setErrorKey('settingModal.programSelection.error.fetch_school_programs_error');
-        });
+
+        (async () => {
+            try {
+                // Fetch programs
+                fetchPrograms().catch((e) => {
+                    console.log(e);
+                    setErrorKey('settingModal.programSelection.error.fetch_programs_error');
+                });
+
+                //Fetch school programs
+                if (checkingSchoolName === '') {
+                    setLoadedSchoolPrograms([]);
+                } else {
+                    fetchSchoolPrograms().then((programs)=>{
+                        setLoadedSchoolPrograms([...programs]);
+                    }).catch((e) => {
+                        console.log(e);
+                        setErrorKey('settingModal.programSelection.error.fetch_school_programs_error');
+                    });
+                }
+
+            } catch (e) {
+                console.log(e);
+                setErrorKey('settingModal.programSelection.error.fetch_user_stats_error');
+            }
+        })();
+        
     }, [currentUser, checkingSchoolName]);
 
     if (programListLoading || isSchoolLoading) {
@@ -341,13 +401,13 @@ const SchoolProgramManagement: React.FC = () => {
                 <Box>
                     <DropDownSelect 
                         names={schoolRecords}
-                        curSelected={selectedSchool}
+                        curSelected={selectedSchools}
                         setCurSelected={setSelected}
                     />
                 </Box>
                 <Box>
                     <ShowPrograms
-                        inUsePrograms={schoolPrograms}
+                        inUsePrograms={loadedSchoolPrograms}
                         availablePrograms={availablePrograms}
                         handleOnClick={handleOnClick}
                         showCheckbox={currentUser?.is_admin || false}
@@ -365,13 +425,13 @@ const SchoolProgramManagement: React.FC = () => {
             <Box sx={{ width: '20%'}}>
                 <SelectList 
                     names={schoolRecords}
-                    curSelected={selectedSchool}
+                    curSelected={selectedSchools}
                     setCurSelected={setSelected}
                 />
             </Box>
             <Box sx={{ width: '80%'}}>
                 <ShowPrograms
-                    inUsePrograms={schoolPrograms}
+                    inUsePrograms={loadedSchoolPrograms}
                     availablePrograms={availablePrograms}
                     handleOnClick={handleOnClick}
                     showCheckbox={currentUser?.is_admin || false}
@@ -396,25 +456,42 @@ const UserProgramManagement: React.FC = () => {
     const { users, setListParams, fetchUsers, fetchStats } = useContext(UsersContext);
     const [ errorKey, setErrorKey ] = useState<string | null>(null);
     const [ isUserListLoading, setIsUserListLoading ] = useState<boolean>(false);
-    const [ selectedUser, setSelectedUser ] = useState<SelectListItem>({ id: 0, name: ''});
+    const [ selectedUsers, setSelectedUsers ] = useState<SelectListItem[]>([]);
+    const [ loadedUserPrograms, setLoadedUserPrograms ] = useState<Program[]>([]);
 
     const handleOnClick = (program: Program) => {
-        const isProgramAdded = userPrograms.findIndex((p) => p.id === program.id) !== -1;
-        if (isProgramAdded) {
-            deleteUserProgram(program.id).catch((e) => {
-                console.log(e);
-            }
-            );
-        } else {
-            addUserProgram(program.id).catch((e) => {
-                console.log(e);
+        if (selectedUsers.length > 1) {
+            selectedUsers.forEach((user) => {
+                ProgramAPI.addUserProgram(user.id, program.id).catch((e) => {
+                    console.log(e);
+                });
+                setLoadedUserPrograms((prevPrograms) => [...prevPrograms, program]);
             });
+        } else if (selectedUsers.length === 0) {
+            return;
+        } else {
+            const isProgramAdded = userPrograms.findIndex((p) => p.id === program.id) !== -1;
+            if (isProgramAdded) {
+                deleteUserProgram(program.id).catch((e) => {
+                    console.log(e);
+                });
+                setLoadedUserPrograms((prevPrograms) => prevPrograms.filter((p) => p.id !== program.id));
+            } else {
+                addUserProgram(program.id).catch((e) => {
+                    console.log(e);
+                });
+                setLoadedUserPrograms((prevPrograms) => [...prevPrograms, program]);
+            }
         }
     };
 
-    const handleUserSelect = (user: SelectListItem) => {
-        setSelectedUser(user);
-        setCheckingUserId(user.id);
+    const handleUserSelect = (users: SelectListItem[]) => {
+        setSelectedUsers([...users]);
+        if (users.length === 1 ) {
+            setCheckingUserId(users[0].id);
+        } else {
+            setCheckingUserId(0);
+        }
     }
 
     useEffect(() => {
@@ -461,19 +538,34 @@ const UserProgramManagement: React.FC = () => {
     useEffect(() => {
         setErrorKey(null);
         if (typeof fetchPrograms !== 'function' || !currentUser) return;
-        
-        if (checkingUserId <= 0) {
-            setCheckingUserId(currentUser?.id || 0);
-        }
 
-        fetchPrograms().catch((e) => {
-            console.log(e);
-            setErrorKey('settingModal.programSelection.error.fetch_programs_error');
-        });
-        fetchUserPrograms().catch((e) => {
-            console.log(e);
-            setErrorKey('settingModal.programSelection.error.fetch_user_programs_error');
-        });
+        (async () => {
+            try {
+                // Fetch programs
+                fetchPrograms().catch((e) => {
+                    console.log(e);
+                    setErrorKey('settingModal.programSelection.error.fetch_programs_error');
+                });
+
+                //Fetch school programs
+                if (checkingUserId <= 0) {
+                    setCheckingUserId(0);
+                    setLoadedUserPrograms([]);
+                } else {
+        
+                    fetchUserPrograms().then((program)=>{
+                        setLoadedUserPrograms([...program]);
+                    }).catch((e) => {
+                        console.log(e);
+                        setErrorKey('settingModal.programSelection.error.fetch_user_programs_error');
+                    });
+                }
+
+            } catch (e) {
+                console.log(e);
+                setErrorKey('settingModal.programSelection.error.fetch_user_stats_error');
+            }
+        })();
     }, [currentUser, checkingUserId]);
 
     if (programListLoading || isUserLoading || isUserListLoading) {
@@ -491,13 +583,13 @@ const UserProgramManagement: React.FC = () => {
                 <Box>
                     <DropDownSelect 
                         names={userRecord}
-                        curSelected={selectedUser}
+                        curSelected={selectedUsers}
                         setCurSelected={handleUserSelect}
                     />
                 </Box>
                 <Box>
                     <ShowPrograms
-                        inUsePrograms={userPrograms}
+                        inUsePrograms={loadedUserPrograms}
                         availablePrograms={availablePrograms}
                         handleOnClick={handleOnClick}
                         showCheckbox={currentUser?.is_admin || false}
@@ -515,13 +607,13 @@ const UserProgramManagement: React.FC = () => {
             <Box sx={{ width: '20%'}}>
                 <SelectList 
                     names={userRecord}
-                    curSelected={selectedUser}
+                    curSelected={selectedUsers}
                     setCurSelected={handleUserSelect}
                 />
             </Box>
             <Box sx={{ width: '80%'}}>
                 <ShowPrograms
-                    inUsePrograms={userPrograms}
+                    inUsePrograms={loadedUserPrograms}
                     availablePrograms={availablePrograms}
                     handleOnClick={handleOnClick}
                     showCheckbox={currentUser?.is_admin || false}
@@ -550,17 +642,23 @@ const ManagementTabs: React.FC<ManagementTabsProps> = ({ value, setValue }) => {
     switch (tabName) {
       case 'general':
         return (
-            <GeneralProgramManagement />
+            <ProgramProvider>
+                <GeneralProgramManagement />
+            </ProgramProvider>
       );
       case 'school':
         return (
-            <SchoolProgramManagement />
+            <ProgramProvider>
+                <SchoolProgramManagement />
+            </ProgramProvider>
         );
       case 'user':
         return (
-            <UsersProvider>
-                <UserProgramManagement />
-            </UsersProvider>
+            <ProgramProvider>
+                <UsersProvider>
+                    <UserProgramManagement />
+                </UsersProvider>
+            </ProgramProvider>
         );
       default:
         return null;
