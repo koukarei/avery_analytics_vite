@@ -119,6 +119,7 @@ export const Writing: React.FC<WritingProps> = ({
                     setUserAction('resume');
                 }
                 wsClientRef.current = new socketCls(leaderboard_id);
+                wsClientRef.current.writingData.program = curProgram ? curProgram.name : 'none';
             }
             let obj= null;
             wsClientRef.current.currentAction = userAction;

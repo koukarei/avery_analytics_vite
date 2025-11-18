@@ -4,6 +4,7 @@ import type { MessageReceived } from "../../types/websocketAPI";
 import { wsAPI } from "../../api/WritingWS";
 
 type writingClsData = {
+    program: string;
     feedback: string;
     leaderboard_id: number;
     leaderboard_image: string;
@@ -28,6 +29,7 @@ export class socketCls {
     currentAction: 'none' | 'start' | 'resume' | 'hint' | 'change_display_name' | 'submit' | 'evaluate' | 'end' = 'none';
 
     writingData: writingClsData = {
+        program: '',
         feedback: '',
         leaderboard_id: 0,
         leaderboard_image: '',
@@ -144,7 +146,7 @@ export class socketCls {
                 }
                 message = {
                     action: 'start',
-                    program: sessionStorage.getItem('program') || 'none',
+                    program: this.writingData.program,
                     obj: object as RoundStart
                 }
                 break
@@ -159,7 +161,7 @@ export class socketCls {
                 }
                 message = {
                     action: 'resume',
-                    program: sessionStorage.getItem('program') || 'none',
+                    program: this.writingData.program,
                     obj: object as RoundStart
                 }
                 break
@@ -170,14 +172,14 @@ export class socketCls {
                 }
                 message = {
                     action: 'hint',
-                    program: sessionStorage.getItem('program') || 'none',
+                    program: this.writingData.program,
                     obj: object as MessageSend
                 }
                 break
             case 'change_display_name':
                 message = {
                     action: 'change_display_name',
-                    program: sessionStorage.getItem('program') || 'none',
+                    program: this.writingData.program,
                     obj: object as RoundUpdateName
                 }
                 break
@@ -187,7 +189,7 @@ export class socketCls {
                 }
                 message = {
                     action: 'submit',
-                    program: sessionStorage.getItem('program') || 'none',
+                    program: this.writingData.program,
                     obj: object as GenerationStart
                 }
                 break

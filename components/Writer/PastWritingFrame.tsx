@@ -28,6 +28,7 @@ import { LoadingSpinner } from '../Common/LoadingSpinner';
 
 import { GenerationDetailContext, GenerationImageContext, GenerationEvaluationContext } from '../../providers/GenerationProvider';
 import type { GenerationDetail } from '../../types/studentWork';
+import { resolve } from 'path';
 
 interface PastWritingsProps {
   generation_ids: number[];
@@ -215,6 +216,7 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
         if (!feedback || !feedback.includes("IMG") || !generation_id) return;
 
         const pollImg = async () => {
+            const retryDelay = 3 //seconds
             // already satisfied from existing detailData
             if (detailData && (detailData.interpreted_image !== undefined && detailData.interpreted_image?.id !== undefined)) {
                 setImgFeedbackLoaded(true);
@@ -241,7 +243,7 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
             }
 
             if (!imgCancelRef.current) {
-                window.setTimeout(pollImg, 1000);
+                await new Promise((resolve) => setTimeout(resolve, retryDelay * 1000));
             }
         };
 
