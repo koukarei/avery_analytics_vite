@@ -28,7 +28,6 @@ import { LoadingSpinner } from '../Common/LoadingSpinner';
 
 import { GenerationDetailContext, GenerationImageContext, GenerationEvaluationContext } from '../../providers/GenerationProvider';
 import type { GenerationDetail } from '../../types/studentWork';
-import { resolve } from 'path';
 
 interface PastWritingsProps {
   generation_ids: number[];
