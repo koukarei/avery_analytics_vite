@@ -57,7 +57,7 @@ const GenerationImageProvider = ({
 
   const fetchImage = useCallback(async ({ generation_id }: { generation_id: number }) => {
     setLoading(true);
-    const retryLimit = 3;
+    const retryLimit = 10;
     const retryDelay = 5; // seconds
     let attempt = 0;
 
