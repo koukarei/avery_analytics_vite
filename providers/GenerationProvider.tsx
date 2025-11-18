@@ -57,12 +57,25 @@ const GenerationImageProvider = ({
 
   const fetchImage = useCallback(async ({ generation_id }: { generation_id: number }) => {
     setLoading(true);
+    const retryLimit = 3;
+    const retryDelay = 5; // seconds
+    let attempt = 0;
+
     let imageData: string | null = null;
-    try {
-      imageData = await GenerationItemAPI.fetchGenerationImage(generation_id);
-      setImage(imageData);
-    } catch (e) {
-      console.log(e);
+    while (attempt < retryLimit) {
+      try {
+        imageData = await GenerationItemAPI.fetchGenerationImage(generation_id);
+        setImage(imageData);
+      } catch (e) {
+        console.log(e);
+      }
+      if (imageData) {
+        break;
+      }
+      attempt++;
+      if (attempt < retryLimit) {
+        await new Promise((resolve) => setTimeout(resolve, retryDelay * 1000));
+      }
     }
     setLoading(false);
     return imageData;

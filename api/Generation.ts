@@ -23,7 +23,7 @@ export class GenerationItemAPI {
         : {},
     });
     if (response.status !== 200) {
-      return "";
+      throw new Error('Failed to fetch generation image');
     };
 
     const blob = new Blob([response.data], { type: response.headers['content-type'] });
