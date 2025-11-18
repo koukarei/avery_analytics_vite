@@ -53,15 +53,11 @@ export const CustomSettingProvider = ({
         if ( isInitialized || !currentUser) return;
         (async () =>{
             try {
-                await ProgramAPI.fetchUserPrograms(currentUser?.id || 0).then((programs) => {
-                    if (programs.length > 0) {
-                        setCurProgram(programs[0]);
-                        const savedProgram = programs.find(p => p.name === programName);
-                        if (savedProgram) {
-                            setCurProgram(savedProgram);
-                        }
-                    }
-                });
+                const programs = await ProgramAPI.fetchUserPrograms(currentUser?.id || 0);
+                if (programs.length > 0) {
+                    const savedProgram = programs.find(p => p.name === programName);
+                    setCurProgram(savedProgram ?? programs[0]);
+                }
             } catch (error) {
                 console.error("Failed to fetch program list:", error);
             } finally {
@@ -69,6 +65,13 @@ export const CustomSettingProvider = ({
             }
         })();
     }, [currentUser])
+
+    // save selection whenever it changes
+    useEffect(() => {
+        if (curProgram) {
+            sessionStorage.setItem("program", curProgram.name);
+        }
+    }, [curProgram]);
 
     return (
         <CustomSettingContext.Provider value={contextValue}>
