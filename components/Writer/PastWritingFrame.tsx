@@ -89,7 +89,7 @@ const GenerationFeedback: React.FC<GenerationFeedbackProps> = ({
         return (
         <>
             <Box mt={2}>
-                {showImage && imageUrl ? (
+                {showImage && imgFeedbackLoaded && imageUrl ? (
                     <img src={imageUrl ? imageUrl : ""} alt="Generated" style={{ maxWidth: '100%' }} />
                 ) : null}
             </Box>
@@ -101,7 +101,7 @@ const GenerationFeedback: React.FC<GenerationFeedbackProps> = ({
         return (
         <>
             <Box mt={2}>
-                {showAWE ? (
+                {showAWE && aweFeedbackLoaded ? (
                     <MarkdownEvalViewer content={aWEText ? aWEText : ""} />
                 ) : null }
             </Box>
