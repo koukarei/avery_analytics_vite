@@ -703,7 +703,7 @@ const UserProgramManagement: React.FC = () => {
                         inUsePrograms={loadedUserPrograms}
                         availablePrograms={availablePrograms}
                         handleOnClick={handleOnClick}
-                        showCheckbox={currentUser?.is_admin || false}
+                        showCheckbox={currentUser?.user_type === 'instructor' || currentUser?.is_admin || false}
                     />
                 </Box>
 
@@ -728,7 +728,7 @@ const UserProgramManagement: React.FC = () => {
                         inUsePrograms={loadedUserPrograms}
                         availablePrograms={availablePrograms}
                         handleOnClick={handleOnClick}
-                        showCheckbox={currentUser?.is_admin || false}
+                        showCheckbox={currentUser?.user_type==="instructor" || false}
                     />
                 </Box>
 
