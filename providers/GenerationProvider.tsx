@@ -65,12 +65,12 @@ const GenerationImageProvider = ({
     while (attempt < retryLimit) {
       try {
         imageData = await GenerationItemAPI.fetchGenerationImage(generation_id);
-        setImage(imageData);
+        if (imageData) {
+          setImage(imageData);
+          break;
+        }
       } catch (e) {
         console.log(e);
-      }
-      if (imageData) {
-        break;
       }
       attempt++;
       if (attempt < retryLimit) {
