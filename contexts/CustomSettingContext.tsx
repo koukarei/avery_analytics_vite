@@ -50,22 +50,24 @@ export const CustomSettingProvider = ({
     };
 
     useEffect(() => {
-        setIsInitialized(false);
-        try {
-            ProgramAPI.fetchProgramList().then((programs) => {
-                if (programs.length > 0) {
-                    setCurProgram(programs[0]);
-                    const savedProgram = programs.find(p => p.name === programName);
-                    if (savedProgram) {
-                        setCurProgram(savedProgram);
+        if ( isInitialized || !currentUser) return;
+        (async () =>{
+            try {
+                await ProgramAPI.fetchUserPrograms(currentUser?.id || 0).then((programs) => {
+                    if (programs.length > 0) {
+                        setCurProgram(programs[0]);
+                        const savedProgram = programs.find(p => p.name === programName);
+                        if (savedProgram) {
+                            setCurProgram(savedProgram);
+                        }
                     }
-                }
-            });
-        } catch (error) {
-            console.error("Failed to fetch program list:", error);
-        } finally {
-            setIsInitialized(true);
-        }
+                });
+            } catch (error) {
+                console.error("Failed to fetch program list:", error);
+            } finally {
+                setIsInitialized(true);
+            }
+        })();
     }, [currentUser])
 
     return (
