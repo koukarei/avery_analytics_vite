@@ -77,6 +77,9 @@ const GenerationFeedback: React.FC<GenerationFeedbackProps> = ({
  }) => {
     const { t } = useLocalization();
 
+    useEffect(()=> {
+    }, [imageUrl, aWEText]);
+
     if (feedbackLoading) {
         return <LoadingSpinner />;
     }
