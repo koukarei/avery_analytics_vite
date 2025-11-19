@@ -239,8 +239,6 @@ function AnonymousSignup() {
   const onSubmit = async (data: RandomSignupData) => {
     try {
       await UserAuthAPI.randomSignup(data);
-      await navigator.clipboard.writeText(data.username);
-      alert(`ユーザー名 "${data.username}" がクリップボードにコピーされました。ログイン時に使用してください。`);
       navigate("/login?signin");
     } catch (e) {
       console.log(e);
@@ -263,6 +261,9 @@ function AnonymousSignup() {
           message: "新規登録に失敗しました"
         });
       }
+    } finally {
+      await navigator.clipboard.writeText(data.username);
+      alert(`ユーザー名 "${data.username}" がクリップボードにコピーされました。ログイン時に使用してください。`);
     }
   };
   return (
