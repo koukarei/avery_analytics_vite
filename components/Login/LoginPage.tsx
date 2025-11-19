@@ -186,7 +186,7 @@ function Signin() {
         </button>
       </form>
       <div css={navigateLinkStyle(theme)}>
-        <Link to="/login?signup">新規登録</Link>
+        <Link to="/login?signup_anonymous">新規登録</Link>
       </div>
     </>
   );
