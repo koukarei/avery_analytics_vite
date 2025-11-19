@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import React from "react";
+import React, { useEffect } from "react";
 import { css, keyframes } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
@@ -127,6 +127,14 @@ function Signin() {
     }
   };
 
+  React.useEffect(() => {
+    const storedUsername = sessionStorage.getItem("username");
+    if (storedUsername) {
+      setValue("username", storedUsername);
+      sessionStorage.removeItem("username");
+    }
+  }, []);
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)} css={formStyle}>
@@ -239,6 +247,7 @@ function AnonymousSignup() {
   const onSubmit = async (data: RandomSignupData) => {
     try {
       await UserAuthAPI.randomSignup(data);
+      sessionStorage.setItem("username", data.username);
       navigate("/login?signin");
     } catch (e) {
       console.log(e);
@@ -261,9 +270,6 @@ function AnonymousSignup() {
           message: "新規登録に失敗しました"
         });
       }
-    } finally {
-      await navigator.clipboard.writeText(data.username);
-      alert(`ユーザー名 "${data.username}" がクリップボードにコピーされました。ログイン時に使用してください。`);
     }
   };
   return (
@@ -361,7 +367,7 @@ function AnonymousSignup() {
             )}
           />
           <Typography variant="body2">
-            <Link to="/terms" target="_blank" rel="noopener noreferrer">データ収集規約</Link>を必ずお読みください。
+            <Link to="/terms" >データ収集規約</Link>を必ずお読みください。
           </Typography>
         </div>
         <button type="submit" css={okButtonStyle (theme)}>
