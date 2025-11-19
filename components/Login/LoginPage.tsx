@@ -5,7 +5,7 @@ import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Controller, useForm, type UseFormSetValue, type FieldValues, type Path } from "react-hook-form";
-import { Box, Checkbox, FormControlLabel, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
+import { Box, Checkbox, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
 import HighlightOffIcon from '../icons/HighlightOffIcon';
 import type { SigninData, SignupData, RandomSignupData } from "../../types/auth";
 import { UserAuthAPI } from "../../api/UserAuth";
