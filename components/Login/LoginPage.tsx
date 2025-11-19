@@ -221,8 +221,18 @@ function AnonymousSignup() {
     getValues,
     setError,
     formState: { errors },
-  } = useForm<RandomSignupData>({});
+  } = useForm<RandomSignupData>({
+    defaultValues:{
+      agree_terms: false,
+    }
+  });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (username) {
+      setValue("username", username);
+    }
+  }, [username, setValue]);
 
   // Define a type for the error
   type ApiError = {
@@ -245,6 +255,7 @@ function AnonymousSignup() {
   }
 
   const onSubmit = async (data: RandomSignupData) => {
+    console.log(data);
     try {
       await UserAuthAPI.randomSignup(data);
       sessionStorage.setItem("username", data.username);
@@ -348,28 +359,37 @@ function AnonymousSignup() {
           />
         </div>
         <div css={formInputStyle}>
-          <Controller
-            name="agree_terms"
-            control={control}
-            rules={{
-              required: "データ収集規約に同意してください",
-              validate: (input) => {
-                if (input !== true) {
-                  return "データ収集規約に同意してください";
-                }
-              },
-            }}
-            render={({ field }) => (
-              <Checkbox
-                {...field}
-                checked={field.value || false}
-              />
-            )}
-          />
-          <Typography variant="body2">
-            <Link to="/terms" >データ収集規約</Link>を必ずお読みください。
-          </Typography>
+          <div css={agreeTermStyle}>
+            <Controller
+              name="agree_terms"
+              control={control}
+              rules={{
+                required: "データ収集に関する同意が必要です",
+                validate: (input) => {
+                  if (input !== true) {
+                    return "データ収集に関する同意が必要です";
+                  }
+                },
+              }}
+              render={({ field }) => (
+                <Checkbox
+                  checked={field.value}
+                  onChange={
+                    (_e, checked)=>{
+                      field.onChange(checked)
+                    }
+                  }
+                />
+              )}
+            />
+            <Typography variant="body2">
+              <Link css={agreeTermLinkStyle} to="/terms.pdf" >データ収集に関する同意書</Link>に同意した上で、登録を行ってください。
+            </Typography>
+          </div>
         </div>
+        {errors.agree_terms && (
+          <div css={errorMessageStyle}>{errors.agree_terms.message}</div>
+        )}
         <button type="submit" css={okButtonStyle (theme)}>
           登録
         </button>
@@ -742,7 +762,19 @@ const selectLoginLinkStyle = (theme: Theme) => css`
   background-color: ${theme.palette.primary.contrastText};
 `;
 
+const agreeTermStyle = css`
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  text-align: left;
+  justify-content: flex-start;
+`
+
 const errorMessageStyle = css`
   font-size: 14px;
-  color: red;
+  color: #d32f2f;
+`;
+
+const agreeTermLinkStyle = css`
+  text-decoration: underline;
 `;
