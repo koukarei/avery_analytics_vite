@@ -378,7 +378,7 @@ function AnonymousSignup() {
               )}
             />
             <Typography variant="body2">
-              <Link css={agreeTermLinkStyle} to="/terms.pdf" >データ収集に関する同意書</Link>に同意した上で、登録を行ってください。
+              <a css={agreeTermLinkStyle} href="/avery_analytics/terms.pdf" >データ収集に関する同意書</a>に同意した上で、登録を行ってください。
             </Typography>
           </div>
         </div>
