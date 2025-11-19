@@ -1,4 +1,5 @@
 /** @jsxImportSource @emotion/react */
+import React from "react";
 import { css, keyframes } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
@@ -193,16 +194,17 @@ function Signin() {
 }
 
 function AnonymousSignup() {
+  const [username, setUsername] = React.useState<string>("");
 
-  const generateRandomUsername = async () => {
-    try {
-      const response = await UserAuthAPI.randomUsername();
-      return response.username;
-    } catch (e) {
-      console.log(e);
+  React.useEffect(() => {
+    if (!username) {
+      const fetchUsername = async () => {
+        const newUsername = await UserAuthAPI.randomUsername();
+        setUsername(newUsername.username);
+      };
+      fetchUsername();
     }
-    return "";
-  };
+  }, []);
 
   const {
     control,
@@ -278,7 +280,7 @@ function AnonymousSignup() {
                 fullWidth
                 disabled
                 label="ユーザー名"
-                value={async()=>{generateRandomUsername}}
+                value={username}
               />
             )}
           />
