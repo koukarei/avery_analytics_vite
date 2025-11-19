@@ -89,6 +89,9 @@ const GenerationFeedback: React.FC<GenerationFeedbackProps> = ({
     }
 
     if (needIMG && !needAWE) {
+        if (!imgFeedbackLoaded) {
+            return <LoadingSpinner />;
+        }
         return (
         <>
             <Box mt={2}>
@@ -101,6 +104,9 @@ const GenerationFeedback: React.FC<GenerationFeedbackProps> = ({
     }
 
     if (!needIMG && needAWE) {
+        if (!aweFeedbackLoaded) {
+            return <LoadingSpinner />;
+        }
         return (
         <>
             <Box mt={2}>
@@ -190,7 +196,7 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
             if (detailData) {
                 setDetailData(detailData);
             }
-            if (imageData && imageData) {
+            if (imageData && imageData && imageData !== "") {
                 setImageUrl(imageData);
             }
             if (evaluationData && evaluationData.content) {
@@ -215,11 +221,29 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
         if (!feedback || !feedback.includes("IMG") || !generation_id) return;
 
         const pollImg = async () => {
-            const retryDelay = 3 //seconds
-            // already satisfied from existing detailData
-            if (detailData && (detailData.interpreted_image !== undefined && detailData.interpreted_image?.id !== undefined)) {
+            const retryDelay = 3; // seconds
+
+            // if we already have a fetched image URL, mark ready
+            if (imageUrl) {
                 setImgFeedbackLoaded(true);
                 return;
+            }
+
+            // if detailData already indicates an interpreted image, attempt to fetch it
+            if (detailData && (detailData.interpreted_image !== undefined && detailData.interpreted_image?.id !== undefined)) {
+                try {
+                    const fetchedImage = await fetchImage({ generation_id });
+                    if (imgCancelRef.current) return;
+                    if (fetchedImage && fetchedImage !== "") {
+                        setImageUrl(fetchedImage);
+                        setImgFeedbackLoaded(true);
+                        return;
+                    }
+                    // if fetchImage returned empty, fall through to retry loop
+                } catch (e) {
+                    console.error('pollImg fetchImage error', e);
+                    // continue to retry until limit
+                }
             }
 
             if (imgAttemptsRef.current >= 5) {
@@ -232,10 +256,7 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
                 const d = await fetchDetail(generation_id);
                 if (imgCancelRef.current) return;
                 if (d) setDetailData(d);
-                if (d && (d.interpreted_image !== undefined && d.interpreted_image?.id !== undefined)) {
-                    setImgFeedbackLoaded(true);
-                    return;
-                }
+                // if the updated detail includes interpreted_image id, try to fetch the image next iteration
             } catch (e) {
                 // ignore and retry until limit
                 console.error('pollImg fetchDetail error', e);
@@ -243,13 +264,15 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
 
             if (!imgCancelRef.current) {
                 await new Promise((resolve) => setTimeout(resolve, retryDelay * 1000));
+                // schedule next poll iteration
+                if (!imgCancelRef.current) pollImg();
             }
         };
 
         pollImg();
 
         return () => { imgCancelRef.current = true; };
-    }, [feedback, generation_id, fetchDetail, detailData]);
+    }, [feedback, generation_id, fetchDetail, detailData, fetchImage, imageUrl]);
 
     // Poll for evaluation up to 5 times when feedback requests AWE
     useEffect(() => {
