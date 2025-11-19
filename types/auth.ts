@@ -16,4 +16,5 @@ export type RandomSignupData = {
   username: string;
   password: string;
   password2: string;
+  agree_terms: boolean;
   };

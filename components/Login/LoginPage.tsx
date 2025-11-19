@@ -5,7 +5,7 @@ import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Controller, useForm, type UseFormSetValue, type FieldValues, type Path } from "react-hook-form";
-import { Box, IconButton, InputAdornment, TextField } from "@mui/material";
+import { Box, Checkbox, FormControlLabel, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
 import HighlightOffIcon from '../icons/HighlightOffIcon';
 import type { SigninData, SignupData, RandomSignupData } from "../../types/auth";
 import { UserAuthAPI } from "../../api/UserAuth";
@@ -339,6 +339,34 @@ function AnonymousSignup() {
               />
             )}
           />
+        </div>
+        <div css={formInputStyle}>
+          <Controller
+            name="agree_terms"
+            control={control}
+            rules={{
+              required: "データ収集規約に同意してください",
+              validate: (input) => {
+                if (input !== true) {
+                  return "データ収集規約に同意してください";
+                }
+              },
+            }}
+            render={({ field }) => (
+              <FormControlLabel
+                control={
+                <Checkbox
+                  {...field}
+                  checked={field.value || false}
+                />
+                }
+                label="データ収集規約に同意する"
+              />
+            )}
+          />
+          <Typography variant="body2">
+            <Link to="/terms" target="_blank" rel="noopener noreferrer">データ収集規約</Link>を必ずお読みください。
+          </Typography>
         </div>
         <button type="submit" css={okButtonStyle (theme)}>
           登録
