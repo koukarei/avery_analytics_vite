@@ -127,7 +127,7 @@ function Signin() {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     const storedUsername = sessionStorage.getItem("username");
     if (storedUsername) {
       setValue("username", storedUsername);
@@ -204,7 +204,7 @@ function Signin() {
 function AnonymousSignup() {
   const [username, setUsername] = React.useState<string>("");
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!username) {
       const fetchUsername = async () => {
         const newUsername = await UserAuthAPI.randomUsername();
