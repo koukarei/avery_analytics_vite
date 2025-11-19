@@ -211,8 +211,10 @@ function AnonymousSignup() {
         setUsername(newUsername.username);
       };
       fetchUsername();
+    } else {
+      setValue("username", username)
     }
-  }, []);
+  }, [username]);
 
   const {
     control,
@@ -227,12 +229,6 @@ function AnonymousSignup() {
     }
   });
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (username) {
-      setValue("username", username);
-    }
-  }, [username, setValue]);
 
   // Define a type for the error
   type ApiError = {
