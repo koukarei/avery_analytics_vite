@@ -354,14 +354,9 @@ function AnonymousSignup() {
               },
             }}
             render={({ field }) => (
-              <FormControlLabel
-                control={
-                <Checkbox
-                  {...field}
-                  checked={field.value || false}
-                />
-                }
-                label="データ収集規約に同意する"
+              <Checkbox
+                {...field}
+                checked={field.value || false}
               />
             )}
           />
