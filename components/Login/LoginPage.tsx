@@ -119,7 +119,7 @@ function Signin() {
       }
       navigate("/writer");
     } catch (e) {
-      console.log(e);
+      console.error(e);
       setError("root", {
         type: "manual",
         message: "ユーザー名またはパスワードが違います。",
@@ -255,13 +255,12 @@ function AnonymousSignup() {
   }
 
   const onSubmit = async (data: RandomSignupData) => {
-    console.log(data);
     try {
       await UserAuthAPI.randomSignup(data);
       sessionStorage.setItem("username", data.username);
       navigate("/login?signin");
     } catch (e) {
-      console.log(e);
+      console.error(e);
       
       if (isApiError(e) && e.response.status === 400) {
         if (e.response.data.detail === "Username already registered") {
@@ -437,7 +436,7 @@ function Signup() {
       await UserAuthAPI.signup(data);
       navigate("/login?signin");
     } catch (e) {
-      console.log(e);
+      console.error(e);
       
       if (isApiError(e) && e.response.status === 400) {
         if (e.response.data.detail === "Email already registered") {
