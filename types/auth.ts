@@ -11,3 +11,9 @@ export type SignupData = {
   password: string;
   password2: string;
   };
+  
+export type RandomSignupData = {
+  username: string;
+  password: string;
+  password2: string;
+  };

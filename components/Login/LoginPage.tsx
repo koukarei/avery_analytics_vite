@@ -6,7 +6,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Controller, useForm, type UseFormSetValue, type FieldValues, type Path } from "react-hook-form";
 import { Box, IconButton, InputAdornment, TextField } from "@mui/material";
 import HighlightOffIcon from '../icons/HighlightOffIcon';
-import type { SigninData, SignupData } from "../../types/auth";
+import type { SigninData, SignupData, RandomSignupData } from "../../types/auth";
 import { UserAuthAPI } from "../../api/UserAuth";
 
 function ClearAdornment<T extends FieldValues>({ 
@@ -187,6 +187,186 @@ function Signin() {
       </form>
       <div css={navigateLinkStyle(theme)}>
         <Link to="/login?signup">新規登録</Link>
+      </div>
+    </>
+  );
+}
+
+function AnonymousSignup() {
+
+  const generateRandomUsername = async () => {
+    try {
+      const response = await UserAuthAPI.randomUsername();
+      return response.username;
+    } catch (e) {
+      console.log(e);
+    }
+    return "";
+  };
+
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    getValues,
+    setError,
+    formState: { errors },
+  } = useForm<RandomSignupData>({});
+  const navigate = useNavigate();
+
+  // Define a type for the error
+  type ApiError = {
+    response: {
+      status: number;
+      data: {
+        detail: string;
+      };
+    };
+  };
+
+  // Create a type guard
+  function isApiError(error: unknown): error is ApiError {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'response' in error &&
+      typeof (error as any).response === 'object'
+    );
+  }
+
+  const onSubmit = async (data: RandomSignupData) => {
+    try {
+      await UserAuthAPI.randomSignup(data);
+      await navigator.clipboard.writeText(data.username);
+      alert(`ユーザー名 "${data.username}" がクリップボードにコピーされました。ログイン時に使用してください。`);
+      navigate("/login?signin");
+    } catch (e) {
+      console.log(e);
+      
+      if (isApiError(e) && e.response.status === 400) {
+        if (e.response.data.detail === "Username already registered") {
+          setError("username", { 
+            type: "manual", 
+            message: "このユーザー名は既に使用されています" 
+          });
+        } else {
+          setError("root", {
+            type: "manual",
+            message: "新規登録に失敗しました"
+          });
+        }
+      } else {
+        setError("root", {
+          type: "manual",
+          message: "新規登録に失敗しました"
+        });
+      }
+    }
+  };
+  return (
+    <>
+      <form onSubmit={handleSubmit(onSubmit)} css={formStyle}>
+        <h1>新規登録</h1>
+        <div css={formInputStyle}>
+          <Controller
+            name="username"
+            control={control}
+            rules={rules.username}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                fullWidth
+                disabled
+                label="ユーザー名"
+                value={async()=>{generateRandomUsername}}
+              />
+            )}
+          />
+        </div>
+        <div css={formInputStyle}>
+          <Controller
+            name="password"
+            control={control}
+            rules={rules.password}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                fullWidth
+                type="password"
+                label="パスワード"
+                error={errors[field.name] ? true : false}
+                helperText={(errors[field.name]?.message as string) || " "}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <ClearAdornment name={field.name} setValue={setValue} />
+                    ),
+                  },
+                }}
+              />
+            )}
+          />
+        </div>
+        <div css={formInputStyle}>
+          <Controller
+            name="password2"
+            control={control}
+            rules={{
+              required: "確認用のパスワードを入力してください",
+              validate: (input) => {
+                if (input !== getValues("password")) {
+                  return "パスワードが一致していません";
+                }
+              },
+            }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                fullWidth
+                type="password"
+                label="パスワード(確認用)"
+                error={errors[field.name] ? true : false}
+                helperText={(errors[field.name]?.message as string) || " "}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <ClearAdornment name={field.name} setValue={setValue} />
+                    ),
+                  },
+                }}
+              />
+            )}
+          />
+        </div>
+        <div css={formInputStyle}>
+          <Controller
+            name="display_name"
+            control={control}
+            rules={rules.display_name}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                fullWidth
+                label="表示名"
+                error={errors[field.name] ? true : false}
+                helperText={(errors[field.name]?.message as string) || " "}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <ClearAdornment name={field.name} setValue={setValue} />
+                    ),
+                  },
+                }}
+              />
+            )}
+          />
+        </div>
+        <button type="submit" css={okButtonStyle (theme)}>
+          登録
+        </button>
+      </form>
+      <div css={navigateLinkStyle (theme)}>
+        <Link to="/login?signin">ログイン</Link>
       </div>
     </>
   );
@@ -403,7 +583,7 @@ function Select() {
       <Link css={selectLoginLinkStyle (theme)} to="/login?signin">
         ログイン
       </Link>
-      <Link to="/login?signup">新規登録</Link>
+      <Link to="/login?signup_anonymous">新規登録</Link>
     </div>
   );
 }
@@ -414,6 +594,8 @@ export default function LoginPage() {
   let comp;
   if (searchParams.has("signin")) {
     comp = <Signin />;
+  } else if (searchParams.has("signup_anonymous")) {
+    comp = <AnonymousSignup />;
   } else if (searchParams.has("signup")) {
     comp = <Signup />;
   } else {

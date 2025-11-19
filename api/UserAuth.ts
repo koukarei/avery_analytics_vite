@@ -1,7 +1,8 @@
 import { authAxios } from "./axios";
 import type {
   SigninData,
-  SignupData
+  SignupData,
+  RandomSignupData
 } from "../types/auth";
 
 export class UserAuthAPI {
@@ -17,6 +18,21 @@ export class UserAuthAPI {
     }else{
       return response.data;
     }
+  }
+
+  static async randomUsername(): Promise<{ username: string }> {
+    const response = await authAxios.get("users/random_username");
+    return response.data;
+  }
+
+  static async randomSignup(data: RandomSignupData): Promise<void> {
+    const response = await authAxios.post("users/random_username", data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true
+    });
+    return response.data;
   }
 
   static async signup(data: SignupData): Promise<void> {
