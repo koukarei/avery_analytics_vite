@@ -338,29 +338,6 @@ function AnonymousSignup() {
             )}
           />
         </div>
-        <div css={formInputStyle}>
-          <Controller
-            name="display_name"
-            control={control}
-            rules={rules.display_name}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                fullWidth
-                label="表示名"
-                error={errors[field.name] ? true : false}
-                helperText={(errors[field.name]?.message as string) || " "}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <ClearAdornment name={field.name} setValue={setValue} />
-                    ),
-                  },
-                }}
-              />
-            )}
-          />
-        </div>
         <button type="submit" css={okButtonStyle (theme)}>
           登録
         </button>
