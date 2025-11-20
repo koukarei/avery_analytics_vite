@@ -38,8 +38,8 @@ export const GalleryBrowsing: React.FC<GalleryBrowsingProps> = ({ view, setView,
   const [ toLoadStart, setToLoadStart ] = useState<number>(0);
   const [ toLoadEnd, setToLoadEnd ] = useState<number>(0);
 
-  const [errorKey, setErrorKey] = useState<string | null>(null);
-  const [n_leaderboards, setN_Leaderboards] = useState<number>(0);
+  const [ errorKey, setErrorKey ] = useState<string | null>(null);
+  const [ n_leaderboards, setN_Leaderboards ] = useState<number>(0);
   const limitLeaderboardIndex = 3;
   const test=false;
 

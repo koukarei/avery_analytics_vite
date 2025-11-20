@@ -33,6 +33,12 @@ interface ImagePanelProps {
   onMouseLeave: () => void;
   onClick?: () => void; // Added for click navigation
   setCurrentImageUrl: (url: string) => void;
+  loadedImageUrls: ImageUrlMap;
+  setLoadedImageUrls: (urls: ImageUrlMap) => void;
+}
+
+interface ImageUrlMap {
+  [key: number]: string;
 }
 
 const ImagePanel: React.FC<ImagePanelProps> = ({ 
@@ -42,7 +48,9 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   onMouseEnter, 
   onMouseLeave,
   onClick,
-  setCurrentImageUrl
+  setCurrentImageUrl,
+  loadedImageUrls,
+  setLoadedImageUrls
 }) => {
   const { t } = useLocalization();
   const { loading, fetchImage } = useContext(LeaderboardImageContext);
@@ -70,8 +78,17 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   useEffect(() => {
     setErrorKey(null);
     if (leaderboard) {
+      if (loadedImageUrls[leaderboard.id]) {
+        const imgUrl = loadedImageUrls[leaderboard.id];
+        setLoadedImageUrl(imgUrl);
+        return;
+      }
       fetchImage(leaderboard?.id).then(imageUrl => {
         setLoadedImageUrl(imageUrl);
+        if (imageUrl) {
+          setLoadedImageUrls({...loadedImageUrls, [leaderboard.id]: imageUrl});
+        }
+        return;
       }).catch(err => {
         setErrorKey('error.fetch_leaderboard_image');
         console.error("Failed to fetch leaderboard image: ", err);
@@ -197,7 +214,8 @@ function useDebouncedCallback<A extends unknown[],>(
 
 export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboards, currentIndex, n_leaderboards, setCurrentLeaderboard, setCurrentImageUrl, onScroll }) => {
   const galleryRef = useRef<HTMLDivElement>(null);
-  const [hoveredImageId, setHoveredImageId] = useState<number | null>(null);
+  const [ loadedImageUrls, setLoadedImageUrls ] = useState<ImageUrlMap>({});
+  const [ hoveredImageId, setHoveredImageId ] = useState<number | null>(null);
 
   const debouncedScroll = useDebouncedCallback(onScroll, 150);
   const touchStartX = useRef<number>(0);
@@ -294,6 +312,8 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
         <ImagePanel
           leaderboard={leftImage}
           setCurrentImageUrl={setCurrentImageUrl}
+          loadedImageUrls={loadedImageUrls}
+          setLoadedImageUrls={setLoadedImageUrls}
           position="left"
           isHovered={hoveredImageId === leftImage?.id}
           onMouseEnter={() => leftImage && setHoveredImageId(leftImage.id)}
@@ -309,6 +329,8 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
         <ImagePanel
           leaderboard={centerImage}
           setCurrentImageUrl={setCurrentImageUrl}
+          loadedImageUrls={loadedImageUrls}
+          setLoadedImageUrls={setLoadedImageUrls}
           position="center"
           isHovered={hoveredImageId === centerImage?.id}
           onMouseEnter={() => centerImage && setHoveredImageId(centerImage.id)}
@@ -323,6 +345,8 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
         <ImagePanel
           leaderboard={rightImage}
           setCurrentImageUrl={setCurrentImageUrl}
+          loadedImageUrls={loadedImageUrls}
+          setLoadedImageUrls={setLoadedImageUrls}
           position="right"
           isHovered={hoveredImageId === rightImage?.id}
           onMouseEnter={() => rightImage && setHoveredImageId(rightImage.id)}
