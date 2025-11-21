@@ -39,6 +39,6 @@ export const SETTING_TABS: SettingTab[] = [
     { tabName: 'story', label: 'header.menuDrawer.storyManagement', displayToStudents: true, icon: AutoStoriesIcon },
 ];
 
-export type SCHOOL = "saikyo"| "lms" | "tom" | "tomsec" | "newleaf" | "public";
+export type SCHOOL = "saikyo"| "lms" | "tom" | "tomsec" | "newleaf" | "random" | "public";
 
-export const SCHOOLS: SCHOOL[] = ["saikyo", "lms", "tom", "tomsec", "newleaf", "public"];
+export const SCHOOLS: SCHOOL[] = ["saikyo", "lms", "tom", "tomsec", "newleaf", "random", "public"];
