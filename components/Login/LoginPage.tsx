@@ -127,19 +127,6 @@ function Signin() {
     }
   };
 
-  useEffect(() => {
-    const storedUsername = sessionStorage.getItem("username");
-    const storedPassword = sessionStorage.getItem("password");
-    if (storedPassword) {
-      setValue("password", storedPassword);
-      sessionStorage.removeItem("password");
-    };
-    if (storedUsername) {
-      setValue("username", storedUsername);
-      sessionStorage.removeItem("username");
-    }
-  }, []);
-
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)} css={formStyle}>
@@ -200,7 +187,7 @@ function Signin() {
         </button>
       </form>
       <div css={navigateLinkStyle(theme)}>
-        <Link to="/login?signup_anonymous">新規登録</Link>
+        <Link to="/login?signup">新規登録</Link>
       </div>
     </>
   );
@@ -390,9 +377,6 @@ function AnonymousSignup() {
           登録
         </button>
       </form>
-      <div css={navigateLinkStyle (theme)}>
-        <Link to="/login?signin">ログイン</Link>
-      </div>
     </>
   );
 }
@@ -608,7 +592,7 @@ function Select() {
       <Link css={selectLoginLinkStyle (theme)} to="/login?signin">
         ログイン
       </Link>
-      <Link to="/login?signup_anonymous">新規登録</Link>
+      <Link to="/login?signup">新規登録</Link>
     </div>
   );
 }
