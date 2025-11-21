@@ -219,7 +219,7 @@ function AnonymousSignup() {
         const uppercasePart = Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
         const numberPart = Array.from("0123456789");
         const symbolPart = Array.from("!@#$%^&*()-_=+[]{}|;:,.<>?/~`");
-        [lowercasePart, uppercasePart, numberPart, symbolPart];
+        
         let newPasswordChars: string[] = [];
         newPasswordChars.push(lowercasePart[Math.floor(Math.random() * lowercasePart.length)]);
         newPasswordChars.push(uppercasePart[Math.floor(Math.random() * uppercasePart.length)]);
@@ -245,7 +245,6 @@ function AnonymousSignup() {
     control,
     handleSubmit,
     setValue,
-    getValues,
     setError,
     formState: { errors },
   } = useForm<RandomSignupData>({
@@ -278,9 +277,14 @@ function AnonymousSignup() {
   const onSubmit = async (data: RandomSignupData) => {
     try {
       await UserAuthAPI.randomSignup(data);
-      sessionStorage.setItem("username", data.username);
-      sessionStorage.setItem("password", data.password);
-      navigate("/login?signin");
+      const authData = await UserAuthAPI.login({
+        username: data.username,
+        password: data.password,
+      });
+      for (const [key, value] of Object.entries(authData)) {
+        sessionStorage.setItem(key, String(value));
+      }
+      navigate("/writer");
     } catch (e) {
       console.error(e);
       
@@ -307,7 +311,7 @@ function AnonymousSignup() {
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)} css={formStyle}>
-        <h1>新規登録</h1>
+        {/* <h1>新規登録</h1> */}
         <div css={formInputStyle}>
           <Controller
             name="username"
@@ -317,7 +321,7 @@ function AnonymousSignup() {
               <TextField
                 {...field}
                 fullWidth
-                disabled
+                hidden
                 label="ユーザー名"
                 value={username}
               />
@@ -333,40 +337,9 @@ function AnonymousSignup() {
               <TextField
                 {...field}
                 fullWidth
+                hidden
                 type="password"
                 label="パスワード"
-                value={password}
-                error={errors[field.name] ? true : false}
-                helperText={(errors[field.name]?.message as string) || " "}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <ClearAdornment name={field.name} setValue={setValue} />
-                    ),
-                  },
-                }}
-              />
-            )}
-          />
-        </div>
-        <div css={formInputStyle}>
-          <Controller
-            name="password2"
-            control={control}
-            rules={{
-              required: "確認用のパスワードを入力してください",
-              validate: (input) => {
-                if (input !== getValues("password")) {
-                  return "パスワードが一致していません";
-                }
-              },
-            }}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                fullWidth
-                type="password"
-                label="パスワード(確認用)"
                 value={password}
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}

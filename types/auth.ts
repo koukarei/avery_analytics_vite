@@ -1,7 +1,6 @@
 export type SigninData = {
     username: string;
     password: string;
-    program: string;
   };
   
 export type SignupData = {
@@ -15,6 +14,5 @@ export type SignupData = {
 export type RandomSignupData = {
   username: string;
   password: string;
-  password2: string;
   agree_terms: boolean;
   };
