@@ -129,6 +129,11 @@ function Signin() {
 
   useEffect(() => {
     const storedUsername = sessionStorage.getItem("username");
+    const storedPassword = sessionStorage.getItem("password");
+    if (storedPassword) {
+      setValue("password", storedPassword);
+      sessionStorage.removeItem("password");
+    };
     if (storedUsername) {
       setValue("username", storedUsername);
       sessionStorage.removeItem("username");
@@ -203,18 +208,38 @@ function Signin() {
 
 function AnonymousSignup() {
   const [username, setUsername] = React.useState<string>("");
+  const [password, setPassword] = React.useState<string>("");
 
   useEffect(() => {
-    if (!username) {
+    if (!username || !password) {
       const fetchUsername = async () => {
         const newUsername = await UserAuthAPI.randomUsername();
         setUsername(newUsername.username);
+        const lowercasePart = Array.from("abcdefghijklmnopqrstuvwxyz");
+        const uppercasePart = Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        const numberPart = Array.from("0123456789");
+        const symbolPart = Array.from("!@#$%^&*()-_=+[]{}|;:,.<>?/~`");
+        [lowercasePart, uppercasePart, numberPart, symbolPart];
+        let newPasswordChars: string[] = [];
+        newPasswordChars.push(lowercasePart[Math.floor(Math.random() * lowercasePart.length)]);
+        newPasswordChars.push(uppercasePart[Math.floor(Math.random() * uppercasePart.length)]);
+        newPasswordChars.push(numberPart[Math.floor(Math.random() * numberPart.length)]);
+        newPasswordChars.push(symbolPart[Math.floor(Math.random() * symbolPart.length)]);
+        const allChars = lowercasePart.concat(uppercasePart, numberPart, symbolPart);
+        for (let i = 4; i < 12; i++) {
+          newPasswordChars.push(allChars[Math.floor(Math.random() * allChars.length)]);
+        }
+        // Shuffle the characters
+        newPasswordChars = newPasswordChars.sort(() => Math.random() - 0.5);
+        const newPassword = newPasswordChars.join("");
+        setPassword(newPassword); 
       };
       fetchUsername();
     } else {
       setValue("username", username)
+      setValue("password", password);
     }
-  }, [username]);
+  }, [username, password]);
 
   const {
     control,
@@ -254,6 +279,7 @@ function AnonymousSignup() {
     try {
       await UserAuthAPI.randomSignup(data);
       sessionStorage.setItem("username", data.username);
+      sessionStorage.setItem("password", data.password);
       navigate("/login?signin");
     } catch (e) {
       console.error(e);
@@ -309,6 +335,7 @@ function AnonymousSignup() {
                 fullWidth
                 type="password"
                 label="パスワード"
+                value={password}
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
                 slotProps={{
@@ -340,6 +367,7 @@ function AnonymousSignup() {
                 fullWidth
                 type="password"
                 label="パスワード(確認用)"
+                value={password}
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
                 slotProps={{
