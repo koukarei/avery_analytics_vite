@@ -180,7 +180,7 @@ export const GalleryBrowsing: React.FC<GalleryBrowsingProps> = ({ view, setView,
               </div>
           }
           <div className="h-2/3 relative flex flex-col overflow-hidden pt-4 md:pt-8">
-            {(currentUser?.user_type === 'teacher' || currentUser?.is_admin) && (
+            {(currentUser?.user_type === 'instructor' || currentUser?.is_admin) && (
               <StoryProvider>
               <SceneProvider>
                 <AddImageModal />
