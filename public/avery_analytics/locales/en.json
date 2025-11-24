@@ -4,6 +4,8 @@
   "header.display_name": "Display Name",
   "header.menuDrawer.languageSettings": "Language Settings",
   "header.menuDrawer.programSettings": "Program Settings",
+  "header.menuDrawer.questionnaire": "Questionnaire",
+  "header.menuDrawer.questionnaireLink": "Questionnaire Link",
   "header.menuDrawer.appManagement": "App Management",
   "header.menuDrawer.programManagement": "Program Management",
   "header.menuDrawer.sceneManagement": "Scene Management",
