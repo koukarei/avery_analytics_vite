@@ -12,6 +12,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import PollIcon from '@mui/icons-material/Poll';
 import { css } from "@emotion/react";
 import {theme} from "../src/Theme";
 import { useLocalization } from '../contexts/localizationUtils';
@@ -141,9 +142,21 @@ export default function MenuDrawer({
         </TextField>
       <Divider />
       <Typography sx={{ p: 2, color: 'text.secondary' }}>{t("header.menuDrawer.questionnaire")}</Typography>
-      <Link href={qLink} target="_blank" rel="noopener" sx={{ textDecoration: 'none', paddingLeft: 2, paddingBottom: 2, display: 'block', color: theme.palette.text.primary }}>
-            {t("header.menuDrawer.questionnaireLink")}
-      </Link>
+      <List>
+        <ListItem key={"questionnaire"} disablePadding>
+          <ListItemButton onClick={
+            ()=>{window.open(
+              qLink, "mozillaWindow", "popup"
+            )}
+          }
+          >
+            <ListItemIcon>
+              <PollIcon />
+            </ListItemIcon>
+            <ListItemText primary={t("header.menuDrawer.questionnaire")} />
+          </ListItemButton>
+        </ListItem>
+      </List>
       <Divider />
       <Typography sx={{ p: 2, color: 'text.secondary' }}>{t("header.menuDrawer.appManagement")}</Typography>
       <List>
