@@ -296,8 +296,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
   return (
     <div 
       ref={galleryRef} 
-      className="w-full h-full flex items-start justify-center space-x-[-5%] sm:space-x-[-2%] md:space-x-[-1%] relative" 
-      style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
+      className="w-full h-full" 
       role="region"
       aria-label="Leaderboard"
     >
@@ -308,56 +307,61 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
       >
         <ArrowBackIosIcon />
       </Button>
-      <LeaderboardImageProvider>
-        <ImagePanel
-          leaderboard={leftImage}
-          setCurrentImageUrl={setCurrentImageUrl}
-          loadedImageUrls={loadedImageUrls}
-          setLoadedImageUrls={setLoadedImageUrls}
-          position="left"
-          isHovered={hoveredImageId === leftImage?.id}
-          onMouseEnter={() => leftImage && setHoveredImageId(leftImage.id)}
-          onMouseLeave={() => setHoveredImageId(null)}
-          onClick={leftImage ? () => {
-            debouncedScroll('up')
-            setCurrentLeaderboard(leftImage);
-            setView('detail');
-          } : undefined}
-        />
-      </LeaderboardImageProvider>
-      <LeaderboardImageProvider>
-        <ImagePanel
-          leaderboard={centerImage}
-          setCurrentImageUrl={setCurrentImageUrl}
-          loadedImageUrls={loadedImageUrls}
-          setLoadedImageUrls={setLoadedImageUrls}
-          position="center"
-          isHovered={hoveredImageId === centerImage?.id}
-          onMouseEnter={() => centerImage && setHoveredImageId(centerImage.id)}
-          onMouseLeave={() => setHoveredImageId(null)}
-          onClick={centerImage ? () => {
-            setView('detail'); 
-            setCurrentLeaderboard(centerImage);
-          } : undefined}
-        />
-      </LeaderboardImageProvider>
-      <LeaderboardImageProvider>
-        <ImagePanel
-          leaderboard={rightImage}
-          setCurrentImageUrl={setCurrentImageUrl}
-          loadedImageUrls={loadedImageUrls}
-          setLoadedImageUrls={setLoadedImageUrls}
-          position="right"
-          isHovered={hoveredImageId === rightImage?.id}
-          onMouseEnter={() => rightImage && setHoveredImageId(rightImage.id)}
-          onMouseLeave={() => setHoveredImageId(null)}
-          onClick={rightImage ? () => {
-            debouncedScroll('down')
-            setCurrentLeaderboard(rightImage);
-            setView('detail');
-          } : undefined}
-        />
-      </LeaderboardImageProvider>
+      <div
+        className='w-full h-full flex items-start justify-center space-x-[-5%] sm:space-x-[-2%] md:space-x-[-1%] relative'
+        style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
+        >
+        <LeaderboardImageProvider>
+          <ImagePanel
+            leaderboard={leftImage}
+            setCurrentImageUrl={setCurrentImageUrl}
+            loadedImageUrls={loadedImageUrls}
+            setLoadedImageUrls={setLoadedImageUrls}
+            position="left"
+            isHovered={hoveredImageId === leftImage?.id}
+            onMouseEnter={() => leftImage && setHoveredImageId(leftImage.id)}
+            onMouseLeave={() => setHoveredImageId(null)}
+            onClick={leftImage ? () => {
+              debouncedScroll('up')
+              setCurrentLeaderboard(leftImage);
+              setView('detail');
+            } : undefined}
+          />
+        </LeaderboardImageProvider>
+        <LeaderboardImageProvider>
+          <ImagePanel
+            leaderboard={centerImage}
+            setCurrentImageUrl={setCurrentImageUrl}
+            loadedImageUrls={loadedImageUrls}
+            setLoadedImageUrls={setLoadedImageUrls}
+            position="center"
+            isHovered={hoveredImageId === centerImage?.id}
+            onMouseEnter={() => centerImage && setHoveredImageId(centerImage.id)}
+            onMouseLeave={() => setHoveredImageId(null)}
+            onClick={centerImage ? () => {
+              setView('detail'); 
+              setCurrentLeaderboard(centerImage);
+            } : undefined}
+          />
+        </LeaderboardImageProvider>
+        <LeaderboardImageProvider>
+          <ImagePanel
+            leaderboard={rightImage}
+            setCurrentImageUrl={setCurrentImageUrl}
+            loadedImageUrls={loadedImageUrls}
+            setLoadedImageUrls={setLoadedImageUrls}
+            position="right"
+            isHovered={hoveredImageId === rightImage?.id}
+            onMouseEnter={() => rightImage && setHoveredImageId(rightImage.id)}
+            onMouseLeave={() => setHoveredImageId(null)}
+            onClick={rightImage ? () => {
+              debouncedScroll('down')
+              setCurrentLeaderboard(rightImage);
+              setView('detail');
+            } : undefined}
+          />
+        </LeaderboardImageProvider>
+      </div>
       <Button
         aria-label="Next"
         onClick={() => debouncedScroll('down')}
