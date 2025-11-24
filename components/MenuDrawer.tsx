@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
-import { Divider, MenuItem, Typography } from '@mui/material';
+import { Divider, MenuItem, Typography, Link } from '@mui/material';
 import List from '@mui/material/List';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -44,6 +44,7 @@ export default function MenuDrawer({
   const { curProgram, setCurProgram } = React.useContext(CustomSettingContext);
   const { fetchUserPrograms, setCheckingUserId, userPrograms, isUserLoading } = React.useContext(ProgramContext);
   const { currentUser } = React.useContext(AuthUserContext);
+  const [ qLink, setQLink ] = React.useState<string>('');
   const toggleDrawer =
     (anchor: Anchor, open: boolean) =>
     (event: React.KeyboardEvent | React.MouseEvent) => {
@@ -75,6 +76,19 @@ export default function MenuDrawer({
       })
     }
   }, [currentUser]);
+
+  React.useEffect(() => {
+    if (curProgram && currentUser) {
+      const feedback = curProgram.feedback;
+      const username = currentUser.username;
+      if (feedback && feedback.includes("IMG")) {
+        setQLink(`https://docs.google.com/forms/d/e/1FAIpQLSfgdj3GEPB8edXh-z--9PSaffnDwicq9a8obYJ-PTiToPqZRA/viewform?usp=pp_url&entry.1976829923=${username}`)
+      }
+      if (feedback && feedback.includes("AWE")) {
+        setQLink(`https://docs.google.com/forms/d/e/1FAIpQLSd4udz6WYU0TsMur2f_DOdIvJt51vNfdeQ9gzF5XgAl2TGObA/viewform?usp=pp_url&entry.1976829923=${username}`)
+      }
+    }
+  }, [curProgram]);
 
   const list = (anchor: Anchor) => (
     <Box
@@ -125,7 +139,11 @@ export default function MenuDrawer({
                 </MenuItem>
             ))}
         </TextField>
-
+      <Divider />
+      <Typography sx={{ p: 2, color: 'text.secondary' }}>{t("header.menuDrawer.questionnaire")}</Typography>
+      <Link href={qLink} target="_blank" rel="noopener" sx={{ textDecoration: 'none', paddingLeft: 2, paddingBottom: 2, display: 'block', color: theme.palette.text.primary }}>
+            {t("header.menuDrawer.questionnaireLink")}
+      </Link>
       <Divider />
       <Typography sx={{ p: 2, color: 'text.secondary' }}>{t("header.menuDrawer.appManagement")}</Typography>
       <List>
