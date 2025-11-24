@@ -10,7 +10,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { Alert, Button } from '@mui/material';
 import {theme} from "../../src/Theme";
 import { useLocalization } from '../../contexts/localizationUtils';
-import { LoadingSpinner } from '../Common/LoadingSpinner';
+import { LoadingImagePanel } from '../Common/LoadingImage';
 import { ErrorDisplay } from '../Common/ErrorDisplay';
 import { LeaderboardImageContext, LeaderboardImageProvider } from '../../providers/LeaderboardProvider';
 
@@ -119,12 +119,12 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   
   const renderContent = () => {
     if (loading) {
-      return <LoadingSpinner />;
+      return <LoadingImagePanel position={position} />;
     }
     if (errorKey) {
       return <ErrorDisplay messageKey={errorKey} />;
     }
-
+    
     return (
       <div
         className={`w-2/3 sm:w-1/2 md:w-1/3 aspect-[4/3] cursor-pointer group`}

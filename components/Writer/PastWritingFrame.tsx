@@ -25,6 +25,7 @@ import { MarkdownEvalViewer } from '../../util/showMD';
 //import { compareWriting } from '../../util/CompareWriting';
 
 import { LoadingSpinner } from '../Common/LoadingSpinner';
+import { LoadingImagePanel } from '../Common/LoadingImage';
 
 import { GenerationDetailContext, GenerationImageContext, GenerationEvaluationContext } from '../../providers/GenerationProvider';
 import type { GenerationDetail } from '../../types/studentWork';
@@ -81,6 +82,9 @@ const GenerationFeedback: React.FC<GenerationFeedbackProps> = ({
     }, [imageUrl, aWEText]);
 
     if (feedbackLoading) {
+        if (needIMG) {
+            return <LoadingImagePanel position="center" color='bg-neutral-300' height='300px' width='600px' />;
+        }
         return <LoadingSpinner />;
     }
 
@@ -90,8 +94,9 @@ const GenerationFeedback: React.FC<GenerationFeedbackProps> = ({
 
     if (needIMG && !needAWE) {
         if (!imgFeedbackLoaded) {
-            return <LoadingSpinner />;
+            return <LoadingImagePanel position="center" color='bg-neutral-300' height='300px' width='600px' />;
         }
+        
         return (
         <>
             <Box mt={2}>
@@ -159,7 +164,6 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
 }) => {
     const [showImage, setShowImage] = useState(false);
     const [showAWE, setShowAWE] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
     const [errorKey, setErrorKey] = useState<string | null>(null);
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [aWEText, setAWEText] = useState<string | null>(null);
@@ -183,31 +187,28 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
 
     useEffect(() => {
         setErrorKey(null);
-        setIsLoading(true);
         const fetch = async (): Promise<void> => {
-        try {
-            const [detailData, imageData, evaluationData] = await Promise.all(
-                [
-                    generation_id ? fetchDetail(generation_id) : Promise.resolve(null),
-                    showImage && generation_id ? fetchImage({generation_id}) : Promise.resolve(null),
-                    showAWE && generation_id ? fetchEvaluation(generation_id) : Promise.resolve(null),
-                ]
-            )
-            if (detailData) {
-                setDetailData(detailData);
+            try {
+                const [detailData, imageData, evaluationData] = await Promise.all(
+                    [
+                        generation_id ? fetchDetail(generation_id) : Promise.resolve(null),
+                        showImage && generation_id ? fetchImage({generation_id}) : Promise.resolve(null),
+                        showAWE && generation_id ? fetchEvaluation(generation_id) : Promise.resolve(null),
+                    ]
+                )
+                if (detailData) {
+                    setDetailData(detailData);
+                }
+                if (imageData && imageData && imageData !== "") {
+                    setImageUrl(imageData);
+                }
+                if (evaluationData && evaluationData.content) {
+                    setAWEText(evaluationData.content);
+                }
+            } catch (e) {
+                console.error("Failed to fetch generation detail: ", e);
+                setErrorKey("error.FetchingGenerationDetail");
             }
-            if (imageData && imageData && imageData !== "") {
-                setImageUrl(imageData);
-            }
-            if (evaluationData && evaluationData.content) {
-                setAWEText(evaluationData.content);
-            }
-        } catch (e) {
-            console.error("Failed to fetch generation detail: ", e);
-            setErrorKey("error.FetchingGenerationDetail");
-        } finally {
-            setIsLoading(false);
-        }
         };
         fetch();
     }, [generation_id, showImage, showAWE]);
@@ -355,9 +356,6 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
                         detailData.sentence
                         // compareWriting(detailData.sentence, detailData.correct_sentence)
                     ) : "No writing detail available."}
-                </Box>
-                <Box>
-                    {(isLoading) && <LoadingSpinner />}
                 </Box>
                 <GenerationFeedback
                     needIMG={feedback ? feedback.includes("IMG") : false}
