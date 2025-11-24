@@ -141,22 +141,24 @@ export default function MenuDrawer({
             ))}
         </TextField>
       <Divider />
-      <Typography sx={{ p: 2, color: 'text.secondary' }}>{t("header.menuDrawer.questionnaire")}</Typography>
-      <List>
-        <ListItem key={"questionnaire"} disablePadding>
-          <ListItemButton onClick={
-            ()=>{window.open(
-              qLink, "mozillaWindow", "popup"
-            )}
-          }
-          >
-            <ListItemIcon>
-              <PollIcon />
-            </ListItemIcon>
-            <ListItemText primary={t("header.menuDrawer.questionnaire")} />
-          </ListItemButton>
-        </ListItem>
-      </List>
+      <Typography sx={{ p: 2, color: 'text.secondary' }}>{t("header.menuDrawer.survey")}</Typography>
+      {qLink && (
+        <List>
+          <ListItem key={"questionnaire"} disablePadding>
+            <ListItemButton onClick={
+              ()=>{window.open(
+                qLink, "mozillaWindow", "popup"
+              )}
+            }
+            >
+              <ListItemIcon>
+                <PollIcon />
+              </ListItemIcon>
+              <ListItemText primary={t("header.menuDrawer.surveyLink")} />
+            </ListItemButton>
+          </ListItem>
+        </List>
+      )}
       <Divider />
       <Typography sx={{ p: 2, color: 'text.secondary' }}>{t("header.menuDrawer.appManagement")}</Typography>
       <List>
