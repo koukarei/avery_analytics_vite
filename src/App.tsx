@@ -25,6 +25,9 @@ function MainPage() {
       for (const [key, value] of Object.entries(JSON.parse(localStorage.getItem("authData") || "{}"))) {
         sessionStorage.setItem(key, String(value));
       }
+      if (sessionStorage.getItem("access_token")) {
+        return children;
+      }
     }
     return <Navigate to="/login" replace />;
   }
