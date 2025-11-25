@@ -198,6 +198,13 @@ function AnonymousSignup() {
   const [password, setPassword] = React.useState<string>("");
 
   useEffect(() => {
+    if (localStorage.getItem("anonymous_user") === "true" && localStorage.getItem("authData")) {
+      for (const [key, value] of Object.entries(JSON.parse(localStorage.getItem("authData") || "{}"))) {
+        sessionStorage.setItem(key, String(value));
+      }
+      navigate("/writer");
+      return;
+    }
     if (!username || !password) {
       const fetchUsername = async () => {
         const newUsername = await UserAuthAPI.randomUsername();
@@ -271,6 +278,8 @@ function AnonymousSignup() {
       for (const [key, value] of Object.entries(authData)) {
         sessionStorage.setItem(key, String(value));
       }
+      localStorage.setItem("anonymous_user", "true");
+      localStorage.setItem("authData", JSON.stringify(authData));
       navigate("/writer");
     } catch (e) {
       console.error(e);
