@@ -20,16 +20,6 @@ export const AuthUserProvider = ({
   const fetchCurrentUser = useCallback(async () => {
     setLoading(true);
     try {
-      if (!sessionStorage.getItem("access_token")) {
-        if (localStorage.getItem("authData")) {
-          for (const [key, value] of Object.entries(JSON.parse(localStorage.getItem("authData") || "{}"))) {
-            sessionStorage.setItem(key, String(value));
-          }
-        } else {
-          setLoading(false);
-          return;
-        }
-      }
       const userData = await UserAPI.fetchAuthUser();
       setUser(userData);
     } catch (e) {
