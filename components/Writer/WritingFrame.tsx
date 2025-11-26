@@ -11,6 +11,21 @@ import { useForm, Controller } from "react-hook-form";
 
 import { useLocalization } from '../../contexts/localizationUtils';
 
+
+// Cookie helpers
+function setCookie(name: string, value: string, days = 30) {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+}
+
+function getCookie(name: string): string | null {
+  const encodedName = encodeURIComponent(name) + "=";
+  const parts = document.cookie ? document.cookie.split('; ') : [];
+  const match = parts.find((p) => p.startsWith(encodedName));
+  return match ? decodeURIComponent(match.split('=')[1]) : null;
+}
+
+
 interface WritingFrameProps {
     title: string;
     imageUrl: string;
@@ -61,7 +76,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
         defaultValues: { 
             writing: writingText, 
             show_as_anonymous: localAnon, 
-            display_name: localName || localStorage.getItem("display_name") || undefined 
+            display_name: localName || getCookie("avery.display_name") || undefined 
         },
         mode: "onChange",
     });
@@ -120,7 +135,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
         reset({
             writing: writingText,
             show_as_anonymous: showAsAnonymous,
-            display_name: displayName ?? localStorage.getItem("display_name") ?? undefined,
+            display_name: displayName ?? getCookie("avery.display_name") ?? undefined,
         });
     }, [writingText, displayName, showAsAnonymous, reset]);
 
@@ -211,7 +226,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                                         disabled={watchShowAsAnonymous}
                                         onChange={(e) => {
                                             field.onChange(e);
-                                            localStorage.setItem("display_name", e.target.value);
+                                            setCookie("avery.display_name", e.target.value);
                                         }}
                                     />
                                 )}
