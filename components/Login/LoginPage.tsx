@@ -10,6 +10,19 @@ import HighlightOffIcon from '../icons/HighlightOffIcon';
 import type { SigninData, SignupData, RandomSignupData } from "../../types/auth";
 import { UserAuthAPI } from "../../api/UserAuth";
 
+// Cookie helpers
+function setCookie(name: string, value: string, days = 30) {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+}
+
+function getCookie(name: string): string | null {
+  const encodedName = encodeURIComponent(name) + "=";
+  const parts = document.cookie ? document.cookie.split('; ') : [];
+  const match = parts.find((p) => p.startsWith(encodedName));
+  return match ? decodeURIComponent(match.split('=')[1]) : null;
+}
+
 function ClearAdornment<T extends FieldValues>({ 
   name, 
   setValue 
@@ -198,8 +211,8 @@ function AnonymousSignup() {
   const [password, setPassword] = React.useState<string>("");
 
   useEffect(() => {
-    if (localStorage.getItem("anonymous_user") === "true" && localStorage.getItem("authData")) {
-      for (const [key, value] of Object.entries(JSON.parse(localStorage.getItem("authData") || "{}"))) {
+    if (getCookie("anonymous_user") === "true" && getCookie("authData")) {
+      for (const [key, value] of Object.entries(JSON.parse(getCookie("authData") || "{}"))) {
         sessionStorage.setItem(key, String(value));
       }
       navigate("/writer");
@@ -278,8 +291,8 @@ function AnonymousSignup() {
       for (const [key, value] of Object.entries(authData)) {
         sessionStorage.setItem(key, String(value));
       }
-      localStorage.setItem("anonymous_user", "true");
-      localStorage.setItem("authData", JSON.stringify(authData));
+      setCookie("anonymous_user", "true", 30);
+      setCookie("authData", JSON.stringify(authData), 30);
       navigate("/writer");
     } catch (e) {
       console.error(e);

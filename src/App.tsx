@@ -15,14 +15,21 @@ import { LocalizationProvider } from '../contexts/LocalizationContext';
 import { AuthUserProvider } from '../providers/AuthUserProvider';
 import { CustomSettingProvider } from '../contexts/CustomSettingContext';
 
+function getCookie(name: string): string | null {
+  const encodedName = encodeURIComponent(name) + "=";
+  const parts = document.cookie ? document.cookie.split('; ') : [];
+  const match = parts.find((p) => p.startsWith(encodedName));
+  return match ? decodeURIComponent(match.split('=')[1]) : null;
+}
+
 function MainPage() {
   const RequireAuth: React.FC<{ children: React.ReactElement }> = ({ children }) => {
     const token = sessionStorage.getItem("access_token");
     if (token) {
       return children;
     }
-    if (localStorage.getItem("authData")) {
-      for (const [key, value] of Object.entries(JSON.parse(localStorage.getItem("authData") || "{}"))) {
+    if (getCookie("authData")) {
+      for (const [key, value] of Object.entries(JSON.parse(getCookie("authData") || "{}"))) {
         sessionStorage.setItem(key, String(value));
       }
       if (sessionStorage.getItem("access_token")) {
