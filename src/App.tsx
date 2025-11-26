@@ -28,8 +28,8 @@ function MainPage() {
     if (token) {
       return children;
     }
-    if (getCookie("authData")) {
-      for (const [key, value] of Object.entries(JSON.parse(getCookie("authData") || "{}"))) {
+    if (getCookie("avery.token")) {
+      for (const [key, value] of Object.entries(JSON.parse(getCookie("avery.token") || "{}"))) {
         sessionStorage.setItem(key, String(value));
       }
       if (sessionStorage.getItem("access_token")) {

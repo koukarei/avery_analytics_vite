@@ -211,8 +211,8 @@ function AnonymousSignup() {
   const [password, setPassword] = React.useState<string>("");
 
   useEffect(() => {
-    if (getCookie("anonymous_user") === "true" && getCookie("authData")) {
-      for (const [key, value] of Object.entries(JSON.parse(getCookie("authData") || "{}"))) {
+    if (getCookie("avery.anonymous_user") === "true" && getCookie("avery.token")) {
+      for (const [key, value] of Object.entries(JSON.parse(getCookie("avery.token") || "{}"))) {
         sessionStorage.setItem(key, String(value));
       }
       navigate("/writer");
@@ -291,8 +291,8 @@ function AnonymousSignup() {
       for (const [key, value] of Object.entries(authData)) {
         sessionStorage.setItem(key, String(value));
       }
-      setCookie("anonymous_user", "true", 30);
-      setCookie("authData", JSON.stringify(authData), 30);
+      setCookie("avery.anonymous_user", "true", 30);
+      setCookie("avery.token", JSON.stringify(authData), 30);
       navigate("/writer");
     } catch (e) {
       console.error(e);
