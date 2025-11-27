@@ -14,13 +14,7 @@ import AppRoutes from '../routes/AppRoutes';
 import { LocalizationProvider } from '../contexts/LocalizationContext';
 import { AuthUserProvider } from '../providers/AuthUserProvider';
 import { CustomSettingProvider } from '../contexts/CustomSettingContext';
-
-function getCookie(name: string): string | null {
-  const encodedName = encodeURIComponent(name) + "=";
-  const parts = document.cookie ? document.cookie.split('; ') : [];
-  const match = parts.find((p) => p.startsWith(encodedName));
-  return match ? decodeURIComponent(match.split('=')[1]) : null;
-}
+import { getCookie } from '../util/cookieHelper';
 
 function MainPage() {
   const RequireAuth: React.FC<{ children: React.ReactElement }> = ({ children }) => {

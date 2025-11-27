@@ -9,19 +9,7 @@ import { Box, Checkbox, IconButton, InputAdornment, TextField, Typography } from
 import HighlightOffIcon from '../icons/HighlightOffIcon';
 import type { SigninData, SignupData, RandomSignupData } from "../../types/auth";
 import { UserAuthAPI } from "../../api/UserAuth";
-
-// Cookie helpers
-function setCookie(name: string, value: string, days = 30) {
-  const expires = new Date(Date.now() + days * 864e5).toUTCString();
-  document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
-}
-
-function getCookie(name: string): string | null {
-  const encodedName = encodeURIComponent(name) + "=";
-  const parts = document.cookie ? document.cookie.split('; ') : [];
-  const match = parts.find((p) => p.startsWith(encodedName));
-  return match ? decodeURIComponent(match.split('=')[1]) : null;
-}
+import { getCookie, setCookie } from "../../util/cookieHelper";
 
 function ClearAdornment<T extends FieldValues>({ 
   name, 
