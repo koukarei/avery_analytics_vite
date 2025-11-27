@@ -9,6 +9,7 @@ import { LeaderboardListContext, LeaderboardStartNewProvider } from '../../provi
 import { useLocalization } from '../../contexts/localizationUtils';
 import { GenerationDetailProvider, GenerationEvaluationProvider, GenerationImageProvider } from '../../providers/GenerationProvider';
 import { WsProvider } from '../../providers/WsProvider';
+import { RandomLeaderboardProvider } from '../../providers/RandomLeaderboardProvider';
 
 export default function Writer() {
   const [view, setView] = useState<GalleryView>('browsing');
@@ -67,7 +68,9 @@ export default function Writer() {
 
     return (
       <div className="flex flex-col h-screen bg-black">
-        {renderGallery()}
+        <RandomLeaderboardProvider>
+          {renderGallery()}
+        </RandomLeaderboardProvider>
       </div>
     );
   };

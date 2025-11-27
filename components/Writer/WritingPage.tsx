@@ -8,6 +8,8 @@ import { ErrorDisplay } from "../Common/ErrorDisplay";
 import Alert from '@mui/material/Alert';
 import { LeaderboardStartNewContext } from "../../providers/LeaderboardProvider";
 import { CustomSettingContext } from "../../contexts/CustomSettingContext";
+import { RandomLeaderboardContext } from "../../providers/randomLeaderboardProvider";
+import { AuthUserContext } from "../../providers/AuthUserProvider";
 
 import { socketCls } from "./socketCls";
 
@@ -80,11 +82,19 @@ export const Writing: React.FC<WritingProps> = ({
     const [roundId, _setRoundId] = useState<number>(0);
     const [generationTime, _setGenerationTime] = useState<number>(0);
     const [leaderboardImage, setLeaderboardImage] = useState<string | null>(imageUrl);
+    const { currentUser } = useContext(AuthUserContext);
+    const { updateLeaderboard } = useContext(RandomLeaderboardContext);
 
     const [userAction, setUserAction] = useState<'none' | 'start' | 'resume' | 'hint' | 'change_display_name' | 'submit' | 'evaluate' | 'end'>('none');
 
     const wsClientRef = useRef<socketCls | null>(null);
     const { t } = useLocalization();
+
+    const updateSubmittedWritingNumber = (number: number) => {
+        if (currentUser?.school === 'random') {
+            updateLeaderboard(leaderboard_id, true, number);
+        }
+    };
     
     const handleSubmitWriting = () => {
         setIsLoading(true);
@@ -230,6 +240,7 @@ export const Writing: React.FC<WritingProps> = ({
                                 setUserAction('change_display_name');
                                 break;
                             }
+                            updateSubmittedWritingNumber(generationTime + 1);
                             setUserAction('evaluate');
                             break;
                         }

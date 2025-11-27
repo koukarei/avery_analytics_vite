@@ -82,6 +82,7 @@
   "galleryView.Tab.back": "Back to Selection Page",
   
   "writerView.writingPage.start": "Click to Start Writing",
+  "writerView.writingPage.not_yet_available": "This writing task will be available after finishing the previous one.",
   "writerView.writingFrame.placeholder": "Type your descriptive writing here",
   "writerView.writingFrame.placeholderDisabled": "You have completed this writing task. How about trying another task?",
   "writerView.writingFrame.error.required": "Writing is required.",

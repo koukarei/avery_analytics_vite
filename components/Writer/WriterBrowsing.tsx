@@ -13,6 +13,7 @@ import type { Leaderboard } from '../../types/leaderboard';
 import { AuthUserContext } from '../../providers/AuthUserProvider';
 import { useLocalization } from '../../contexts/localizationUtils';
 import { ErrorDisplay } from '../Common/ErrorDisplay';
+import { RandomLeaderboardContext } from '../../providers/RandomLeaderboardProvider';
 
 interface WriterBrowsingProps {
   view: GalleryView;
@@ -34,7 +35,11 @@ export const WriterBrowsing: React.FC<WriterBrowsingProps> = ({ view, setView, s
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [galleryCurrentIndex, setGalleryCurrentIndex] = useState<number>(1);
   const [n_leaderboards, setN_Leaderboards] = useState<number>(0);
-  const limitLeaderboardIndex = 3;
+  
+  const randomLeaderboard = currentUser?.school == 'random' ? true : false;
+
+  const limitLeaderboardIndex = randomLeaderboard ? 5 : 3;
+  const { shufflingLeaderboards } = useContext(RandomLeaderboardContext);
 
   const initialLoading = ()=>{
     setToLoadStart(0);
@@ -105,12 +110,12 @@ export const WriterBrowsing: React.FC<WriterBrowsingProps> = ({ view, setView, s
     if (typeof setPageParams !== "function") return; // guard if context not ready
     if (!currentUser) return;
 
-    const published_at_start = dayjs().startOf('day').subtract(9, 'day');
+    const published_at_start = randomLeaderboard ? dayjs().startOf('day').subtract(30, 'day') : dayjs().startOf('day').subtract(9, 'day');
     const published_at_end = dayjs().startOf('day');
 
     setListParams({
       ...(listParams ?? {}),
-      published_at_start: listParams?.published_at_start ?? published_at_start,
+      published_at_start: randomLeaderboard ? published_at_start : listParams?.published_at_start ?? published_at_start,
       published_at_end: listParams?.published_at_end ?? published_at_end,
       is_public: true,
     });
@@ -128,8 +133,16 @@ export const WriterBrowsing: React.FC<WriterBrowsingProps> = ({ view, setView, s
           setN_Leaderboards(statsData.n_leaderboards || 0);
           setToLoadStart(pageParams?.skip || 0);
           setToLoadEnd(limitLeaderboardIndex);
-          fetchLeaderboards(currentUser?.is_admin || false).then(leaderboard => {
-            setLoadedLeaderboards([...leaderboard]);
+            fetchLeaderboards(currentUser?.is_admin || false).then(leaderboard => {
+            //shuffle for random school
+            if (randomLeaderboard) {
+              Promise.resolve(shufflingLeaderboards(leaderboard)).then(orderedLeaderboards => {
+                setLoadedLeaderboards([...orderedLeaderboards]);
+              });
+            } else {
+              setLoadedLeaderboards([...leaderboard]);
+            }
+            
             setLoadedStart(toLoadStart);
             setLoadedEnd(leaderboard.length);
           }).catch(err => {
@@ -180,36 +193,41 @@ export const WriterBrowsing: React.FC<WriterBrowsingProps> = ({ view, setView, s
                 setCurrentLeaderboard={setCurLeaderboard}
                 setCurrentImageUrl={setCurImageUrl}
                 onScroll={handleGalleryScroll}
+                randomLeaderboard={randomLeaderboard}
               />
             ) : (
               <p className="text-xl text-gray-400 text-center">{t('galleryView.noImageToDisplay')}</p>
             )}
           </div>
-          <div css={controlPanelStyle}>
-            <div className='w-full h-full flex justify-center items-center space-x-4'>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  label={t('galleryView.publishedAtStartDate')}
-                  value={listParams.published_at_start ?? null}
-                  views={['year', 'month', 'day']}
-                  onChange={(date) => {
-                   setListParams({ ...(listParams ?? {}), published_at_start: date ?? undefined });
-                   initialLoading();
+          {
+            randomLeaderboard ? null :(
+            <div css={controlPanelStyle}>
+              <div className='w-full h-full flex justify-center items-center space-x-4'>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label={t('galleryView.publishedAtStartDate')}
+                    value={listParams.published_at_start ?? null}
+                    views={['year', 'month', 'day']}
+                    onChange={(date) => {
+                    setListParams({ ...(listParams ?? {}), published_at_start: date ?? undefined });
+                    initialLoading();
 
-                 }}
-                />
-                <DatePicker
-                  label={t('galleryView.publishedAtEndDate')}
-                  value={listParams.published_at_end ?? null}
-                  views={['year', 'month', 'day']}
-                  onChange={(date) => {
-                   setListParams({ ...(listParams ?? {}), published_at_end: date ?? undefined });
-                   initialLoading();
-                 }}
-                />
-              </LocalizationProvider>
+                  }}
+                  />
+                  <DatePicker
+                    label={t('galleryView.publishedAtEndDate')}
+                    value={listParams.published_at_end ?? null}
+                    views={['year', 'month', 'day']}
+                    onChange={(date) => {
+                    setListParams({ ...(listParams ?? {}), published_at_end: date ?? undefined });
+                    initialLoading();
+                  }}
+                  />
+                </LocalizationProvider>
+              </div>
             </div>
-          </div>
+            )
+          }
         </div>
         )
   };
