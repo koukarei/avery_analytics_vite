@@ -13,7 +13,7 @@ import { useLocalization } from '../../contexts/localizationUtils';
 import { LoadingImagePanel } from '../Common/LoadingImage';
 import { ErrorDisplay } from '../Common/ErrorDisplay';
 import { LeaderboardImageContext, LeaderboardImageProvider } from '../../providers/LeaderboardProvider';
-import { RandomLeaderboardContext } from '../../providers/RandomLeaderboardProvider';
+import { RandomLeaderboardContext } from '../../providers/randomLeaderboardProvider';
 
 interface ImageGalleryProps {
   view: GalleryView;
@@ -63,7 +63,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   const [ warningMsg, setWarningMsg ] = useState<string>('');
   const [ displayText, setDisplayText ] = useState<string>('');
   
-  const { unfinishedLeaderboards } = useContext(RandomLeaderboardContext);
+  const { unfinishedLeaderboards, shuffleLeaderboards } = useContext(RandomLeaderboardContext);
   
   let transformClasses = 'transition-all duration-700 ease-in-out transform-gpu'; 
   let opacityClass = 'opacity-100';
@@ -120,7 +120,12 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
 
     if (randomLeaderboard) {
       const isUnfinished = unfinishedLeaderboards.find(ulb => ulb.leaderboard_id === leaderboard.id);
-      setDisplayText(isUnfinished ? t('writerView.writingPage.start') : t('writerView.writingPage.not_yet_available'));
+      const clickable = shuffleLeaderboards.find(lb => lb.leaderboard_id === leaderboard.id)?.started;
+      if (!clickable) {
+        setDisplayText(t('writerView.writingPage.not_yet_available'));
+        return;
+      }
+      setDisplayText(isUnfinished ? t('writerView.writingPage.start') : t('writerView.writingPage.continue'));
       return;
     }
 
@@ -142,7 +147,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
 
   const handleOnClick = () => {
     if (randomLeaderboard) {
-      if (unfinishedLeaderboards.find(ulb => ulb.leaderboard_id === leaderboard.id)) {
+      if (shuffleLeaderboards.find(ulb => ulb.leaderboard_id === leaderboard.id)?.started) {
         if (loadedImageUrl) {
           setCurrentImageUrl(loadedImageUrl);
         }
@@ -217,8 +222,8 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
                 {leaderboard.scene.name}
               </span>
             </div>
-
-            {(isHovered) && (
+            
+            {(isHovered || (randomLeaderboard && !shuffleLeaderboards.find(lb => lb.leaderboard_id === leaderboard.id)?.started)) && (
               <div className="absolute inset-0 bg-black opacity-60 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out">
                 <p className="text-white text-lg sm:text-xl md:text-2xl font-semibold text-center select-none">
                   {displayText}
@@ -275,21 +280,6 @@ export const ImageGallery: React.FC<ImageGalleryProps> = (
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
   const isSwiping = useRef<boolean>(false); // To distinguish tap from swipe
-
-  const { updateLeaderboard, unfinishedLeaderboards, shuffleLeaderboards } = useContext(RandomLeaderboardContext);
-
-  useEffect(() => {
-    if (randomLeaderboard && leaderboards.length > 0) {
-      if (unfinishedLeaderboards.length === 0) {
-        const firstNotStarted = shuffleLeaderboards.filter(lb => lb.started == false)
-        if (firstNotStarted.length > 0) {
-          const toUpdate = firstNotStarted.length === 1 ? firstNotStarted[0] : firstNotStarted[1];
-          updateLeaderboard(toUpdate.leaderboard_id, true, 0);
-        }
-      }
-    }
-  }, [randomLeaderboard, leaderboards, shuffleLeaderboards]);
-
   useEffect(() => {
     const currentGalleryRef = galleryRef.current;
     const handleWheel = (event: WheelEvent) => {

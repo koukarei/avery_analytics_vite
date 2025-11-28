@@ -20,7 +20,7 @@ export class StoryAPI {
             'Content-Type': 'multipart/form-data'}
         : {},
     });
-    console.log("Response from createStory:", response);
+    
     return response.data;
   }
 
