@@ -3,7 +3,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { css } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import {theme} from "../../src/Theme";
-import { Box, Checkbox, TableHead, TableRow, TableCell, TableBody, TableContainer, Table } from '@mui/material';
+import { Box, Checkbox, TableHead, TableRow, TableCell, TableBody, TableContainer, Table, Stack, Pagination } from '@mui/material';
 import { Tabs, Tab } from '@mui/material';
 import { List, ListItem, ListItemButton, MenuItem, TextField } from '@mui/material';
 import { LoadingSpinner } from '../Common/LoadingSpinner';
@@ -281,7 +281,6 @@ const SelectList: React.FC<SelectListProps> = ({ names, curSelected, setCurSelec
         setDragPerformed(true);
     };
 
-
     return (
         <List sx={{ height: '100%', overflow: 'auto' }}>
             {names.map((item, index) => (
@@ -311,7 +310,7 @@ const DropDownSelect: React.FC<SelectListProps> = ({ names, curSelected, setCurS
             variant="filled"
             size="small"
             css={menuSettingStyle}
-            select 
+            select
             defaultValue={selectedItem}
             onChange={(e) => {
                 const selectedName = e.target.value as keyof typeof names;
@@ -559,11 +558,12 @@ const UserProgramManagement: React.FC = () => {
         userPrograms, fetchUserPrograms, addUserProgram, deleteUserProgram,
         isUserLoading
     } = useContext(ProgramContext);
-    const { users, setListParams, fetchUsers, fetchStats } = useContext(UsersContext);
+    const { users, fetchUsers, fetchStats } = useContext(UsersContext);
     const [ errorKey, setErrorKey ] = useState<string | null>(null);
     const [ isUserListLoading, setIsUserListLoading ] = useState<boolean>(false);
     const [ selectedUsers, setSelectedUsers ] = useState<SelectListItem[]>([]);
     const [ loadedUserPrograms, setLoadedUserPrograms ] = useState<Program[]>([]);
+    const [ totalPages, setTotalPages ] = useState<number>(1);
 
     const handleOnClick = async (program: Program) => {
         if (selectedUsers.length > 1) {
@@ -608,6 +608,20 @@ const UserProgramManagement: React.FC = () => {
         }
     }
 
+    const handlePaginationChange = async (_event: React.ChangeEvent<unknown>, page: number) => {
+        // await fetchUsers so we use the fresh results instead of falling back to stale `users`
+        const fetched = await fetchUsers({ skip: (page - 1) * 10, limit: 10 });
+        const sourceUsers = Array.isArray(fetched) ? fetched : users;
+
+        const draftUsers = sourceUsers.map((user) => {
+            if (currentUser?.is_admin) {
+                return { id: user.id, name: user.username ? user.username : user.id.toString() };
+            }
+            return { id: user.id, name: user.profiles?.display_name ?? '' };
+        });
+        setUserRecord(draftUsers);
+    };
+
     useEffect(() => {
         let mounted = true;
         setErrorKey(null);
@@ -622,11 +636,9 @@ const UserProgramManagement: React.FC = () => {
                 const stats = await fetchStats();
                 const n_users = stats?.n_users ?? 0;
                 if (n_users > 0) {
-                    if (typeof setListParams === 'function') {
-                        setListParams({ skip: 0, limit: n_users });
-                    }
+                    setTotalPages(Math.ceil(n_users / 10));
 
-                    const fetched = await fetchUsers();
+                    const fetched = await fetchUsers({ skip: 0, limit: 10 });
                     const sourceUsers = Array.isArray(fetched) ? fetched : users;
 
                     const draftUsers = sourceUsers.map((user) => {
@@ -715,13 +727,21 @@ const UserProgramManagement: React.FC = () => {
     return (
         <>
             {errorKey && <ErrorDisplay messageKey={errorKey} />}
-            <Box sx={{ display: 'flex', flexDirection: 'row', height: '80vh' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', height: '100%', maxHeight: '50vh' }}>
                 <Box sx={{ width: '20%'}}>
                     <SelectList 
                         names={userRecord}
                         curSelected={selectedUsers}
                         setCurSelected={handleUserSelect}
                     />
+                    <Stack spacing={2} sx={{ mt: 2 }} alignItems="center">
+                        <Pagination
+                            size="small"
+                            count={totalPages}
+                            onChange={handlePaginationChange}
+                            color="standard"
+                        />
+                    </Stack>
                 </Box>
                 <Box sx={{ width: '80%'}}>
                     <ShowPrograms
