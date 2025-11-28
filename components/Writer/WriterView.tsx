@@ -9,7 +9,7 @@ import { LeaderboardListContext, LeaderboardStartNewProvider } from '../../provi
 import { useLocalization } from '../../contexts/localizationUtils';
 import { GenerationDetailProvider, GenerationEvaluationProvider, GenerationImageProvider } from '../../providers/GenerationProvider';
 import { WsProvider } from '../../providers/WsProvider';
-import { RandomLeaderboardProvider } from '../../providers/RandomLeaderboardProvider';
+import { RandomLeaderboardProvider } from '../../providers/randomLeaderboardProvider';
 
 export default function Writer() {
   const [view, setView] = useState<GalleryView>('browsing');
