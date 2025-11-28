@@ -13,7 +13,7 @@ import type { Leaderboard } from '../../types/leaderboard';
 import { AuthUserContext } from '../../providers/AuthUserProvider';
 import { useLocalization } from '../../contexts/localizationUtils';
 import { ErrorDisplay } from '../Common/ErrorDisplay';
-import { RandomLeaderboardContext } from '../../providers/RandomLeaderboardProvider';
+import { RandomLeaderboardContext } from '../../providers/randomLeaderboardProvider';
 
 interface WriterBrowsingProps {
   view: GalleryView;
