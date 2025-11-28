@@ -564,16 +564,52 @@ const UserProgramManagement: React.FC = () => {
     const [ selectedUsers, setSelectedUsers ] = useState<SelectListItem[]>([]);
     const [ loadedUserPrograms, setLoadedUserPrograms ] = useState<Program[]>([]);
     const [ totalPages, setTotalPages ] = useState<number>(1);
+    const [ addToAllPrograms, setAddToAllPrograms ] = useState<Program[]>([]);
+    const [ currentPage, setCurrentPage ] = useState<number>(1);
 
     const handleOnClick = async (program: Program) => {
         if (selectedUsers.length > 1) {
-            selectedUsers.forEach((user) => {
-                ProgramAPI.addUserProgram(user.id, program.id).catch((e) => {
-                    console.log(e);
-                    setErrorKey('settingModal.programSelection.error.add_user_program_error');
+            if (addToAllPrograms.findIndex((p) => p.id === program.id) !== -1) {
+                selectedUsers.forEach((user) => {
+                    ProgramAPI.deleteUserProgram(user.id, program.id).catch((e) => {
+                        console.log(e);
+                        setErrorKey('settingModal.programSelection.error.delete_user_program_error');
+                    });
                 });
-            });
-            setLoadedUserPrograms((prevPrograms) => [...prevPrograms, program]);
+                setLoadedUserPrograms((prevPrograms) => prevPrograms.filter((p) => p.id !== program.id));
+                setAddToAllPrograms((prevPrograms) => prevPrograms.filter((p) => p.id !== program.id));
+                // refresh stats and current page after batch mutation
+                try {
+                    const stats = await fetchStats();
+                    setTotalPages(Math.ceil((stats?.n_users ?? 0) / 10));
+                    const fetched = await fetchUsers({ skip: (currentPage - 1) * 10, limit: 10 });
+                    const sourceUsers = Array.isArray(fetched) ? fetched : users;
+                    const draftUsers = sourceUsers.map((user) => currentUser?.is_admin ? { id: user.id, name: user.username ?? user.id.toString() } : { id: user.id, name: user.profiles?.display_name ?? '' });
+                    setUserRecord(draftUsers);
+                } catch (e) {
+                    console.log(e);
+                }
+            } else {
+                selectedUsers.forEach((user) => {
+                    ProgramAPI.addUserProgram(user.id, program.id).catch((e) => {
+                        console.log(e);
+                        setErrorKey('settingModal.programSelection.error.add_user_program_error');
+                    });
+                });
+                setLoadedUserPrograms((prevPrograms) => [...prevPrograms, program]);
+                setAddToAllPrograms((prevPrograms) => [...prevPrograms, program]);
+                // refresh stats and current page after batch mutation
+                try {
+                    const stats = await fetchStats();
+                    setTotalPages(Math.ceil((stats?.n_users ?? 0) / 10));
+                    const fetched = await fetchUsers({ skip: (currentPage - 1) * 10, limit: 10 });
+                    const sourceUsers = Array.isArray(fetched) ? fetched : users;
+                    const draftUsers = sourceUsers.map((user) => currentUser?.is_admin ? { id: user.id, name: user.username ?? user.id.toString() } : { id: user.id, name: user.profiles?.display_name ?? '' });
+                    setUserRecord(draftUsers);
+                } catch (e) {
+                    console.log(e);
+                }
+            }
             return;
         } 
         
@@ -586,6 +622,13 @@ const UserProgramManagement: React.FC = () => {
             try {
                 await deleteUserProgram(program.id);
                 setLoadedUserPrograms((prevPrograms) => prevPrograms.filter((p) => p.id !== program.id));
+                // refresh stats and current page after single mutation
+                const stats = await fetchStats();
+                setTotalPages(Math.ceil((stats?.n_users ?? 0) / 10));
+                const fetched = await fetchUsers({ skip: (currentPage - 1) * 10, limit: 10 });
+                const sourceUsers = Array.isArray(fetched) ? fetched : users;
+                const draftUsers = sourceUsers.map((user) => currentUser?.is_admin ? { id: user.id, name: user.username ?? user.id.toString() } : { id: user.id, name: user.profiles?.display_name ?? '' });
+                setUserRecord(draftUsers);
             } catch {
                 setErrorKey('settingModal.programSelection.error.delete_user_program_error');
             }
@@ -593,6 +636,13 @@ const UserProgramManagement: React.FC = () => {
             try {
                 await addUserProgram(program.id);
                 setLoadedUserPrograms((prevPrograms) => [...prevPrograms, program]);
+                // refresh stats and current page after single mutation
+                const stats = await fetchStats();
+                setTotalPages(Math.ceil((stats?.n_users ?? 0) / 10));
+                const fetched = await fetchUsers({ skip: (currentPage - 1) * 10, limit: 10 });
+                const sourceUsers = Array.isArray(fetched) ? fetched : users;
+                const draftUsers = sourceUsers.map((user) => currentUser?.is_admin ? { id: user.id, name: user.username ?? user.id.toString() } : { id: user.id, name: user.profiles?.display_name ?? '' });
+                setUserRecord(draftUsers);
             } catch {
                 setErrorKey('settingModal.programSelection.error.add_user_program_error');
             }
@@ -609,10 +659,9 @@ const UserProgramManagement: React.FC = () => {
     }
 
     const handlePaginationChange = async (_event: React.ChangeEvent<unknown>, page: number) => {
-        // await fetchUsers so we use the fresh results instead of falling back to stale `users`
+        setCurrentPage(page);
         const fetched = await fetchUsers({ skip: (page - 1) * 10, limit: 10 });
         const sourceUsers = Array.isArray(fetched) ? fetched : users;
-
         const draftUsers = sourceUsers.map((user) => {
             if (currentUser?.is_admin) {
                 return { id: user.id, name: user.username ? user.username : user.id.toString() };
@@ -738,6 +787,7 @@ const UserProgramManagement: React.FC = () => {
                         <Pagination
                             size="small"
                             count={totalPages}
+                            page={currentPage}
                             onChange={handlePaginationChange}
                             color="standard"
                         />
