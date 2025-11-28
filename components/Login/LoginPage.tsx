@@ -195,6 +195,21 @@ function Signin() {
 }
 
 function AnonymousSignup() {
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    setError,
+    formState: { errors },
+  } = useForm<RandomSignupData>({
+    defaultValues: {
+      username: "",
+      password: "",
+      agree_terms: false,
+    },
+  });
+
+  const navigate = useNavigate();
   const [username, setUsername] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
 
@@ -231,23 +246,11 @@ function AnonymousSignup() {
       };
       fetchUsername();
     } else {
-      setValue("username", username)
+      
+      setValue("username", username);
       setValue("password", password);
     }
-  }, [username, password]);
-
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    setError,
-    formState: { errors },
-  } = useForm<RandomSignupData>({
-    defaultValues:{
-      agree_terms: false,
-    }
-  });
-  const navigate = useNavigate();
+  }, [username, password, setValue, navigate]);
 
   // Define a type for the error
   type ApiError = {
