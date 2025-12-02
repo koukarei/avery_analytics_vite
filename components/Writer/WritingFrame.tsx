@@ -81,8 +81,8 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                 message: t("writerView.writingFrame.error.maxLength", { maxLength: 16777215 })
             }, // MediumText limit in MySQL
             minLength: {
-                value: 10,
-                message: t("writerView.writingFrame.error.minLength", { minLength: 10 })
+                value: 20,
+                message: t("writerView.writingFrame.error.minLength", { minLength: 20 })
             }
         },
         display_name: {
