@@ -5,13 +5,10 @@ import type { User, UserListParams, UsersStats } from '../types/user';
 type UsersContextType = {
   users: User[];
   loading: boolean;
-  listParams: UserListParams;
-  setListParams: (listParams: UserListParams) => void;
-
   stats: UsersStats | null;
   setStats: (stats: UsersStats | null) => void;
   fetchStats: () => Promise<UsersStats | null>;
-  fetchUsers: () => Promise<User[]>;
+  fetchUsers: (listParams: UserListParams) => Promise<User[]>;
 };
 
 const UsersContext = createContext({} as UsersContextType);
@@ -23,10 +20,9 @@ const UsersProvider = ({
 }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [listParams, setListParams] = useState<UserListParams>({ skip: 0, limit: 100 });
   const [stats, setStats] = useState<UsersStats | null>(null);
 
-  const fetchUsers = useCallback(async () => {
+  const fetchUsers = useCallback(async (listParams: UserListParams) => {
     setLoading(true);
     let usersData: User[] = [];
     try {
@@ -38,7 +34,7 @@ const UsersProvider = ({
       setLoading(false);
     }
     return usersData;
-  }, [listParams]);
+  }, []);
 
   const fetchStats = useCallback(async () => {
     setLoading(true);
@@ -52,10 +48,10 @@ const UsersProvider = ({
       setLoading(false);
     }
     return statsData;
-  }, [listParams]);
+  }, []);
 
   return (
-    <UsersContext.Provider value={{ users, loading, listParams, setListParams, stats, setStats, fetchUsers, fetchStats }}>
+    <UsersContext.Provider value={{ users, loading, stats, setStats, fetchUsers, fetchStats }}>
       {children}
     </UsersContext.Provider>
   );

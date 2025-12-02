@@ -82,6 +82,8 @@
   "galleryView.Tab.back": "選択画面に戻る",
   
   "writerView.writingPage.start": "クリックして作文を始める",
+  "writerView.writingPage.continue": "クリックして作文を続ける",
+  "writerView.writingPage.not_yet_available": "この作文タスクは、前のタスクで2回以上作文を提出した後に利用可能になります。",
   "writerView.writingFrame.placeholder": "ここに説明的な文章を入力してください",
   "writerView.writingFrame.placeholderDisabled": "この作文タスクは完了しました。他のタスクを試してみませんか？",
   "writerView.writingFrame.error.required": "作文は必須です。",

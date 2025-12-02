@@ -9,6 +9,7 @@ import { Box, Checkbox, IconButton, InputAdornment, TextField, Typography } from
 import HighlightOffIcon from '../icons/HighlightOffIcon';
 import type { SigninData, SignupData, RandomSignupData } from "../../types/auth";
 import { UserAuthAPI } from "../../api/UserAuth";
+import { getCookie, setCookie } from "../../util/cookieHelper";
 
 function ClearAdornment<T extends FieldValues>({ 
   name, 
@@ -194,12 +195,27 @@ function Signin() {
 }
 
 function AnonymousSignup() {
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    setError,
+    formState: { errors },
+  } = useForm<RandomSignupData>({
+    defaultValues: {
+      username: "",
+      password: "",
+      agree_terms: false,
+    },
+  });
+
+  const navigate = useNavigate();
   const [username, setUsername] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
 
   useEffect(() => {
-    if (localStorage.getItem("anonymous_user") === "true" && localStorage.getItem("authData")) {
-      for (const [key, value] of Object.entries(JSON.parse(localStorage.getItem("authData") || "{}"))) {
+    if (getCookie("avery.anonymous_user") === "true" && getCookie("avery.token")) {
+      for (const [key, value] of Object.entries(JSON.parse(getCookie("avery.token") || "{}"))) {
         sessionStorage.setItem(key, String(value));
       }
       navigate("/writer");
@@ -230,23 +246,11 @@ function AnonymousSignup() {
       };
       fetchUsername();
     } else {
-      setValue("username", username)
+      
+      setValue("username", username);
       setValue("password", password);
     }
-  }, [username, password]);
-
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    setError,
-    formState: { errors },
-  } = useForm<RandomSignupData>({
-    defaultValues:{
-      agree_terms: false,
-    }
-  });
-  const navigate = useNavigate();
+  }, [username, password, setValue, navigate]);
 
   // Define a type for the error
   type ApiError = {
@@ -278,8 +282,8 @@ function AnonymousSignup() {
       for (const [key, value] of Object.entries(authData)) {
         sessionStorage.setItem(key, String(value));
       }
-      localStorage.setItem("anonymous_user", "true");
-      localStorage.setItem("authData", JSON.stringify(authData));
+      setCookie("avery.anonymous_user", "true", 30);
+      setCookie("avery.token", JSON.stringify(authData), 30);
       navigate("/writer");
     } catch (e) {
       console.error(e);

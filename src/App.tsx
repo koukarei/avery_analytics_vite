@@ -14,6 +14,7 @@ import AppRoutes from '../routes/AppRoutes';
 import { LocalizationProvider } from '../contexts/LocalizationContext';
 import { AuthUserProvider } from '../providers/AuthUserProvider';
 import { CustomSettingProvider } from '../contexts/CustomSettingContext';
+import { getCookie } from '../util/cookieHelper';
 
 function MainPage() {
   const RequireAuth: React.FC<{ children: React.ReactElement }> = ({ children }) => {
@@ -21,8 +22,8 @@ function MainPage() {
     if (token) {
       return children;
     }
-    if (localStorage.getItem("authData")) {
-      for (const [key, value] of Object.entries(JSON.parse(localStorage.getItem("authData") || "{}"))) {
+    if (getCookie("avery.token")) {
+      for (const [key, value] of Object.entries(JSON.parse(getCookie("avery.token") || "{}"))) {
         sessionStorage.setItem(key, String(value));
       }
       if (sessionStorage.getItem("access_token")) {

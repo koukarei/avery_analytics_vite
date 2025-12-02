@@ -94,6 +94,13 @@ export interface Leaderboard {
   vocabularies: Vocabulary[];
 }
 
+export interface randomShuffleLeaderboard {
+  leaderboard_id: number;
+  started: boolean;
+  submitted_writing_number: number;
+}
+
+
 export interface Stats {
   n_leaderboards?: number;
   n_rounds?: number;

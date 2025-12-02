@@ -10,6 +10,8 @@ import ImageListItem from "@mui/material/ImageListItem";
 import { useForm, Controller } from "react-hook-form";
 
 import { useLocalization } from '../../contexts/localizationUtils';
+import { setCookie, getCookie } from "../../util/cookieHelper";
+
 
 interface WritingFrameProps {
     title: string;
@@ -61,7 +63,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
         defaultValues: { 
             writing: writingText, 
             show_as_anonymous: localAnon, 
-            display_name: localName || localStorage.getItem("display_name") || undefined 
+            display_name: localName || getCookie("avery.display_name") || undefined 
         },
         mode: "onChange",
     });
@@ -120,7 +122,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
         reset({
             writing: writingText,
             show_as_anonymous: showAsAnonymous,
-            display_name: displayName ?? localStorage.getItem("display_name") ?? undefined,
+            display_name: displayName ?? getCookie("avery.display_name") ?? undefined,
         });
     }, [writingText, displayName, showAsAnonymous, reset]);
 
@@ -211,7 +213,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                                         disabled={watchShowAsAnonymous}
                                         onChange={(e) => {
                                             field.onChange(e);
-                                            localStorage.setItem("display_name", e.target.value);
+                                            setCookie("avery.display_name", e.target.value);
                                         }}
                                     />
                                 )}

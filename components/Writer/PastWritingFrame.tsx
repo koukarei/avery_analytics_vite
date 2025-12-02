@@ -222,7 +222,7 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
         if (!feedback || !feedback.includes("IMG") || !generation_id) return;
 
         const pollImg = async () => {
-            const retryDelay = 3; // seconds
+            const retryDelay = 5; // seconds
 
             // if we already have a fetched image URL, mark ready
             if (imageUrl) {
