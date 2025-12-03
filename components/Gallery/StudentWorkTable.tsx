@@ -209,7 +209,7 @@ const RenderTableRow: React.FC<RenderTableRowProps> = ({
       case 'awe_feedback': {
         return typeof value === 'string'
           ? <MarkdownViewer content={value} />
-          : "No Feedback";
+          : "No Evaluation";
         }
       case 'grammar_errors': {
         if (Array.isArray(value)) {
