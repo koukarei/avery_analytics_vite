@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 
-import React, { useState, useRef, useEffect, useContext } from 'react';
+import React, { useState, useRef, useEffect, useContext, Dispatch, SetStateAction } from 'react';
 import { css } from "@emotion/react";
 import type { Leaderboard } from '../../types/leaderboard';
 import type { GalleryView } from '../../types/ui';
@@ -36,7 +36,7 @@ interface ImagePanelProps {
   onClick?: () => void; // Added for click navigation
   setCurrentImageUrl: (url: string) => void;
   loadedImageUrls: ImageUrlMap;
-  setLoadedImageUrls: (urls: ImageUrlMap) => void;
+  setLoadedImageUrls: Dispatch<SetStateAction<ImageUrlMap>>;
   randomLeaderboard: boolean;
 }
 
