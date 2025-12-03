@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { useState, useCallback, useEffect, useContext, type Dispatch, type SetStateAction } from 'react';
+import { useState, useCallback, useEffect, useContext, useRef, type Dispatch, type SetStateAction } from 'react';
 import { ImageGallery } from './ImageGallery';
 import { AddImageModal } from './AddImageModal';
 import type { GalleryView } from '../../types/ui';
@@ -42,6 +42,9 @@ export const GalleryBrowsing: React.FC<GalleryBrowsingProps> = ({ view, setView,
   const [ n_leaderboards, setN_Leaderboards ] = useState<number>(0);
   const limitLeaderboardIndex = 3;
   const test=false;
+  const isFetchRef = useRef<boolean>(false);
+  const lastFetchKeyRef = useRef<string>('');
+  const initialLoadRef = useRef<boolean>(true);
 
   const initialLoading = ()=>{
     setToLoadStart(0);
@@ -135,14 +138,9 @@ export const GalleryBrowsing: React.FC<GalleryBrowsingProps> = ({ view, setView,
           setN_Leaderboards(statsData.n_leaderboards || 0);
           setToLoadStart(pageParams?.skip || 0);
           setToLoadEnd(limitLeaderboardIndex);
-          fetchLeaderboards(currentUser?.is_admin || false).then(leaderboard => {
-            setLoadedLeaderboards([...leaderboard]);
-            setLoadedStart(toLoadStart);
-            setLoadedEnd(leaderboard.length);
-          }).catch(err => {
-            setErrorKey('error.fetch_leaderboards');
-            console.error("Failed to fetch leaderboards: ", err);
-          });
+
+          lastFetchKeyRef.current = "";
+          initialLoadRef.current = true;
         }
       }).catch(err => {
         setErrorKey('error.fetch_leaderboard_stats');
@@ -154,18 +152,39 @@ export const GalleryBrowsing: React.FC<GalleryBrowsingProps> = ({ view, setView,
   useEffect(() => {
     setErrorKey(null);
     if (currentUser) {
-      fetchLeaderboards(currentUser?.is_admin || false).then(leaderboard => {
+      const fetchKey = JSON.stringify({
+        skip: pageParams?.skip,
+        limit: pageParams?.limit,
+        listParams,
+        isAdmin: currentUser?.is_admin || false,
+      });
+
+      if (lastFetchKeyRef.current === fetchKey && !initialLoadRef.current) return;
+      if (isFetchRef.current) return;
+
+      isFetchRef.current = true;
+      fetchLeaderboards(currentUser?.is_admin || false).then(lbs => {
         if (toLoadEnd !== loadedEnd) {
-          setLoadedLeaderboards([...loadedLeaderboards, ...leaderboard]);
-          setLoadedEnd(prev => prev + leaderboard.length);
+          setLoadedLeaderboards([...loadedLeaderboards, ...lbs]);
+          setLoadedEnd(prev => prev + lbs.length);
         } else if (toLoadStart !== loadedStart) {
-          setLoadedLeaderboards([...leaderboard, ...loadedLeaderboards]);
-          setGalleryCurrentIndex(prev => prev + leaderboard.length);
+          setLoadedLeaderboards([...lbs, ...loadedLeaderboards]);
+          setGalleryCurrentIndex(prev => prev + lbs.length);
           setLoadedStart(prev=> (prev - 1 + n_leaderboards) % n_leaderboards);
+        } else {
+          // fallback / initial full replace
+          setLoadedLeaderboards([...lbs]);
+          setLoadedStart(toLoadStart);
+          setLoadedEnd(lbs.length);
         }
+
+        lastFetchKeyRef.current = fetchKey;
+        initialLoadRef.current = false;
       }).catch(err => {
         setErrorKey('error.fetch_leaderboards');
         console.error("Failed to fetch leaderboards: ", err);
+      }).finally(() => {
+        isFetchRef.current = false;
       });
     }
   }, [pageParams]);

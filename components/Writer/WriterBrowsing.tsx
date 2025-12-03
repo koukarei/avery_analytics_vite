@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { useState, useCallback, useEffect, useContext } from 'react';
+import { useState, useCallback, useEffect, useContext, useRef } from 'react';
 import { ImageGallery } from './ImageGallery';
 import type { GalleryView } from '../../types/ui';
 import { css } from "@emotion/react";
@@ -40,6 +40,9 @@ export const WriterBrowsing: React.FC<WriterBrowsingProps> = ({ view, setView, s
 
   const limitLeaderboardIndex = randomLeaderboard ? 5 : 3;
   const { shufflingLeaderboards, currentStartedIndex } = useContext(RandomLeaderboardContext);
+  const isFetchRef = useRef<boolean>(false);
+  const lastFetchKeyRef = useRef<string>('');
+  const initialLoadRef = useRef<boolean>(true);
 
   const initialLoading = ()=>{
     setToLoadStart(0);
@@ -133,22 +136,9 @@ export const WriterBrowsing: React.FC<WriterBrowsingProps> = ({ view, setView, s
           setN_Leaderboards(statsData.n_leaderboards || 0);
           setToLoadStart(pageParams?.skip || 0);
           setToLoadEnd(limitLeaderboardIndex);
-            fetchLeaderboards(currentUser?.is_admin || false).then(leaderboard => {
-            //shuffle for random school
-            if (randomLeaderboard) {
-              Promise.resolve(shufflingLeaderboards(leaderboard)).then(orderedLeaderboards => {
-                setLoadedLeaderboards([...orderedLeaderboards]);
-              });
-            } else {
-              setLoadedLeaderboards([...leaderboard]);
-            }
-            
-            setLoadedStart(toLoadStart);
-            setLoadedEnd(leaderboard.length);
-          }).catch(err => {
-            setErrorKey('error.fetch_leaderboards');
-            console.error("Failed to fetch leaderboards: ", err);
-          });
+
+          lastFetchKeyRef.current = "";
+          initialLoadRef.current = true;
         }
       }).catch(err => {
         setErrorKey('error.fetch_leaderboard_stats');
@@ -168,18 +158,45 @@ export const WriterBrowsing: React.FC<WriterBrowsingProps> = ({ view, setView, s
   useEffect(() => {
     setErrorKey(null);
     if (currentUser) {
-      fetchLeaderboards(currentUser?.is_admin || false).then(leaderboard => {
-        if (toLoadEnd !== loadedEnd) {
-          setLoadedLeaderboards([...loadedLeaderboards, ...leaderboard]);
-          setLoadedEnd(prev => prev + leaderboard.length);
-        } else if (toLoadStart !== loadedStart) {
-          setLoadedLeaderboards([...leaderboard, ...loadedLeaderboards]);
-          setGalleryCurrentIndex(prev => prev + leaderboard.length);
-          setLoadedStart(prev=> (prev - 1 + n_leaderboards) % n_leaderboards);
+      const fetchKey = JSON.stringify({
+        skip: pageParams?.skip,
+        limit: pageParams?.limit,
+        listParams,
+        isAdmin: currentUser?.is_admin || false,
+      });
+
+      if (lastFetchKeyRef.current === fetchKey && !initialLoadRef.current) return;
+      if (isFetchRef.current) return;
+      
+      isFetchRef.current = true;
+      fetchLeaderboards(currentUser?.is_admin || false).then(lbs => {
+        // if random leaderboard, shuffle the fetched leaderboards
+        if (randomLeaderboard ) {
+          Promise.resolve(shufflingLeaderboards(lbs)).then(orderedLeaderboards =>{
+            setLoadedLeaderboards([...orderedLeaderboards]);
+          })
         }
+
+        if (toLoadEnd !== loadedEnd) {
+          setLoadedLeaderboards([...loadedLeaderboards, ...lbs]);
+          setLoadedEnd(prev => prev + lbs.length);
+        } else if (toLoadStart !== loadedStart) {
+          setLoadedLeaderboards([...lbs, ...loadedLeaderboards]);
+          setGalleryCurrentIndex(prev => prev + lbs.length);
+          setLoadedStart(prev=> (prev - 1 + n_leaderboards) % n_leaderboards);
+        } else {
+          // fallback / initial full replace
+          setLoadedLeaderboards([...lbs]);
+          setLoadedStart(toLoadStart);
+          setLoadedEnd(lbs.length);
+        }
+        lastFetchKeyRef.current = fetchKey;
+        initialLoadRef.current = false;
       }).catch(err => {
-        setErrorKey('error.fetch_leaderboards');
+       setErrorKey('error.fetch_leaderboards');
         console.error("Failed to fetch leaderboards: ", err);
+      }).finally(() => {
+        isFetchRef.current = false;
       });
     }
   }, [pageParams]);
