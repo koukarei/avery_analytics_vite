@@ -42,7 +42,7 @@ const GenerationListProvider = ({
 type GenerationImageContextType = {
   image: string | null;
   loading: boolean;
-  fetchImage: ({ generation_id }: { generation_id: number }) => Promise<string | null>;
+  fetchImage: ({ generation_id, retryLimit }: { generation_id: number, retryLimit?: number }) => Promise<string | null>;
 };
 
 const GenerationImageContext = createContext({} as GenerationImageContextType);
@@ -55,9 +55,8 @@ const GenerationImageProvider = ({
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const fetchImage = useCallback(async ({ generation_id }: { generation_id: number }) => {
+  const fetchImage = useCallback(async ({ generation_id, retryLimit = 10 }: { generation_id: number, retryLimit?: number }) => {
     setLoading(true);
-    const retryLimit = 10;
     const retryDelay = 5; // seconds
     let attempt = 0;
 

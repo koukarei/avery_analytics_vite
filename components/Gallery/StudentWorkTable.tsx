@@ -372,7 +372,7 @@ const RoundRow: React.FC<{ rank: number; showStudentNames: boolean; row: Data }>
               if (!detail) return null;
 
               const [image, evaluation_msg] = await Promise.all([
-                fetchImage({ generation_id: id }),
+                fetchImage({ generation_id: id, retryLimit: 1 }),
                 fetchEvaluation(id)
               ]);
               return createWritingData(detail, image, evaluation_msg);
