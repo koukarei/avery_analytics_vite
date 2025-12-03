@@ -61,17 +61,8 @@ export const RandomLeaderboardProvider = ({
           unfinished = newShuffle.filter(lb => lb.started && lb.submitted_writing_number < 2);
         } 
 
-        const unfinishedBoards = unfinished
-          .map(ulb => lbs.find(lb => lb.id === ulb.leaderboard_id))
-          .filter((lb): lb is Leaderboard => !!lb);
-
-        const remaining = lbs.filter(lb => !unfinished.find(u => u.leaderboard_id === lb.id));
-
-        const orderedLeaderboards: Leaderboard[] = [
-        ...remaining[0] ? [remaining[0]] : [],
-        ...unfinishedBoards,
-        ...remaining.slice(1),
-        ];
+        //order the leaderboards by newShuffle order
+        const orderedLeaderboards: Leaderboard[] = newShuffle.map(s => lbs.find(lb => lb.id === s.leaderboard_id)!).filter(lb => lb !== undefined);
 
         // Persist and set state (replace with the constructed array)
         await setLeaderboards(newShuffle);
