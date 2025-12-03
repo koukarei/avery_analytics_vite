@@ -98,7 +98,11 @@ export const RandomLeaderboardProvider = ({
         const firstNotStarted = shuffleLeaderboards.find(lb => !lb.started);
         if (!firstNotStarted) return;
         await updateSingleLeaderboard(firstNotStarted.leaderboard_id, true, 0); // mark first not-started as started
-        setCurrentStartedIndex(shuffleLeaderboards.findIndex(lb => lb.leaderboard_id === firstNotStarted.leaderboard_id));
+        await (
+          async () => {
+            setCurrentStartedIndex(shuffleLeaderboards.findIndex(lb => lb.leaderboard_id === firstNotStarted.leaderboard_id));
+          }
+        )();
     };
 
     useEffect(() => {
