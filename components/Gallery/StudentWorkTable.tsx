@@ -202,7 +202,9 @@ const RenderTableRow: React.FC<RenderTableRowProps> = ({
         }</span>);
       }
       case 'img_feedback': {
-        return value ? <img src={value as string} alt="Interpreted" style={{ maxWidth: '100px', maxHeight: '100px' }} /> : "No Image";
+        return value === "No Image" ? "No Image" : (
+          <img src={value as string} alt="Feedback" style={{ maxWidth: '100px', maxHeight: '100px' }} />
+        )
       }
       case 'awe_feedback': {
         return typeof value === 'string'
