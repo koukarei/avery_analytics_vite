@@ -1,13 +1,14 @@
-import React, { createContext, useCallback, useEffect, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import type { Leaderboard, randomShuffleLeaderboard } from '../types/leaderboard';
 import { getCookie, setCookie } from '../util/cookieHelper';
 
 
 type RandomLeaderboardContextType = {
-  shufflingLeaderboards: (lbs: Leaderboard[]) => Leaderboard[];
+  shufflingLeaderboards: (lbs: Leaderboard[]) => Promise<Leaderboard[]>;
   shuffleLeaderboards: randomShuffleLeaderboard[];
-  updateLeaderboard: (leaderboard_id: number, started?: boolean, submitted_writing_number?: number) => void;
+  updateLeaderboard: (leaderboard_id: number, started?: boolean, submitted_writing_number?: number) => Promise<void>;
   unfinishedLeaderboards: randomShuffleLeaderboard[];
+  currentStartedIndex: number;
 };
 
 export const RandomLeaderboardContext = createContext({} as RandomLeaderboardContextType);
@@ -19,8 +20,9 @@ export const RandomLeaderboardProvider = ({
 }) => {
     const [ shuffleLeaderboards, setShuffleLeaderboards] = useState<randomShuffleLeaderboard[]>([]);
     const [ unfinishedLeaderboards, setUnfinishedLeaderboards ] = useState<randomShuffleLeaderboard[]>([]);
+    const [ currentStartedIndex, setCurrentStartedIndex ] = useState<number>(-1);
 
-    const shufflingLeaderboards = useCallback((lbs: Leaderboard[]) => {
+    const shufflingLeaderboards =async (lbs: Leaderboard[]) => {
         // Build the shuffle list from cookie + any leaderboards not present in cookie.
         const savedOrderRaw = getCookie('avery.random_leaderboard') || '[]';
         const savedOrder = JSON.parse(savedOrderRaw) as randomShuffleLeaderboard[] || [];
@@ -72,13 +74,17 @@ export const RandomLeaderboardProvider = ({
         ];
 
         // Persist and set state (replace with the constructed array)
-        setShuffleLeaderboards(newShuffle);
-        setUnfinishedLeaderboards(newShuffle.filter(lb => lb.started && lb.submitted_writing_number < 2));
+        await setLeaderboards(newShuffle);
+        await (
+          async () => {
+            setCurrentStartedIndex(orderedLeaderboards.findIndex(lb => lb.id === unfinished[0]?.leaderboard_id));
+          }
+        )();
 
         return orderedLeaderboards;
-    }, []);
+    };
 
-    const updateLeaderboard = (leaderboard_id: number, started?: boolean, submitted_writing_number?: number) => {
+    const updateSingleLeaderboard = async (leaderboard_id: number, started?: boolean, submitted_writing_number?: number) => {
         const updatedList = shuffleLeaderboards.map(lb => {
             if (lb.leaderboard_id === leaderboard_id) {
                 return {
@@ -89,8 +95,19 @@ export const RandomLeaderboardProvider = ({
             }
             return lb;
         });
-        setShuffleLeaderboards([...updatedList]);
-        setUnfinishedLeaderboards(updatedList.filter(lb => lb.started && lb.submitted_writing_number < 2));
+        
+        await setLeaderboards(updatedList);  
+        return;
+    };
+
+    const updateLeaderboard = async (leaderboard_id: number, started?: boolean, submitted_writing_number?: number) => {
+        await updateSingleLeaderboard(leaderboard_id, started, submitted_writing_number);
+        // Ensure there is always one unfinished leaderboard
+        if (unfinishedLeaderboards.length > 0 || shuffleLeaderboards.length === 0) return;
+        const firstNotStarted = shuffleLeaderboards.find(lb => !lb.started);
+        if (!firstNotStarted) return;
+        await updateSingleLeaderboard(firstNotStarted.leaderboard_id, true, 0); // mark first not-started as started
+        setCurrentStartedIndex(shuffleLeaderboards.findIndex(lb => lb.leaderboard_id === firstNotStarted.leaderboard_id));
     };
 
     useEffect(() => {
@@ -98,19 +115,14 @@ export const RandomLeaderboardProvider = ({
         setCookie('avery.random_leaderboard', JSON.stringify(shuffleLeaderboards), 30);
     }, [shuffleLeaderboards])
 
-    useEffect(() => {
-        if (unfinishedLeaderboards.length > 0 || shuffleLeaderboards.length === 0) return;
-        const firstNotStarted = shuffleLeaderboards.find(lb => !lb.started);
-        if (!firstNotStarted) return;
-        updateLeaderboard(firstNotStarted.leaderboard_id, true, 0); // mark first not-started as started
-        
-    }, [unfinishedLeaderboards])
-
-
+    const setLeaderboards = async (lbs: randomShuffleLeaderboard[]) => {
+        setShuffleLeaderboards([...lbs]);
+        setUnfinishedLeaderboards(lbs.filter(lb => lb.started && lb.submitted_writing_number < 2));
+    };
 
   return (
     <RandomLeaderboardContext.Provider value={{ 
-        shufflingLeaderboards, shuffleLeaderboards, updateLeaderboard, unfinishedLeaderboards
+        shufflingLeaderboards, shuffleLeaderboards, updateLeaderboard, unfinishedLeaderboards, currentStartedIndex
     }}>
       {children}
     </RandomLeaderboardContext.Provider>

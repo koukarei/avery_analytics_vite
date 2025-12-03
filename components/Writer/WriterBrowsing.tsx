@@ -39,7 +39,7 @@ export const WriterBrowsing: React.FC<WriterBrowsingProps> = ({ view, setView, s
   const randomLeaderboard = currentUser?.school == 'random' ? true : false;
 
   const limitLeaderboardIndex = randomLeaderboard ? 5 : 3;
-  const { shufflingLeaderboards } = useContext(RandomLeaderboardContext);
+  const { shufflingLeaderboards, currentStartedIndex } = useContext(RandomLeaderboardContext);
 
   const initialLoading = ()=>{
     setToLoadStart(0);
@@ -156,6 +156,14 @@ export const WriterBrowsing: React.FC<WriterBrowsingProps> = ({ view, setView, s
       });
     }
   }, [listParams]);
+
+  // Sync gallery index to the provider's calculated started index once it's set.
+  useEffect(() => {
+    if (!randomLeaderboard) return;
+    if (typeof currentStartedIndex === 'number' && currentStartedIndex >= 0) {
+      setGalleryCurrentIndex(currentStartedIndex);
+    }
+  }, [currentStartedIndex, randomLeaderboard]);
   
   useEffect(() => {
     setErrorKey(null);

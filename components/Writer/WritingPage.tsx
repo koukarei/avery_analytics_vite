@@ -90,10 +90,12 @@ export const Writing: React.FC<WritingProps> = ({
     const wsClientRef = useRef<socketCls | null>(null);
     const { t } = useLocalization();
 
-    const updateSubmittedWritingNumber = (number: number) => {
+    const updateSubmittedWritingNumber = async (submitted_writing_number: number) => {
+        
         if (currentUser?.school === 'random') {
-            updateLeaderboard(leaderboard_id, true, number);
+            await updateLeaderboard(leaderboard_id, true, submitted_writing_number);
         }
+        return;
     };
     
     const handleSubmitWriting = () => {
@@ -240,7 +242,6 @@ export const Writing: React.FC<WritingProps> = ({
                                 setUserAction('change_display_name');
                                 break;
                             }
-                            updateSubmittedWritingNumber(generationTime + 1);
                             setUserAction('evaluate');
                             break;
                         }
@@ -279,6 +280,10 @@ export const Writing: React.FC<WritingProps> = ({
             setIsLoading(false);
         }
     }, [userAction]);
+
+    useEffect(() => {
+        updateSubmittedWritingNumber(generationTime);
+    }, [generationTime]);
 
     if (isLoading) {
         return <LoadingSpinner />;
