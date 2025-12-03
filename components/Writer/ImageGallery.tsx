@@ -64,6 +64,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   const [ displayText, setDisplayText ] = useState<string>('');
   
   const { unfinishedLeaderboards, shuffleLeaderboards } = useContext(RandomLeaderboardContext);
+  const isFetchingRef = useRef<boolean>(false);
   
   let transformClasses = 'transition-all duration-700 ease-in-out transform-gpu'; 
   let opacityClass = 'opacity-100';
@@ -85,7 +86,10 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
 
   
   useEffect(() => {
+    if (isFetchingRef.current) return; // Prevent duplicate fetches
+    
     const loadImage = async () => {
+      isFetchingRef.current = true;
       setErrorKey(null);
       try {
         if (leaderboard) {
@@ -105,6 +109,8 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
       } catch (err) {
         setErrorKey('error.fetch_leaderboard_image');
         console.error("Failed to fetch leaderboard image: ", err);
+      } finally {
+        isFetchingRef.current = false;
       }
     };
 
