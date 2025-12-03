@@ -57,6 +57,9 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   const [ errorKey, setErrorKey ] = useState<string | null>(null);
   const [ loadedImageUrl, setLoadedImageUrl ] = useState<string | null>(null);
   const [ warningMsg, setWarningMsg ] = useState<string>('');
+
+  const isFetchingRef = useRef<boolean>(false);
+
   let transformClasses = 'transition-all duration-700 ease-in-out transform-gpu'; 
   let opacityClass = 'opacity-100';
   
@@ -76,25 +79,38 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   }
 
   useEffect(() => {
-    setErrorKey(null);
-    if (leaderboard) {
-      if (loadedImageUrls[leaderboard.id]) {
-        const imgUrl = loadedImageUrls[leaderboard.id];
-        setLoadedImageUrl(imgUrl);
-        return;
-      }
-      fetchImage(leaderboard?.id).then(imageUrl => {
-        setLoadedImageUrl(imageUrl);
-        if (imageUrl) {
-          setLoadedImageUrls({...loadedImageUrls, [leaderboard.id]: imageUrl});
+    if (isFetchingRef.current) return; // Prevent duplicate fetches
+    
+    if (!leaderboard) {
+      setLoadedImageUrl(null);
+      return;
+    }
+
+    const cached = loadedImageUrls[leaderboard.id];
+    if (cached) {
+      setLoadedImageUrl(cached);
+      return;
+    }
+
+    const loadImage = async () => {
+      isFetchingRef.current = true;
+      setErrorKey(null);
+      try {
+        const fetchedImage = await fetchImage(leaderboard.id);
+        setLoadedImageUrl(fetchedImage);
+        if (fetchedImage) {
+          setLoadedImageUrls(prev => ({ ...prev, [leaderboard.id]: fetchedImage }));
         }
-        return;
-      }).catch(err => {
+      } catch (err) {
         setErrorKey('error.fetch_leaderboard_image');
         console.error("Failed to fetch leaderboard image: ", err);
-      });
-    }
-  }, [leaderboard?.id]);
+      } finally {
+        isFetchingRef.current = false;
+      }
+    };
+
+    loadImage();
+  }, [leaderboard, loadedImageUrl, fetchImage]);
   
   if (!leaderboard) {
     return (
@@ -327,8 +343,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
               setView('detail');
             } : undefined}
           />
-        </LeaderboardImageProvider>
-        <LeaderboardImageProvider>
+          
           <ImagePanel
             leaderboard={centerImage}
             setCurrentImageUrl={setCurrentImageUrl}
@@ -343,8 +358,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ setView, leaderboard
               setCurrentLeaderboard(centerImage);
             } : undefined}
           />
-        </LeaderboardImageProvider>
-        <LeaderboardImageProvider>
+          
           <ImagePanel
             leaderboard={rightImage}
             setCurrentImageUrl={setCurrentImageUrl}

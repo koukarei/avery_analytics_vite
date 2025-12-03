@@ -87,24 +87,28 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
   
   useEffect(() => {
     if (isFetchingRef.current) return; // Prevent duplicate fetches
-    
+
+    if (!leaderboard) {
+      setLoadedImageUrl(null);
+      return;
+    }
+
+    // If we've already cached the URL in the parent map, use it and don't fetch.
+    const cached = loadedImageUrls[leaderboard.id];
+    if (cached) {
+      setLoadedImageUrl(cached);
+      return;
+    }
+
     const loadImage = async () => {
       isFetchingRef.current = true;
       setErrorKey(null);
       try {
-        if (leaderboard) {
-          if (loadedImageUrls[leaderboard.id]) {
-            const imgUrl = loadedImageUrls[leaderboard.id];
-            setLoadedImageUrl(imgUrl);
-            return;
-          }
-          const fetchedImage = await fetchImage(leaderboard.id);
-          setLoadedImageUrl(fetchedImage);
-          if (fetchedImage) {
-            setLoadedImageUrls({...loadedImageUrls, [leaderboard.id]: fetchedImage});
-          };
-              
-          return;
+        const fetchedImage = await fetchImage(leaderboard.id);
+        setLoadedImageUrl(fetchedImage);
+        if (fetchedImage) {
+          // use functional update to avoid stale-map races
+          setLoadedImageUrls(prev => ({ ...prev, [leaderboard.id]: fetchedImage }));
         }
       } catch (err) {
         setErrorKey('error.fetch_leaderboard_image');
@@ -115,7 +119,7 @@ const ImagePanel: React.FC<ImagePanelProps> = ({
     };
 
     loadImage();
-  }, [leaderboard, loadedImageUrl]);
+  }, [leaderboard, loadedImageUrls, fetchImage]);
   
   
   useEffect(() => {
@@ -392,8 +396,6 @@ export const ImageGallery: React.FC<ImageGalleryProps> = (
             } : undefined}
             randomLeaderboard={randomLeaderboard}
           />
-        </LeaderboardImageProvider>
-        <LeaderboardImageProvider>
           <ImagePanel
             leaderboard={centerImage}
             setCurrentImageUrl={setCurrentImageUrl}
@@ -409,8 +411,6 @@ export const ImageGallery: React.FC<ImageGalleryProps> = (
             } : undefined}
             randomLeaderboard={randomLeaderboard}
           />
-        </LeaderboardImageProvider>
-        <LeaderboardImageProvider>
           <ImagePanel
             leaderboard={rightImage}
             setCurrentImageUrl={setCurrentImageUrl}
