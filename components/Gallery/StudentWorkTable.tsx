@@ -125,7 +125,7 @@ function createData(
 };
 
 interface WritingColumn {
-  id: 'sentence' | 'correct_sentence' | 'img_feedback' | 'awe_feedback' | 'grammar_errors' | 'spelling_errors' | 'duration' | 'zero_corrections' | 'effective_corrections' | 'deletion' | 'substitution' | 'reorganization' | 'rewriting';
+  id: 'sentence' | 'correct_sentence' | 'img_feedback' | 'awe_feedback' | 'grammar_errors' | 'spelling_errors' | 'duration' | 'zero_corrections' | 'effective_corrections' | 'deletion' | 'substitution' | 'insertion' | 'reorganization' | 'rewriting';
   label: string;
   minWidth?: number;
   align?: 'right';
@@ -149,6 +149,7 @@ const writingColumns: readonly WritingColumn[] = [
   { id: 'effective_corrections', label: 'galleryView.Tab.leaderboard.roundTableHeader.effective_corrections', minWidth: 100, align: 'right' },
   { id: 'deletion', label: 'galleryView.Tab.leaderboard.roundTableHeader.deletion', minWidth: 100, align: 'right' },
   { id: 'substitution', label: 'galleryView.Tab.leaderboard.roundTableHeader.substitution', minWidth: 100, align: 'right' },
+  { id: 'insertion', label: 'galleryView.Tab.leaderboard.roundTableHeader.insertion', minWidth: 100, align: 'right' },
   { id: 'reorganization', label: 'galleryView.Tab.leaderboard.roundTableHeader.reorganization', minWidth: 100, align: 'right' },
   { id: 'rewriting', label: 'galleryView.Tab.leaderboard.roundTableHeader.rewriting', minWidth: 100, align: 'right' },
 ];
@@ -166,6 +167,7 @@ interface WritingData {
   effective_corrections: boolean;
   deletion: boolean;
   substitution: boolean;
+  insertion: boolean;
   reorganization: boolean;
   rewriting: boolean;
 };
@@ -202,13 +204,14 @@ function createWritingData(
   const effective_corrections = revisionOperations?.find(op => op.name === 'effective_corrections')?.checked || false;
   const deletion = revisionOperations?.find(op => op.name === 'deletion')?.checked || false;
   const substitution = revisionOperations?.find(op => op.name === 'substitution')?.checked || false;
+  const insertion = revisionOperations?.find(op => op.name === 'insertion')?.checked || false;
   const reorganization = revisionOperations?.find(op => op.name === 'reorganization')?.checked || false;
   const rewriting = revisionOperations?.find(op => op.name === 'rewriting')?.checked || false;
 
   return { 
     id,
     sentence, correct_sentence, img_feedback, awe_feedback, duration, grammar_errors, spelling_errors,
-    zero_corrections, effective_corrections, deletion, substitution, reorganization, rewriting
+    zero_corrections, effective_corrections, deletion, substitution, insertion, reorganization, rewriting
   };
 }
 
@@ -307,6 +310,9 @@ const RenderTableRow: React.FC<RenderTableRowProps> = ({
         return <Checkbox checked={getCheckboxValue(column.id)} onChange={handleClickRevisionCell} name={column.id} />;
 
       case 'substitution':
+        return <Checkbox checked={getCheckboxValue(column.id)} onChange={handleClickRevisionCell} name={column.id} />;
+
+      case 'insertion':
         return <Checkbox checked={getCheckboxValue(column.id)} onChange={handleClickRevisionCell} name={column.id} />;
 
       case 'reorganization':

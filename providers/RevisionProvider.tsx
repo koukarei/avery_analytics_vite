@@ -2,7 +2,7 @@ import React, { createContext, useState, useCallback } from "react";
 import { RevisionAPI } from "../api/Revision";
 
 interface RevisionOperation {
-  name: 'zero_corrections' | 'effective_corrections' | 'deletion' | 'substitution' | 'reorganization' | 'rewriting';
+  name: 'zero_corrections' | 'effective_corrections' | 'deletion' | 'substitution' | 'insertion' | 'reorganization' | 'rewriting';
   checked: boolean;
 }
 

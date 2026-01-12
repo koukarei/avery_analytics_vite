@@ -2,7 +2,7 @@ import type { RevisionUpdate } from "../types/studentWork";
 import { authAxios } from "./axios";
 
 interface RevisionOperation {
-  name: 'zero_corrections' | 'effective_corrections' | 'deletion' | 'substitution' | 'reorganization' | 'rewriting';
+  name: 'zero_corrections' | 'effective_corrections' | 'deletion' | 'substitution' | 'insertion' | 'reorganization' | 'rewriting';
   checked: boolean;
 }
 
