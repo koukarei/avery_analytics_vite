@@ -125,7 +125,7 @@ function createData(
 };
 
 interface WritingColumn {
-  id: 'sentence' | 'correct_sentence' | 'img_feedback' | 'awe_feedback' | 'grammar_errors' | 'spelling_errors' | 'duration' | 'zero_corrections' | 'effective_corrections' | 'deletion' | 'substitution' | 'insertion' | 'reorganization' | 'rewriting';
+  id: 'sentence' | 'correct_sentence' | 'img_feedback' | 'awe_feedback' | 'grammar_errors' | 'spelling_errors' | 'duration' | 'zero_corrections' | 'effective_corrections' | 'deletion' | 'substitution' | 'insertion' | 'reorganization' | 'rewriting' | 'off_task';
   label: string;
   minWidth?: number;
   align?: 'right';
@@ -152,6 +152,7 @@ const writingColumns: readonly WritingColumn[] = [
   { id: 'insertion', label: 'galleryView.Tab.leaderboard.roundTableHeader.insertion', minWidth: 100, align: 'right' },
   { id: 'reorganization', label: 'galleryView.Tab.leaderboard.roundTableHeader.reorganization', minWidth: 100, align: 'right' },
   { id: 'rewriting', label: 'galleryView.Tab.leaderboard.roundTableHeader.rewriting', minWidth: 100, align: 'right' },
+  { id: 'off_task', label: 'galleryView.Tab.leaderboard.roundTableHeader.off_task', minWidth: 100, align: 'right' },
 ];
 
 interface WritingData {
@@ -170,6 +171,7 @@ interface WritingData {
   insertion: boolean;
   reorganization: boolean;
   rewriting: boolean;
+  off_task: boolean;
 };
 
 interface RevisionOperations {
@@ -207,11 +209,11 @@ function createWritingData(
   const insertion = revisionOperations?.find(op => op.name === 'insertion')?.checked || false;
   const reorganization = revisionOperations?.find(op => op.name === 'reorganization')?.checked || false;
   const rewriting = revisionOperations?.find(op => op.name === 'rewriting')?.checked || false;
-
+  const off_task = revisionOperations?.find(op => op.name === 'off_task')?.checked || false;
   return { 
     id,
     sentence, correct_sentence, img_feedback, awe_feedback, duration, grammar_errors, spelling_errors,
-    zero_corrections, effective_corrections, deletion, substitution, insertion, reorganization, rewriting
+    zero_corrections, effective_corrections, deletion, substitution, insertion, reorganization, rewriting, off_task
   };
 }
 
@@ -319,6 +321,9 @@ const RenderTableRow: React.FC<RenderTableRowProps> = ({
         return <Checkbox checked={getCheckboxValue(column.id)} onChange={handleClickRevisionCell} name={column.id} />;
 
       case 'rewriting':
+        return <Checkbox checked={getCheckboxValue(column.id)} onChange={handleClickRevisionCell} name={column.id} />;
+
+      case 'off_task':
         return <Checkbox checked={getCheckboxValue(column.id)} onChange={handleClickRevisionCell} name={column.id} />;
 
       default:

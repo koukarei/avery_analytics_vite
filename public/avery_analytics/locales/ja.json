@@ -80,6 +80,7 @@
   "galleryView.Tab.leaderboard.roundTableHeader.insertion": "Insertion",
   "galleryView.Tab.leaderboard.roundTableHeader.reorganization": "Reorganization",
   "galleryView.Tab.leaderboard.roundTableHeader.rewriting": "Rewriting",
+  "galleryView.Tab.leaderboard.roundTableHeader.off_task": "Off-Task",
 
   "galleryView.Tab.leaderboard.anonymous": "匿名",
   "galleryView.Tab.leaderboard.you": "あなた",
