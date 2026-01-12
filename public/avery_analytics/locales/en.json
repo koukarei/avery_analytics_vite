@@ -73,6 +73,12 @@
   "galleryView.Tab.leaderboard.roundTableHeader.duration": "Duration",
   "galleryView.Tab.leaderboard.roundTableHeader.grammar_errors": "Grammar\u00a0Errors",
   "galleryView.Tab.leaderboard.roundTableHeader.spelling_errors": "Spelling\u00a0Errors",
+  "galleryView.Tab.leaderboard.roundTableHeader.zero_corrections": "Zero\u00a0Corrections",
+  "galleryView.Tab.leaderboard.roundTableHeader.effective_corrections": "Effective\u00a0Corrections",
+  "galleryView.Tab.leaderboard.roundTableHeader.deletion": "Deletion",
+  "galleryView.Tab.leaderboard.roundTableHeader.substitution": "Substitution",
+  "galleryView.Tab.leaderboard.roundTableHeader.reorganization": "Reorganization",
+  "galleryView.Tab.leaderboard.roundTableHeader.rewriting": "Rewriting",
 
   "galleryView.Tab.leaderboard.anonymous": "Anonymous",
   "galleryView.Tab.leaderboard.you": "You",
