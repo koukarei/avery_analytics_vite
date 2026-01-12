@@ -38,6 +38,12 @@ export interface ChatStats {
   n_assistant_messages: number;
 }
 
+export interface RevisionUpdate {
+  id: number;
+  name: string;
+  checked: boolean;
+}
+
 export interface StudentWork {
   student: Student;
   writings: WritingEntry[];

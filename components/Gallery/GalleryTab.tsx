@@ -17,6 +17,7 @@ import { GALLERY_DETAIL_VIEWS } from '../../types/ui';
 import { LeaderboardDetail } from './GalleryDetail';
 import { LeaderboardItemProvider, LeaderboardSchoolProvider, LeaderboardRoundProvider } from '../../providers/LeaderboardProvider';
 import { GenerationDetailProvider, GenerationImageProvider, GenerationEvaluationProvider } from '../../providers/GenerationProvider';
+import { RevisionProvider } from '../../providers/RevisionProvider';
 import { LeaderboardSettings } from './LeaderboardSettings';
 import { ChatStatsProvider } from '../../providers/ChatProvider';
 import { AuthUserContext } from '../../providers/AuthUserProvider';
@@ -144,7 +145,9 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({
                     <GenerationDetailProvider>
                       <GenerationImageProvider>
                         <GenerationEvaluationProvider>
-                          <StudentWorkTable leaderboard_id={leaderboard.id} program_name={curProgram ? curProgram.name : ''} showStudentNames={showStudentNames } />
+                          <RevisionProvider>
+                            <StudentWorkTable leaderboard_id={leaderboard.id} program_name={curProgram ? curProgram.name : ''} showStudentNames={showStudentNames } />
+                          </RevisionProvider>
                         </GenerationEvaluationProvider>
                       </GenerationImageProvider>
                     </GenerationDetailProvider>

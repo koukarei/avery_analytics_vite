@@ -19,12 +19,15 @@ import type { ChatMessage, ChatStats, GenerationDetail, Round } from '../../type
 import { LeaderboardRoundContext } from '../../providers/LeaderboardProvider';
 import { GenerationDetailContext, GenerationImageContext, GenerationEvaluationContext } from '../../providers/GenerationProvider';
 import { ChatStatsContext } from '../../providers/ChatProvider';
+import { RevisionContext } from '../../providers/RevisionProvider';
+import { RevisionAPI } from '../../api/Revision';
 import { AuthUserContext } from '../../providers/AuthUserProvider';
 import { useLocalization } from '../../contexts/localizationUtils';
 
 import { parseGrammarMistakes, parseSpellingMistakes } from '../../util/WritingMistake';
 import { compareWriting } from '../../util/CompareWriting';   
 import { MarkdownViewer } from '../../util/showMD';
+import { Checkbox } from '@mui/material';
 
 interface RoundColumn {
   id: 'student_name' | 'created_at' | 'number_of_writings' | 'number_of_messages_sent' | 'duration' | 'first_writing' | 'last_writing';
@@ -122,7 +125,7 @@ function createData(
 };
 
 interface WritingColumn {
-  id: 'sentence' | 'correct_sentence' | 'img_feedback' | 'awe_feedback' | 'grammar_errors' | 'spelling_errors' | 'duration';
+  id: 'sentence' | 'correct_sentence' | 'img_feedback' | 'awe_feedback' | 'grammar_errors' | 'spelling_errors' | 'duration' | 'zero_corrections' | 'effective_corrections' | 'deletion' | 'substitution' | 'reorganization' | 'rewriting';
   label: string;
   minWidth?: number;
   align?: 'right';
@@ -142,9 +145,16 @@ const writingColumns: readonly WritingColumn[] = [
   { id: 'duration', label: 'galleryView.Tab.leaderboard.roundTableHeader.duration', minWidth: 100, align: 'right' },
   { id: 'grammar_errors', label: 'galleryView.Tab.leaderboard.roundTableHeader.grammar_errors', minWidth: 170 },
   { id: 'spelling_errors', label: 'galleryView.Tab.leaderboard.roundTableHeader.spelling_errors', minWidth: 170 },
+  { id: 'zero_corrections', label: 'galleryView.Tab.leaderboard.roundTableHeader.zero_corrections', minWidth: 100, align: 'right' },
+  { id: 'effective_corrections', label: 'galleryView.Tab.leaderboard.roundTableHeader.effective_corrections', minWidth: 100, align: 'right' },
+  { id: 'deletion', label: 'galleryView.Tab.leaderboard.roundTableHeader.deletion', minWidth: 100, align: 'right' },
+  { id: 'substitution', label: 'galleryView.Tab.leaderboard.roundTableHeader.substitution', minWidth: 100, align: 'right' },
+  { id: 'reorganization', label: 'galleryView.Tab.leaderboard.roundTableHeader.reorganization', minWidth: 100, align: 'right' },
+  { id: 'rewriting', label: 'galleryView.Tab.leaderboard.roundTableHeader.rewriting', minWidth: 100, align: 'right' },
 ];
 
 interface WritingData {
+  id: number;
   sentence: string;
   correct_sentence: string;
   img_feedback: string;
@@ -152,13 +162,27 @@ interface WritingData {
   duration: string;
   grammar_errors: string[] | null;
   spelling_errors: string[] | null;
+  zero_corrections: boolean;
+  effective_corrections: boolean;
+  deletion: boolean;
+  substitution: boolean;
+  reorganization: boolean;
+  rewriting: boolean;
 };
+
+interface RevisionOperations {
+  name: string;
+  checked: boolean;
+  align?: 'right';
+}
 
 function createWritingData(
   generationData: GenerationDetail,
   image: string | null,
-  evaluation_msg: ChatMessage | null
+  evaluation_msg: ChatMessage | null,
+  revisionOperations: RevisionOperations[] | null
 ): WritingData {
+  const id = generationData.id;
   const sentence = generationData.sentence;
   const correct_sentence = generationData.correct_sentence? generationData.correct_sentence : "N/A";
   const img_feedback = image || "No Image";
@@ -174,8 +198,18 @@ function createWritingData(
 
   const grammar_errors = grammar_errors_arr.length > 0 ? grammar_errors_arr.map(mistake => ([mistake.extracted_text, "=>", mistake.correction].join("\u00a0"))) : ["No Grammar Errors"];
   const spelling_errors = spelling_errors_arr.length > 0 ? spelling_errors_arr.map(mistake => ([mistake.word,"=>", mistake.correction].join("\u00a0"))) : ["No Spelling Errors"];
+  const zero_corrections = revisionOperations?.find(op => op.name === 'zero_corrections')?.checked || false;
+  const effective_corrections = revisionOperations?.find(op => op.name === 'effective_corrections')?.checked || false;
+  const deletion = revisionOperations?.find(op => op.name === 'deletion')?.checked || false;
+  const substitution = revisionOperations?.find(op => op.name === 'substitution')?.checked || false;
+  const reorganization = revisionOperations?.find(op => op.name === 'reorganization')?.checked || false;
+  const rewriting = revisionOperations?.find(op => op.name === 'rewriting')?.checked || false;
 
-  return { sentence, correct_sentence, img_feedback, awe_feedback, duration, grammar_errors, spelling_errors };
+  return { 
+    id,
+    sentence, correct_sentence, img_feedback, awe_feedback, duration, grammar_errors, spelling_errors,
+    zero_corrections, effective_corrections, deletion, substitution, reorganization, rewriting
+  };
 }
 
 interface RenderTableRowProps {
@@ -192,8 +226,30 @@ const RenderTableRow: React.FC<RenderTableRowProps> = ({
   isLoading
 }) => {
   const { t } = useLocalization();
+  const [revisionStates, setRevisionStates] = useState<Record<number, Record<string, boolean>>>({});
 
-  const renderWritingTableCell = (column: WritingColumn, row: WritingData, value: string | number | null | string[]) => {
+  const renderWritingTableCell = (
+    column: WritingColumn, 
+    row: WritingData, 
+    value: string | number | null | string[] | boolean,
+  ) => {
+    
+    const handleClickRevisionCell = async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const name = event.target.name;
+      const checked = event.target.checked;
+      await RevisionAPI.updateRevision({ id: row.id, name, checked });
+      setRevisionStates(prevStates => ({
+        ...prevStates,
+        [row.id]: {
+          ...prevStates[row.id],
+          [name]: checked
+        }
+      }));
+    };
+    
+    const getCheckboxValue = (columnId: string): boolean => {
+      return revisionStates[row.id]?.[columnId] ?? (value as boolean);
+    };
     
     switch (column.id) {
       case 'correct_sentence': {
@@ -239,6 +295,25 @@ const RenderTableRow: React.FC<RenderTableRowProps> = ({
           return "No Spelling Errors";
         }
       }
+
+      case 'zero_corrections':
+        
+        return <Checkbox checked={getCheckboxValue(column.id)} onChange={handleClickRevisionCell} name={column.id} />;
+
+      case 'effective_corrections':
+        return <Checkbox checked={getCheckboxValue(column.id)} onChange={handleClickRevisionCell} name={column.id} />;
+
+      case 'deletion':
+        return <Checkbox checked={getCheckboxValue(column.id)} onChange={handleClickRevisionCell} name={column.id} />;
+
+      case 'substitution':
+        return <Checkbox checked={getCheckboxValue(column.id)} onChange={handleClickRevisionCell} name={column.id} />;
+
+      case 'reorganization':
+        return <Checkbox checked={getCheckboxValue(column.id)} onChange={handleClickRevisionCell} name={column.id} />;
+
+      case 'rewriting':
+        return <Checkbox checked={getCheckboxValue(column.id)} onChange={handleClickRevisionCell} name={column.id} />;
 
       default:
         return column.format && typeof value === 'number'
@@ -309,7 +384,8 @@ const RenderTableRow: React.FC<RenderTableRowProps> = ({
                             {renderWritingTableCell(column, row, value)}
                           </TableCell>
                         );
-                      })}
+                      })
+                      }
                     </TableRow>
                   );
                 })}
@@ -335,6 +411,7 @@ const RoundRow: React.FC<{ rank: number; showStudentNames: boolean; row: Data }>
   const { fetchDetail } = useContext(GenerationDetailContext);
   const { fetchImage } = useContext(GenerationImageContext);
   const { fetchEvaluation } = useContext(GenerationEvaluationContext);
+  const { fetchRevisionOperations } = useContext(RevisionContext);
   const [ writingRows, setWritingRows] = useState<WritingData[]>([]);
   const [errorKey, setErrorKey] = useState<string | null>(null);
 
@@ -373,11 +450,12 @@ const RoundRow: React.FC<{ rank: number; showStudentNames: boolean; row: Data }>
               });
               if (!detail) return null;
 
-              const [image, evaluation_msg] = await Promise.all([
+              const [image, evaluation_msg, revision_ops] = await Promise.all([
                 fetchImage({ generation_id: id, retryLimit: 1 }),
-                fetchEvaluation(id)
+                fetchEvaluation(id),
+                fetchRevisionOperations(id)
               ]);
-              return createWritingData(detail, image, evaluation_msg);
+              return createWritingData(detail, image, evaluation_msg, revision_ops);
             })
           );
           const validRows = results.filter((row): row is WritingData => row !== null);
