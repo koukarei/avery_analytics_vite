@@ -60,6 +60,7 @@ const ShowUserProfile: React.FC = () => {
           break;
         case "ishibe":
           window.location.href = "https://ishibe.leaf.ederc.jp/moodle/"
+          break;
         default:
           window.location.href = '/avery_analytics/login';
           break;
