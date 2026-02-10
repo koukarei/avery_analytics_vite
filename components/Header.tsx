@@ -58,6 +58,8 @@ const ShowUserProfile: React.FC = () => {
         case "newleaf":
           window.location.href = "https://newleaf.let.media.kyoto-u.ac.jp/moodle/course/view.php?id=2"
           break;
+        case "ishibe":
+          window.location.href = "https://ishibe.leaf.ederc.jp/moodle/"
         default:
           window.location.href = '/avery_analytics/login';
           break;
