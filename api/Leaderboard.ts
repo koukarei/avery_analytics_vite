@@ -169,15 +169,16 @@ export class LeaderboardAPI {
     return response.data;
   }
 
-  static async deleteLeaderboardSchool(leaderboard_id: number, school: string): Promise<School[]> {
-    const response = await authAxios.delete(`leaderboards/${leaderboard_id}/school/`, {
-      params: {
-        school: school
-      },
+  static async deleteLeaderboardSchool(id: number, data: Partial<LeaderboardSchoolUpdate>): Promise<School[]> {
+    const response = await authAxios.delete(`leaderboards/${id}/school/`, {
+      data,
       headers: sessionStorage.getItem("access_token")
         ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
         : {},
     });
+    if (response.status !== 200){
+      throw new Error(`Error updating leaderboard schools: ${response} `);
+    }
     return response.data;
   }
 

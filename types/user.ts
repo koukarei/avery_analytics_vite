@@ -13,6 +13,7 @@ export interface User {
   is_active?: boolean;
   school?: string;
   profiles: Profile;
+  course_id?: number;
 }
 
 export interface UsersStats {
