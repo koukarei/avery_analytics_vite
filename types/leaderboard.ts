@@ -182,7 +182,7 @@ export interface LeaderboardUpdate {
 }
 
 export interface LeaderboardSchoolUpdate {
-  id: number;
+  leaderboard_id: number;
   school: string;
   course_id?: number;
 }

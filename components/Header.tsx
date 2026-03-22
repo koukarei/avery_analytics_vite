@@ -5,6 +5,8 @@ import { useLocalization } from '../contexts/localizationUtils';
 import IconComponent from './icons/AVERYIcon';
 import LogoutIcon from './icons/LogoutIcon';
 import PersonIcon from '@mui/icons-material/Person';
+import SchoolIcon from '@mui/icons-material/School';
+import EmailIcon from '@mui/icons-material/Email';
 import MenuDrawer from './MenuDrawer';
 import { AuthUserContext } from '../providers/AuthUserProvider';
 import IconButton from '@mui/material/IconButton';
@@ -74,6 +76,10 @@ const ShowUserProfile: React.FC = () => {
   const open = Boolean(anchorEl);
   const id = open ? 'show-user-profile-popover' : undefined;
 
+  const school = currentUser?.school ? currentUser.school.charAt(0).toUpperCase() + currentUser.school.slice(1) : "";
+  const course = currentUser?.current_course ? currentUser.current_course.course_title : "";
+  const displaySchoolAndCourse = school && course ? `${school} (${course})` : school || course;
+
   return (
     <div>
       <IconButton css={iconStyle} aria-describedby={id} aria-label="user profile" onClick={handleClick}>
@@ -91,10 +97,19 @@ const ShowUserProfile: React.FC = () => {
       >
         <Card sx={{ minWidth: 300, maxWidth: 400 }}>
           <CardContent>
-            <Typography  gutterBottom variant="h5" component="div"> {loading? "loading" : (currentUser?.profiles.display_name)} </Typography>
-            <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}> {currentUser?.email} </Typography>
+            <Typography  gutterBottom variant="h5" component="div"> 
+              {loading? "loading" : (currentUser?.profiles.display_name)} 
+            </Typography>
+            <Typography  gutterBottom variant="body2" component="div"> 
+              <SchoolIcon css={profileIconStyle} />
+              {loading? "" : (displaySchoolAndCourse)} 
+            </Typography>
+            <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}> 
+              <EmailIcon css={profileIconStyle} />
+              {currentUser?.email} 
+            </Typography>
           </CardContent>
-          <CardActions>
+          <CardActions sx={{ justifyContent: 'flex-end' }}>
             <Button id="logout-button" sx={{ color: theme.palette.primary.dark }} onClick={handleLogout}>
               <LogoutIcon className='w-6 h-6' />
               Logout
@@ -123,10 +138,10 @@ const Header: React.FC = () => {
         <div className="flex space-x-2">
           <ShowUserProfile />
           <ProgramProvider>
-            <MenuDrawer 
-              setSettingModalOpen={setSettingModalOpen}
-              setTabName={setTabName}
-            />
+              <MenuDrawer 
+                setSettingModalOpen={setSettingModalOpen}
+                setTabName={setTabName}
+              />
           </ProgramProvider>
           <SettingModal
             open={settingModalOpen}
@@ -151,3 +166,12 @@ const iconStyle = css`
   justify-content: center;
   align-items: center;
 `;
+
+const profileIconStyle = css`
+  color: ${theme.palette.text.secondary};
+  width: 1.5rem; 
+  height: 1.5rem;
+  display: inline-block;
+  margin-right: 0.25rem; 
+`;
+

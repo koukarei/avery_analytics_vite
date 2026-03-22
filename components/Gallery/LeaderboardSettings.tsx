@@ -46,7 +46,7 @@ export const LeaderboardSettings: React.FC<LeaderboardSettingsProps> = ({ leader
       schoolSet.add(event.target.name);
       LeaderboardAPI.addLeaderboardSchools(
         leaderboard_id,
-        { id: leaderboard_id, school: event.target.name, course_id: authUserData?.currentUser?.course_id }
+        { leaderboard_id: leaderboard_id, school: event.target.name, course_id: authUserData?.currentUser?.course_id }
       ).then(
         (data)=>{ setSchoolSet(new Set(data.map(s => s.school))); }
       ).catch(err => {
@@ -57,7 +57,7 @@ export const LeaderboardSettings: React.FC<LeaderboardSettingsProps> = ({ leader
       schoolSet.delete(event.target.name);
       LeaderboardAPI.deleteLeaderboardSchool(
         leaderboard_id,
-        { id: leaderboard_id, school: event.target.name, course_id: authUserData?.currentUser?.course_id }
+        { leaderboard_id: leaderboard_id, school: event.target.name, course_id: authUserData?.currentUser?.course_id }
       ).then(
         (data)=>{ setSchoolSet(new Set(data.map(s => s.school))); }
       ).catch(err => {

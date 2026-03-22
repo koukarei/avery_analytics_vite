@@ -4,6 +4,13 @@ export interface Profile {
   level?: number;
 }
 
+export interface Course {
+  id: number;
+  course_id: string;
+  course_label: string;
+  course_title: string;
+}
+
 export interface User {
   id: number;
   username?: string;
@@ -14,6 +21,7 @@ export interface User {
   school?: string;
   profiles: Profile;
   course_id?: number;
+  current_course: Course;
 }
 
 export interface UsersStats {
