@@ -5,6 +5,7 @@ import { AuthUserContext } from '../../providers/AuthUserProvider';
 import { LeaderboardItemContext } from "../../providers/LeaderboardProvider";
 import { SceneContext } from "../../providers/SceneProvider";
 import { StoryContext } from "../../providers/StoryProvider";
+import { CourseContext } from "../../providers/CourseProvider";
 
 import { ViewLeaderboard, EditLeaderboard } from './LeaderboardForm';
 import { ErrorDisplay } from '../Common/ErrorDisplay';
@@ -19,6 +20,7 @@ export const LeaderboardDetail: React.FC<LeaderboardDetailProps> = ({ leaderboar
   const { leaderboard, loading, fetchLeaderboard } = useContext(LeaderboardItemContext);
   const { scenes, loading: scenesLoading, fetchScenes } = useContext(SceneContext);
   const { stories, loading: storiesLoading, fetchStories } = useContext(StoryContext);
+  const { courses, loading: coursesLoading, fetchCourses } = useContext(CourseContext);
   const [ errorKey, setErrorKey ] = useState<string | null>(null);
   
   useEffect(() => {
@@ -35,10 +37,14 @@ export const LeaderboardDetail: React.FC<LeaderboardDetailProps> = ({ leaderboar
       console.error("Failed to fetch stories: ", err);
       setErrorKey('error.fetch_stories');
     });
+    fetchCourses().catch(err => {
+      console.error("Failed to fetch courses: ", err);
+      setErrorKey('error.fetch_courses');
+    });
   }, [ leaderboard_id]);
   
   // Loading state
-  if ( loading || scenesLoading || storiesLoading || !leaderboard ) {
+  if ( loading || scenesLoading || storiesLoading || coursesLoading || !leaderboard ) {
     return <LoadingSpinner />;
   }
   if (errorKey) {
@@ -48,13 +54,13 @@ export const LeaderboardDetail: React.FC<LeaderboardDetailProps> = ({ leaderboar
   if (authUserData?.currentUser?.user_type === "student" && authUserData?.currentUser?.id !== leaderboard.created_by.id) {
     return (
         <Container sx={formContentStyle}>
-          <ViewLeaderboard leaderboard={leaderboard} scenes={scenes} stories={stories} />
+          <ViewLeaderboard leaderboard={leaderboard} scenes={scenes} stories={stories} courses={courses} />
         </Container>
     );
   } else {
     return (
       <Container sx={formContentStyle}>
-        <EditLeaderboard leaderboard={leaderboard} scenes={scenes} stories={stories} />
+        <EditLeaderboard leaderboard={leaderboard} scenes={scenes} stories={stories} courses={courses} />
       </Container>
     );
   }

@@ -16,6 +16,7 @@ import { Controller, useForm } from "react-hook-form";
 import { TextField } from "@mui/material";
 import { AddStoryModal } from "./AddStoryModal";
 import type { LeaderboardItem, LeaderboardDetail, LeaderboardUpdate, Scene, Story } from "../../types/leaderboard";
+import type { Course } from "../../types/user";
 import { LeaderboardAPI } from "../../api/Leaderboard";
 import { useLocalization } from "../../contexts/localizationUtils";
 
@@ -40,7 +41,8 @@ const rules = {
   },
 };
 
-function ViewLeaderboard({ leaderboard, scenes, stories }: { leaderboard: LeaderboardItem, scenes: Scene[], stories: Story[] }) {
+function ViewLeaderboard({ leaderboard, scenes, stories, courses }: { leaderboard: LeaderboardItem, scenes: Scene[], stories: Story[], courses: Course[] }) {
+  const { t } = useLocalization();
 
   const {
     control,
@@ -70,11 +72,36 @@ function ViewLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
                 { ...field }
                 fullWidth
                 disabled 
-                label="タイトル/ Title"
-                placeholder="タイトル"
+                label={ t("galleryView.form.title") }
+                placeholder={ t("galleryView.form.title") }
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
               />
+            )}
+          />
+        </div>
+        <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
+          <Controller
+            name="course_id"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                fullWidth
+                select
+                disabled
+                label={ t("galleryView.form.course") }
+                placeholder={ t("galleryView.form.course") }
+                error={errors[field.name] ? true : false}
+                helperText={(errors[field.name]?.message as string) || " "}
+              >
+                {Array.isArray(courses) && courses.map((course) => (
+                  <MenuItem key={course.id} value={course.id}>
+                    {course.course_title}
+                  </MenuItem>
+                ))}
+
+              </TextField>
             )}
           />
         </div>
@@ -87,7 +114,7 @@ function ViewLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoItem>
                   <DatePicker
-                    label="公開日/ Published Date"
+                    label={ t("galleryView.form.publishedAt") }
                     defaultValue={dayjs(leaderboard.published_at)}
                     disabled
                 />
@@ -106,8 +133,8 @@ function ViewLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
                 fullWidth
                 select
                 disabled
-                label="シーン/ Scene"
-                placeholder="シーン"
+                label={ t("galleryView.form.scene") }
+                placeholder={ t("galleryView.form.scene") }
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
               >
@@ -131,8 +158,8 @@ function ViewLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
                 fullWidth
                 select
                 disabled
-                label="ストーリー/ Story"
-                placeholder="ストーリー"
+                label={ t("galleryView.form.story") }
+                placeholder={ t("galleryView.form.story") }
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
               >
@@ -154,7 +181,7 @@ function ViewLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
   );
 }
 
-function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: LeaderboardItem, scenes: Scene[], stories: Story[] }) {
+function EditLeaderboard({ leaderboard, scenes, stories, courses }: { leaderboard: LeaderboardItem, scenes: Scene[], stories: Story[], courses: Course[] }) {
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
   const { listParams, setListParams } = useContext(LeaderboardListContext);
@@ -223,11 +250,35 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
               <TextField
                 { ...field }
                 fullWidth
-                label="タイトル/ Title"
-                placeholder="タイトル"
+                label={ t("galleryView.form.title")}
+                placeholder={ t("galleryView.form.title")}
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
               />
+            )}
+          />
+        </div>
+        <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
+          <Controller
+            name="course_id"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                fullWidth
+                select
+                label={ t("galleryView.form.course") }
+                placeholder={ t("galleryView.form.course") }
+                error={errors[field.name] ? true : false}
+                helperText={(errors[field.name]?.message as string) || " "}
+              >
+                {Array.isArray(courses) && courses.map((course) => (
+                  <MenuItem key={course.id} value={course.id}>
+                    {course.course_title}
+                  </MenuItem>
+                ))}
+
+              </TextField>
             )}
           />
         </div>
@@ -258,8 +309,8 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
               <TextField
                 { ...field }
                 fullWidth
-                label="作成者/ Created By"
-                placeholder="作成者"
+                label={ t("galleryView.form.createdBy") }
+                placeholder={ t("galleryView.form.createdBy") }
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
               />
@@ -274,7 +325,7 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
             render={({ field }) => (
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
-                  label="公開日/ Published Date"
+                  label={ t("galleryView.form.publishedAt") }
                   value={field.value ? dayjs(field.value) : null} // bind value
                   views={['year', 'month', 'day']}
                   onChange={(date) => {
@@ -300,8 +351,8 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
                 {...field}
                 fullWidth
                 select
-                label="シーン/ Scene"
-                placeholder="シーン"
+                label={ t("galleryView.form.scene") }
+                placeholder={ t("galleryView.form.scene") }
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
               >
@@ -324,8 +375,8 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
                 {...field}
                 fullWidth
                 select
-                label="ストーリー/ Story"
-                placeholder="ストーリー"
+                label={ t("galleryView.form.story") }
+                placeholder={ t("galleryView.form.story") }
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
                 slotProps={{
@@ -358,8 +409,8 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
                 multiline
                 minRows={2}
                 maxRows={6}
-                label="関連描述/ Related Narrative"
-                placeholder="関連描述"
+                label={ t("galleryView.form.description") }
+                placeholder={ t("galleryView.form.description") }
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
               />
@@ -370,7 +421,7 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
           <div css={errorMessageStyle}>{errors.root.message}</div>
         )}
         <button id="save-button" aria-describedby={id} type="submit" css={okButtonStyle (theme)}>
-          保存 / Save
+          { t("galleryView.form.save") }
         </button>
         <Popover
           id={id}
@@ -382,7 +433,7 @@ function EditLeaderboard({ leaderboard, scenes, stories }: { leaderboard: Leader
             horizontal: 'left',
           }}
         >
-          <Typography sx={{ p: 2 }}>リーダーボードの詳細が更新された!</Typography>
+          <Typography sx={{ p: 2 }}>{ t("galleryView.form.updatedMessage") }</Typography>
         </Popover>
       </form>
     </>

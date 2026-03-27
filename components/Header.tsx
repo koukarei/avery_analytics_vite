@@ -6,6 +6,7 @@ import IconComponent from './icons/AVERYIcon';
 import LogoutIcon from './icons/LogoutIcon';
 import PersonIcon from '@mui/icons-material/Person';
 import SchoolIcon from '@mui/icons-material/School';
+import BadgeIcon from '@mui/icons-material/Badge';
 import EmailIcon from '@mui/icons-material/Email';
 import MenuDrawer from './MenuDrawer';
 import { AuthUserContext } from '../providers/AuthUserProvider';
@@ -21,6 +22,7 @@ import {theme} from "../src/Theme";
 import { SETTING_TABS, type settingTabName } from '../types/ui';
 import { SettingModal } from './SettingModal/SettingModal';
 import { ProgramProvider } from '../providers/ProgramProvider';
+import { capitalizeFirstLetter } from '../util/strHandler';
 
 const ShowUserProfile: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -77,7 +79,7 @@ const ShowUserProfile: React.FC = () => {
   const id = open ? 'show-user-profile-popover' : undefined;
 
   const school = currentUser?.school ? currentUser.school.charAt(0).toUpperCase() + currentUser.school.slice(1) : "";
-  const course = currentUser?.current_course ? currentUser.current_course.course_title : "";
+  const course = currentUser?.current_course ? currentUser.current_course.course_title || currentUser.current_course.course_label || currentUser.current_course.course_id : "";
   const displaySchoolAndCourse = school && course ? `${school} (${course})` : school || course;
 
   return (
@@ -103,6 +105,10 @@ const ShowUserProfile: React.FC = () => {
             <Typography  gutterBottom variant="body2" component="div"> 
               <SchoolIcon css={profileIconStyle} />
               {loading? "" : (displaySchoolAndCourse)} 
+            </Typography>
+            <Typography  gutterBottom variant="body2" component="div"> 
+              <BadgeIcon css={profileIconStyle} />
+              {loading? "" : (capitalizeFirstLetter(currentUser?.user_type || ''))} 
             </Typography>
             <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}> 
               <EmailIcon css={profileIconStyle} />

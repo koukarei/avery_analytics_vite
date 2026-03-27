@@ -31,6 +31,9 @@ import {
 import {
   StoryProvider
 } from '../../providers/StoryProvider';
+import {
+  CourseProvider
+} from '../../providers/CourseProvider';
 
 import { useLocalization } from '../../contexts/localizationUtils';
 
@@ -162,9 +165,11 @@ export const GalleryTabs: React.FC<GalleryTabProps> = ({
               {leaderboard ? (
                 <SceneProvider>
                   <StoryProvider>
-                    <LeaderboardItemProvider>
-                      <LeaderboardDetail leaderboard_id={leaderboard.id} />
-                    </LeaderboardItemProvider>
+                    <CourseProvider>
+                      <LeaderboardItemProvider>
+                        <LeaderboardDetail leaderboard_id={leaderboard.id} />
+                      </LeaderboardItemProvider>
+                    </CourseProvider>
                   </StoryProvider>
                 </SceneProvider>
               ) : (

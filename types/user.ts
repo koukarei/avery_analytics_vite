@@ -7,8 +7,8 @@ export interface Profile {
 export interface Course {
   id: number;
   course_id: string;
-  course_label: string;
-  course_title: string;
+  course_label?: string;
+  course_title?: string;
 }
 
 export interface User {
