@@ -8,6 +8,7 @@ import type {
   LeaderboardAnalysisParams, 
   WordCloudParams, 
   LeaderboardUpdate, 
+  LeaderboardCourseUpdate,
   LeaderboardCreateAPI,
   LeaderboardSchoolUpdate,
   LeaderboardStartNew,
@@ -188,6 +189,16 @@ export class LeaderboardAPI {
       data.published_at = (typeof data.published_at === 'string') ? data.published_at : `${data.published_at.toISOString().split('T')[0]}T00:00:00Z`;
     }
     const response = await authAxios.put(`leaderboards/${id}/`, data, {
+      headers: sessionStorage.getItem("access_token")
+        ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
+        : {},
+    });
+    return response.data;
+  }
+
+  static async setLeaderboardSchools(id: number, data: LeaderboardCourseUpdate): Promise<School[]> {
+    
+    const response = await authAxios.post(`leaderboards/${id}/school`, data, {
       headers: sessionStorage.getItem("access_token")
         ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
         : {},

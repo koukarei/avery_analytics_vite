@@ -22,8 +22,13 @@ const LeaderboardItemProvider = ({
   const fetchLeaderboard = useCallback(async (leaderboard_id: number) => {
     setLoading(true);
     let leaderboardData: LeaderboardItem | null = null;
+    let leaderboardCourse: School[] = [];
     try {
       leaderboardData = await LeaderboardAPI.fetchLeaderboardDetail(leaderboard_id);
+      leaderboardCourse = await LeaderboardAPI.fetchLeaderboardSchools(leaderboard_id);
+      if (leaderboardData) {
+        leaderboardData.courses = leaderboardCourse;
+      }
       setLeaderboard(leaderboardData);
     } catch (e) {
       console.log(e);

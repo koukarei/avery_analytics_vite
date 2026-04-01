@@ -1,5 +1,4 @@
 import dayjs from "dayjs";
-import type { Course } from "./user";
 
 export interface GenerationItem {
   id: number;
@@ -109,6 +108,7 @@ export interface Stats {
 
 export interface School {
   school: string;
+  course_id?: number;
 }
 
 export interface LeaderboardStartNew {
@@ -150,7 +150,7 @@ export interface LeaderboardCreateAPI {
 export interface LeaderboardDetail {
   is_public?: boolean;
   title: string;
-  course_id?: number;
+  course_ids: number[];
   scene_id: number;
   story_id?: number | string | null;
   created_by: string;
@@ -169,7 +169,7 @@ export interface LeaderboardItem {
   original_image: IdOnly;
   scene: Scene;
   story?: Story;
-  course?: Course;
+  courses: School[];
   created_by: UserOut;
   vocabularies: Vocabulary[];
 }
@@ -181,8 +181,13 @@ export interface LeaderboardUpdate {
   title?: string;
   scene_id?: number;
   story_id?: number;
-  course_id?: number;
+  course_ids: number[];
   story_extract?: string;
+}
+
+export interface LeaderboardCourseUpdate {
+  leaderboard_id: number;
+  course_ids: number[];
 }
 
 export interface LeaderboardSchoolUpdate {

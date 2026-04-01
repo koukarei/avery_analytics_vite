@@ -3,9 +3,10 @@ import React, { useContext } from "react";
 import { css } from "@emotion/react";
 import type { Theme } from "@mui/material/styles";
 import MenuItem from "@mui/material/MenuItem";
+import type { SelectChangeEvent } from "@mui/material/Select";
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
-import { FormControlLabel, Checkbox } from "@mui/material";
+import { FormControlLabel, Checkbox, TextField, Chip, Box } from "@mui/material";
 import dayjs from 'dayjs';
 import { DemoItem } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -13,9 +14,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import {theme} from "../../src/Theme";
 import { Controller, useForm } from "react-hook-form";
-import { TextField } from "@mui/material";
 import { AddStoryModal } from "./AddStoryModal";
-import type { LeaderboardItem, LeaderboardDetail, LeaderboardUpdate, Scene, Story } from "../../types/leaderboard";
+import type { LeaderboardItem, LeaderboardDetail, LeaderboardUpdate, LeaderboardCourseUpdate, Scene, Story } from "../../types/leaderboard";
 import type { Course } from "../../types/user";
 import { LeaderboardAPI } from "../../api/Leaderboard";
 import { useLocalization } from "../../contexts/localizationUtils";
@@ -54,6 +54,7 @@ function ViewLeaderboard({ leaderboard, scenes, stories, courses }: { leaderboar
       published_at: leaderboard.published_at,
       scene_id: leaderboard.scene.id,
       story_id: leaderboard.story?.id ?? "",
+      course_ids: leaderboard.courses?.map((course) => course.course_id) || [],
       story_extract: leaderboard.story_extract,
       vocabularies: leaderboard.vocabularies,
     }
@@ -82,11 +83,12 @@ function ViewLeaderboard({ leaderboard, scenes, stories, courses }: { leaderboar
         </div>
         <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
           <Controller
-            name="course_id"
+            name="course_ids"
             control={control}
             render={({ field }) => (
               <TextField
                 {...field}
+                value={field.value ?? []}
                 fullWidth
                 select
                 disabled
@@ -94,13 +96,24 @@ function ViewLeaderboard({ leaderboard, scenes, stories, courses }: { leaderboar
                 placeholder={ t("galleryView.form.course") }
                 error={errors[field.name] ? true : false}
                 helperText={(errors[field.name]?.message as string) || " "}
+                SelectProps={{
+                  multiple: true,
+                  renderValue: (selected: unknown) => {
+                    const selectedIds = selected as Array<string | number>;
+                    return selectedIds
+                      .map((id) => {
+                        const matched = courses.find((course) => String(course.id) === String(id));
+                        return matched?.course_title || matched?.course_label || String(id);
+                      })
+                      .join(", ");
+                  },
+                }}
               >
                 {Array.isArray(courses) && courses.map((course) => (
                   <MenuItem key={course.id} value={course.id}>
-                    {course.course_title}
+                    {course.course_title || course.course_label || course.id}
                   </MenuItem>
                 ))}
-
               </TextField>
             )}
           />
@@ -201,6 +214,7 @@ function EditLeaderboard({ leaderboard, scenes, stories, courses }: { leaderboar
       published_at: leaderboard.published_at,
       scene_id: leaderboard.scene.id,
       story_id: leaderboard.story?.id ?? "",
+      course_ids: leaderboard.courses?.map((course) => course.course_id).filter((id): id is number => id !== undefined) ?? [],
       story_extract: leaderboard.story_extract,
     }
   });
@@ -214,10 +228,18 @@ function EditLeaderboard({ leaderboard, scenes, stories, courses }: { leaderboar
         is_public: data.is_public !== undefined ? data.is_public : true,
         scene_id: data.scene_id,
         story_id: data.story_id ? Number(data.story_id) : undefined,
+        course_ids: data.course_ids && data.course_ids.length > 0 ? data.course_ids.map(Number) : [],
         story_extract: data.story_extract,
       };
       await LeaderboardAPI.updateLeaderboard(leaderboard.id, data_LeaderboardUpdate);
       setAnchorEl(document.getElementById('save-button') as HTMLButtonElement);
+
+      const data_LeaderboardCourseUpdate: LeaderboardCourseUpdate = {
+        leaderboard_id: leaderboard.id,
+        course_ids: data.course_ids && data.course_ids.length > 0 ? data.course_ids.map(Number) : [],
+      }
+
+      await LeaderboardAPI.setLeaderboardSchools(leaderboard.id, data_LeaderboardCourseUpdate);
 
       const updatedParams = {
         published_at_start: dayjs(data_LeaderboardUpdate.published_at),
@@ -260,21 +282,63 @@ function EditLeaderboard({ leaderboard, scenes, stories, courses }: { leaderboar
         </div>
         <div css={formInputStyle} className="grid grid-flow-row auto-rows-max md:auto-rows-min">
           <Controller
-            name="course_id"
+            name="course_ids"
             control={control}
             render={({ field }) => (
               <TextField
                 {...field}
+                value={field.value ?? []}
                 fullWidth
                 select
                 label={ t("galleryView.form.course") }
                 placeholder={ t("galleryView.form.course") }
-                error={errors[field.name] ? true : false}
-                helperText={(errors[field.name]?.message as string) || " "}
+                error={errors.course_ids ? true : false}
+                helperText={(errors.course_ids?.message as string) || " "}
+                SelectProps={{
+                  multiple: true,
+                  onChange: (event: SelectChangeEvent<unknown>) => {
+                    const value = event.target.value;
+                    const valuesArray =
+                      typeof value === "string"
+                        ? value.split(",")
+                        : Array.isArray(value)
+                          ? value
+                          : [value];
+                    const selectedIds = valuesArray
+                      .filter((id): id is string | number => typeof id === "string" || typeof id === "number")
+                      .map((id) => Number(id));
+                    field.onChange(selectedIds);
+                  },
+                  renderValue: (selected: unknown) => {
+                    const selectedIds = selected as Array<string | number>;
+                    
+                    return (
+                      <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
+                        {selectedIds.map((id) => {
+                          const matched = courses.find((course) => String(course.id) === String(id));
+                          const label = matched?.course_title || matched?.course_label || String(id);
+                          return (
+                            <Chip 
+                              key={id} 
+                              label={label}
+                              onMouseDown={(e: React.MouseEvent) => {
+                                e.stopPropagation();
+                              }}
+                              onDelete={(e: React.MouseEvent) => {
+                                e.stopPropagation(); // Prevent the select dropdown from opening
+                                field.onChange((field.value ?? []).filter((v: number) => v !== Number(id)));
+                              }}
+                            />
+                          );
+                        })}
+                      </Box>
+                    ) 
+                  },
+                }}
               >
                 {Array.isArray(courses) && courses.map((course) => (
                   <MenuItem key={course.id} value={course.id}>
-                    {course.course_title}
+                    {course.course_title || course.course_label || course.id}
                   </MenuItem>
                 ))}
 
