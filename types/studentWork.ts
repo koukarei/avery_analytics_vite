@@ -131,3 +131,11 @@ export interface RoundUpdate {
   id: number;
   display_name?: string;
 }
+
+export interface WritingTrace {
+  id?: number;
+  round_id: number;
+  generation_id: number;
+  sentence: string;
+  created_at?: string;
+}

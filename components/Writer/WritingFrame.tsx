@@ -25,6 +25,7 @@ interface WritingFrameProps {
     submitWritingFn: () => void;
     disabledSubmit: boolean;
     isLoading: boolean;
+    recordWritingTrace: (sentence: string) => void;
 }
 
 function toHalfWidth(str: string): string {
@@ -46,7 +47,7 @@ function toHalfWidth(str: string): string {
     });
 }
 
-export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writingText, setWritingText, displayName, setDisplayName, showAsAnonymous, setShowAsAnonymous, submitWritingFn, disabledSubmit, isLoading }) => {
+export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writingText, setWritingText, displayName, setDisplayName, showAsAnonymous, setShowAsAnonymous, submitWritingFn, disabledSubmit, isLoading, recordWritingTrace }) => {
     const { t } = useLocalization();
 
     // if you keep local state:
@@ -176,6 +177,7 @@ export const WritingFrame: React.FC<WritingFrameProps> = ({ title,imageUrl, writ
                                     }
                                     onChange={(e) => {
                                         field.onChange(e);
+                                        recordWritingTrace(e.target.value);
                                         setWritingText(e.target.value);
                                     }}
                                 />

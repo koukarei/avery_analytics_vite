@@ -10,6 +10,7 @@ import { LeaderboardStartNewContext } from "../../providers/LeaderboardProvider"
 import { CustomSettingContext } from "../../contexts/CustomSettingContext";
 import { RandomLeaderboardContext } from "../../providers/randomLeaderboardProvider";
 import { AuthUserContext } from "../../providers/AuthUserProvider";
+import { WritingTraceAPI } from "../../api/WritingTrace";
 
 import { socketCls } from "./socketCls";
 
@@ -96,6 +97,19 @@ export const Writing: React.FC<WritingProps> = ({
             await updateLeaderboard(leaderboard_id, true, submitted_writing_number);
         }
         return;
+    };
+
+    const recordWritingTrace = async (sentence: string) => {
+        try {
+            await WritingTraceAPI.createWritingTrace({
+                round_id: roundId,
+                generation_id: writingGenerationId ? writingGenerationId : 0,
+                sentence: sentence,
+                created_at: new Date().toISOString(),
+            });
+        } catch (e) {
+            console.error("Failed to record writing trace: ", e);
+        }
     };
     
     const handleSubmitWriting = () => {
@@ -307,6 +321,7 @@ export const Writing: React.FC<WritingProps> = ({
                 submitWritingFn={handleSubmitWriting}
                 disabledSubmit={generationTime > 5 || toStartNew === false}
                 isLoading={isLoading || generatingLoading}
+                recordWritingTrace={recordWritingTrace}
             />
         </div>
     );
