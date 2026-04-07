@@ -25,7 +25,6 @@ import { useLocalization } from '../../contexts/localizationUtils';
 import { parseGrammarMistakes, parseSpellingMistakes } from '../../util/WritingMistake';
 import { compareWriting } from '../../util/CompareWriting';   
 import { MarkdownViewer } from '../../util/showMD';
-import { Checkbox } from '@mui/material';
 
 interface RoundColumn {
   id: 'student_name' | 'created_at' | 'number_of_writings' | 'number_of_messages_sent' | 'duration' | 'first_writing' | 'last_writing';
