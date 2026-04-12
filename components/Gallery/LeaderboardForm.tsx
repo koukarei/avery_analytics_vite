@@ -33,7 +33,7 @@ const rules = {
   story_extract: {
     maxLength: {
       value: 254,
-      message: "関連描述は 254 文字以内で入力してください",
+      message: "関連説明は 254 文字以内で入力してください",
     },
   },
   published_at: {

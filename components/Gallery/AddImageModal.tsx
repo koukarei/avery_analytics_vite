@@ -176,8 +176,8 @@ const InfoInputForm: React.FC<InfoInputFormProps> = ({ handleNext, handleBack, f
             minRows={2}
             maxRows={6}
             value={field.value || ''}
-            label="関連描述/ Related Narrative*"
-            placeholder="関連描述"
+            label="関連説明/ Related Narrative*"
+            placeholder="関連説明"
             error={errors[field.name] ? true : false}
             helperText={(errors[field.name]?.message as string) || " "}
           />
@@ -553,10 +553,10 @@ const rules = {
     },
   },
   story_extract: {
-    required: "関連描述を入力してください",
+    required: "関連説明を入力してください",
     maxLength: {
       value: 254,
-      message: "関連描述は 254 文字以内で入力してください",
+      message: "関連説明は 254 文字以内で入力してください",
     },
   },
   published_at: {
