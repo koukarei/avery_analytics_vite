@@ -231,21 +231,18 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
                 return;
             }
 
-            // if detailData already indicates an interpreted image, attempt to fetch it
-            if (detailData && (detailData.interpreted_image !== undefined && detailData.interpreted_image?.id !== undefined)) {
-                try {
-                    const fetchedImage = await fetchImage({ generation_id });
-                    if (imgCancelRef.current) return;
-                    if (fetchedImage && fetchedImage !== "") {
-                        setImageUrl(fetchedImage);
-                        setImgFeedbackLoaded(true);
-                        return;
-                    }
-                    // if fetchImage returned empty, fall through to retry loop
-                } catch (e) {
-                    console.error('pollImg fetchImage error', e);
-                    // continue to retry until limit
+            try {
+                const fetchedImage = await fetchImage({ generation_id });
+                if (imgCancelRef.current) return;
+                if (fetchedImage && fetchedImage !== "") {
+                    setImageUrl(fetchedImage);
+                    setImgFeedbackLoaded(true);
+                    return;
                 }
+                // if fetchImage returned empty, fall through to retry loop
+            } catch (e) {
+                console.error('pollImg fetchImage error', e);
+                // continue to retry until limit
             }
 
             if (imgAttemptsRef.current >= 5) {
