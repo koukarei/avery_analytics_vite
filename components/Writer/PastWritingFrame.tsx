@@ -273,7 +273,7 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
         pollImg();
 
         return () => { imgCancelRef.current = true; };
-    }, [feedback, generation_id, fetchDetail, detailData, fetchImage, imageUrl]);
+    }, [feedback, generation_id, fetchImage, imageUrl]);
 
     // Poll for evaluation up to 5 times when feedback requests AWE
     useEffect(() => {
@@ -314,7 +314,7 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
         pollAwe();
 
         return () => { aweCancelRef.current = true; };
-    }, [feedback, generation_id, fetchDetail, detailData]);
+    }, [feedback, generation_id]);
 
     // derive feedbackLoading from requested feedback + loaded flags
     useEffect(() => {
