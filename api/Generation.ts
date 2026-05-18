@@ -31,7 +31,7 @@ export class GenerationItemAPI {
   }
 
   static async fetchGenerationDetail(generation_id: number): Promise<GenerationDetail | null> {
-    const response = await authAxios.get(`generation/${generation_id}/`, {
+    const response = await authAxios.get(`generation/${generation_id}`, {
       headers: sessionStorage.getItem("access_token")
         ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
         : {},
@@ -41,7 +41,7 @@ export class GenerationItemAPI {
   }
 
   static async fetchGenerationEvaluation(generation_id: number): Promise<ChatMessage | null> {
-    const response = await authAxios.get(`evaluation_msg/${generation_id}/`, {
+    const response = await authAxios.get(`evaluation_msg/${generation_id}`, {
       headers: sessionStorage.getItem("access_token")
         ? { Authorization: `Bearer ${sessionStorage.getItem("access_token")}` }
         : {},

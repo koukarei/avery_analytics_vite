@@ -29,6 +29,7 @@ import { LoadingImagePanel } from '../Common/LoadingImage';
 
 import { GenerationDetailContext, GenerationImageContext, GenerationEvaluationContext } from '../../providers/GenerationProvider';
 import type { GenerationDetail } from '../../types/studentWork';
+import { UserActionAPI } from '../../api/UserAction';
 
 interface PastWritingsProps {
   generation_ids: number[];
@@ -337,12 +338,24 @@ const PastWritingContent: React.FC<PastWritingContentProps> = ({
         setFeedbackLoading(!(imgReady && aweReady));
     }, [feedback, imgFeedbackLoaded, aweFeedbackLoaded]);
 
+    const handleUserAction = async (action_name: string) => {
+        await UserActionAPI.createUserAction(
+        {
+            action: action_name,
+            related_id: generation_id ? generation_id : 0,
+            sent_at: new Date(),
+        }
+        )
+    }
+
 
     const handleClickShowImage = () => {
         setShowImage(!showImage);
+        handleUserAction(showImage ? "click_to_hide_img_feedback" : "click_to_show_img_feedback");
     };
     const handleClickShowAWE = () => {
         setShowAWE(!showAWE);
+        handleUserAction(showAWE ? "click_to_hide_awe_feedback" : "click_to_show_awe_feedback");
     };
         
     return (
